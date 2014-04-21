@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript">	
+		const NUMBEROFPARTICLES = 100;
+		var ran = 300;//Math.floor(document.getElementById('Canvas1').height/2);
+		var angle = 0;
+		var tmp = 0;
+		var tmp1 = -5;	
+		var globtoggle = 0;
+		
+		var sort_by = function(field, reverse, primer){
+			var key = function (x) {return primer ? primer(x[field]) : x[field]};
+			return function (a,b) {
+				var A = key(a), B = key(b);
+				return (A < B ? -1 : (A > B ? +1 : 0)) * [-1,1][+!!reverse];    
+				//return (A < B ? -1 : (A > B ? 1 : 0)) * [1,-1][+!!reverse];					   
+			}
+		}		
+		
+		function mycomparator(a,b) {
+			return parseInt(a.Size) - parseInt(b.Size);
+		}
+		
+		function ripple(PosX,PosY,Size,Color){
+			this.PosX=PosX;
+			this.PosY=PosY;
+			this.Size=Size;
+			this.Color=Color;
+		}
+		
+		function Setup(){Size = 1;
+			Size = 0;
+			document.getElementById('Canvas1').width = window.innerWidth-30;
+			document.getElementById('Canvas1').height = window.innerHeight-30;
+			for(i=0;i<=NUMBEROFPARTICLES;i++){
+				width = Math.floor(document.getElementById('Canvas1').width/2);
+				height = Math.floor(document.getElementById('Canvas1').height/2);
+				PosX = -5;;
+				PosY = height;;
+				Size = (i*4);	
+				color = Math.floor(255/NUMBEROFPARTICLES);
+				Color = 'rgba('+color+','+color+','+color+',250)';
+				ripple[i] = new ripple(PosX,PosY,Size,Color);
+			}		
+		}
+		
+		function randomFromTo(from, to){
+			return Math.floor(Math.random() * (to - from + 1) + from);
+		}			
+
+		function DelayDraw(ms){
+			setTimeout("move()", ms);
+			ripple.sort(sort_by('Size', true, parseInt));
+			ripple.sort(mycomparator);			
+		}
+	
+		function move(){
+			var ctx=document.getElementById("Canvas1").getContext("2d");
+			ctx.globalAlpha = 0.5;
+			ctx.fillStyle = 'rgb(0,0,0)';
+			//Black background
+			ctx.fillRect(0,0,document.getElementById('Canvas1').width,document.getElementById('Canvas1').height);
+			width = document.getElementById('Canvas1').width;
+			height = document.getElementById('Canvas1').height;				
+			
+			if(globtoggle){	
+				tmp += 0.1;
+				tmp1 += 5;				
+				tempy = Math.floor(Math.sin(tmp)*100)+(height/2);
+				if(tmp1 >= width){
+					tmp1 = -5;
+				}	
+				tempx = tmp1;				
+			} else {
+				angle++;
+				tempx = Math.floor(Math.sin(angle/10)*100+width/2);
+				tempy = Math.floor(Math.cos(angle/10)*100+height/2);				
+			}
+
+			ctx.fillStyle = 'rgb(255,0,0)';
+			ctx.fillRect(tempx-1,tempy-1,3,3);
+			color = Math.floor(255/NUMBEROFPARTICLES);
+			
+			for(i=0;i<=NUMBEROFPARTICLES;i++){
+				if(ripple[i].Size > ran){
+					ripple[i].Size = 0;
+					ripple[i].PosX = tempx;
+					ripple[i].PosY = tempy;	
+					ripple[i].Color = 'rgba('+color+','+color+','+color+',250)';
+				}
+				
+				color = ripple[i].Size;
+				ripple[i].Color = 'rgba('+color+','+color+','+color+',250)';
+				ctx.lineWidth = 4;
+				ctx.strokeStyle = ripple[i].Color;								
+				if(ripple[i].PosX > 0){
+					ctx.beginPath();
+					ctx.arc(ripple[i].PosX,ripple[i].PosY,ripple[i].Size,0,Math.PI*2,true);
+					ctx.stroke();	
+				}
+				ripple[i].Size += 4;							
+			}				
+			DelayDraw(24);				
+		}	
+		
+		function toggle(){
+			if(globtoggle){
+				globtoggle = 0;
+			} else {
+				globtoggle = 1;
+			}
+		}			
+				
+		function changeKey(which, to){
+			switch (which){
+				case 32: toggle(); break; // space bar;
+			}
+		}
+		document.onkeydown=function(e){changeKey((e||window.event).keyCode, 1);}		
+		</script>	
+	</head>
+	
+	<body onload="Setup(),DelayDraw(42)" bgcolor="#000000">
+		<canvas id="Canvas1" width="200" height="200" style="border:1px solid #c3c3c3;">
+			Your browser does not support the canvas element.
+		</canvas>
+	</body>
+
+</html>

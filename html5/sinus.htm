@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript">	
+		const NUMBEROFPARTICLES = 800;
+		var tmp = 0;
+		var toggle = 1;
+		var tmp1 = -5;
+		a = 0;
+
+		//the particle object
+		function particle(PosX,PosY,Size,Color,Speed)
+		{
+			this.PosX=PosX;
+			this.PosY=PosY;
+			this.Size=Size;
+			this.Color=Color;
+			this.Speed=Speed;
+		}
+	
+		function randomFromTo(from, to){
+			return Math.floor(Math.random() * (to - from + 1) + from);
+		}		
+		
+		function Setup(){
+			document.getElementById('myCanvas').width = window.innerWidth-20;
+			document.getElementById('myCanvas').height = window.innerHeight-20;	
+		
+			//setting up N instances of object ball
+			for(i=0;i<=NUMBEROFPARTICLES;i++){
+				PosX = Math.floor(Math.random()*document.getElementById('myCanvas').width);
+				PosY = randomFromTo(document.getElementById('myCanvas').height*-1,document.getElementById('myCanvas').height);
+				Size = randomFromTo(1,4);					
+				Speed = randomFromTo(1,10);
+				tmpcolor = Math.floor(Speed*(255/10));
+				Color = 'rgb('+tmpcolor+','+tmpcolor+','+tmpcolor+')';
+				particle[i] = new particle(PosX,PosY,Size,Color,Speed);
+			}			
+		}
+
+		function DelayDraw(ms){
+			setTimeout("drawstuff()", ms);
+		}
+		
+		function movestars(){
+			for(i=0;i<=NUMBEROFPARTICLES;i++){
+				if(particle[i].PosY >= document.getElementById('myCanvas').height){
+					particle[i].PosY = randomFromTo(0, document.getElementById('myCanvas').height)*-1;
+				}		
+				particle[i].PosY += particle[i].Speed;
+			}			
+		}
+	
+		function drawstuff(){
+			if(toggle){
+				movestars()
+			}
+			drawobjects();
+			DelayDraw(42);
+		}	
+		
+		function togglestars(){
+			if(toggle){
+				toggle = 0;
+			} else {
+				toggle = 1;
+			}
+		
+		}
+			
+		function drawobjects(){
+			var ctx=document.getElementById("myCanvas").getContext("2d");	
+			ctx.fillStyle = 'rgb(0,0,0)';
+			//Black background
+			ctx.fillRect(0,0,document.getElementById('myCanvas').width,document.getElementById('myCanvas').height);
+			
+			//no reason to continue once out of the canvas
+			if(tmp1 < document.getElementById('myCanvas').width){
+				tmp += 0.1;
+				ctx.strokeStyle = 'rgb(255,0,255)';	
+				tmp1 += 5;
+				a = Math.floor(Math.sin(tmp)*100);
+				ctx.lineTo(tmp1,a+250);			
+			}
+			
+			for(i=0;i<=NUMBEROFPARTICLES;i++){
+				ctx.fillStyle=particle[i].Color;
+				ctx.fillRect(particle[i].PosX,particle[i].PosY,1,1);				
+			}			
+			ctx.stroke();			
+		}			
+
+		function changeKey(which, to){
+			switch (which){
+				case 32: togglestars(); break; // space bar;
+			}
+		}
+		document.onkeydown=function(e){changeKey((e||window.event).keyCode, 1);}			
+			
+		</script>	
+	</head>
+	
+	<body onload="Setup(),DelayDraw(42)">
+		<canvas id="myCanvas" width="200" height="200" style="position:absolute;top:0,left:0;border:1px solid #c3c3c3;">
+			Your browser does not support the canvas element.
+		</canvas>
+	</body>
+</html>
