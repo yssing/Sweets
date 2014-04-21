@@ -1,0 +1,93 @@
+<html>
+<p><script language="JavaScript"><!--
+function vect(x, y, z)
+{
+	this.x=x;
+	this.y=y;
+	this.z=z;
+}
+function magnitude_f()
+{
+	return Math.sqrt(this.x*this.x+
+		this.y*this.y+this.z*this.z);	
+}
+vect.prototype.magnitude=magnitude_f;
+
+function dot_f(invect)
+{
+	return this.x*invect.x+this.y*invect.y+this.z*invect.z;
+}
+vect.prototype.dot=dot_f;
+
+function normalize_f()
+{
+	mag=this.magnitude();
+
+	alert("mag = "+mag);
+
+  	this.x=this.x/mag; 
+	this.y=this.y/mag; 
+	this.z=this.z/mag;
+}
+vect.prototype.normalize=normalize_f;
+
+function dotprod() {
+
+	v1=new vect(document.dotform.v1x.value,
+		document.dotform.v1y.value,
+		document.dotform.v1z.value)
+
+	v2=new vect(document.dotform.v2x.value,
+		document.dotform.v2y.value,
+		document.dotform.v2z.value)
+
+	answer=v1.dot(v2);
+
+	//normalize to prepare the angle calculation
+	v1.normalize();
+	v2.normalize();
+	
+	angle=Math.acos(v1.dot(v2))
+		*(180.0/Math.PI)
+	document.dotform.answer.value=answer;
+	document.dotform.angle.value=angle;
+}
+// --></script></p>
+
+<form name="dotform">
+    <table border="1">
+        <caption align="top">Dot Product Calculator</caption>
+        <tr>
+            <td><p align="center">Vector 1</p>
+            </td>
+            <td><p align="center">Vector2 </p>
+            </td>
+            <td><p align="center">Dot Product</p>
+            </td>
+        </tr>
+        <tr>
+            <td><input type="text" size="20" name="v1x" value="0"></td>
+            <td><input type="text" size="20" name="v2x" value="0"></td>
+            <td><p align="right">Dot: <input type="text"
+            size="20" name="answer" value="0"
+            onchange="dotprod()"></p>
+            </td>
+        </tr>
+        <tr>
+            <td><input type="text" size="20" name="v1y" value="0"></td>
+            <td><input type="text" size="20" name="v2y" value="0"></td>
+            <td>Angle:<input type="text" size="20" name="angle"
+            value="0" onchange"dotprod()"></td>
+        </tr>
+        <tr>
+            <td><input type="text" size="20" name="v1z" value="0"></td>
+            <td><input type="text" size="20" name="v2z" value="0"></td>
+            <td><input type="button" name="DoIt"
+            value="Calculate" onclick="dotprod()"></td>
+        </tr>
+    </table>
+</form>
+
+<p>&nbsp;</p>
+</body>
+</html>

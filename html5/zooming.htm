@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript">	
+		const NUMBEROFPARTICLES = 5000;
+		var angle = 0;
+		
+		function star(PosX,PosY,Size,Speed,Color,Angle){
+			this.PosX=PosX;
+			this.PosY=PosY;
+			this.Size=Size;
+			this.Speed=Speed;
+			this.Color=Color;
+			this.Angle=Angle;
+		}
+		
+		function Setup(){
+			document.getElementById('Canvas1').width = window.innerWidth-30;
+			document.getElementById('Canvas1').height = window.innerHeight-30;
+			for(i=0;i<=NUMBEROFPARTICLES;i++){
+				PosX = randomFromTo(0,document.getElementById('Canvas1').width);
+				PosY = randomFromTo(0,document.getElementById('Canvas1').height);
+				Size = randomFromTo(1,2);					
+				Speed = randomFromTo(1,10);
+				if(PosX != document.getElementById('Canvas1').width/2 || PosY != document.getElementById('Canvas1').height/2){
+					tmpcolor = 0;
+				} else {
+					tmpcolor = randomFromTo(100,255);
+				}
+				Color = 'rgb('+tmpcolor+','+tmpcolor+','+tmpcolor+')';
+				Angle = randomFromTo(1,360)/10;
+				star[i] = new star(PosX,PosY,Size,Speed,Color,Angle);
+			}		
+		}
+		
+		function randomFromTo(from, to){
+			return Math.floor(Math.random() * (to - from + 1) + from);
+		}			
+
+		function DelayDraw(ms){
+			setTimeout("moveflakes()", ms);
+		}
+	
+		function moveflakes(){
+			var ctx=document.getElementById("Canvas1").getContext("2d");
+			ctx.fillStyle = 'rgb(0,0,0)';
+			//Black background
+			ctx.fillRect(0,0,document.getElementById('Canvas1').width,document.getElementById('Canvas1').height);
+			
+			angle++;
+			width = document.getElementById('Canvas1').width;
+			height = document.getElementById('Canvas1').height;
+			for(i=0;i<=NUMBEROFPARTICLES;i++){
+				if(star[i].PosY >= width || star[i].PosY <= 0 || star[i].PosX >= width || star[i].PosX <= 0){
+					tempx = Math.floor(Math.sin(angle/10)*100+width/2);
+					tempy = Math.floor(Math.cos(angle/10)*100+height/2);
+					star[i].PosX = tempx;
+					star[i].PosY = tempy;
+					star[i].Angle = randomFromTo(1,360)/10;
+					star[i].Speed = randomFromTo(1,10);
+					star[i].Size = randomFromTo(1,2);
+					tmpcolor = randomFromTo(100,255);
+					star[i].Color = 'rgb('+tmpcolor+','+tmpcolor+','+tmpcolor+')';					
+				}		
+				star[i].Steps++;
+				star[i].PosX += star[i].Speed*Math.cos(star[i].Angle);
+				star[i].PosY += star[i].Speed*Math.sin(star[i].Angle);
+				
+				ctx.fillStyle=star[i].Color;
+				ctx.fillRect(star[i].PosX,star[i].PosY,star[i].Size,star[i].Size);					
+			}				
+			DelayDraw(42);
+		}	
+		</script>	
+	</head>
+	
+	<body onload="Setup(),DelayDraw(42)">
+		<canvas id="Canvas1" width="200" height="200" style="border:1px solid #c3c3c3;">
+			Your browser does not support the canvas element.
+		</canvas>
+	</body>
+</html>

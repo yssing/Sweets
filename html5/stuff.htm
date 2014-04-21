@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript">	
+		function randomFromTo(from, to){
+			return Math.floor(Math.random() * (to - from + 1) + from);
+		}		
+		
+		function drawrandom(){
+			var x = 0;
+			var y = 0;
+			var ctx=document.getElementById("Canvas1").getContext("2d");	
+			
+			for(x=0;x<=document.getElementById('Canvas1').width;x++){
+				for(y=0;y<=document.getElementById('Canvas1').height;y++){
+					r = randomFromTo(10, 255);
+					g = randomFromTo(10, 255);
+					b = randomFromTo(10, 255);
+					ctx.fillStyle = 'rgb('+r+','+g+','+b+')';
+					ctx.fillRect(x,y,1,1);
+				}			
+			}
+		}	
+
+		function drawsinus(){
+			var x = 0;
+			var y = 0;
+			var ctx=document.getElementById("Canvas2").getContext("2d");	
+		
+			for(x=0;x<=document.getElementById('Canvas2').width;x++){
+				for(y=0;y<=document.getElementById('Canvas2').height;y++){
+					r = Math.floor(Math.sin(x)*100);
+					g = Math.floor(Math.sin(y)*100);
+					b = Math.floor(Math.sin(y*x)*100);
+					ctx.fillStyle = 'rgb('+r+','+g+','+b+')';
+					ctx.fillRect(x,y,1,1);
+				}			
+			}
+		}			
+		
+		function drawlines(){
+			var x = document.getElementById('Canvas3').width/2;
+			var y = document.getElementById('Canvas3').height/2;
+			var ctx=document.getElementById("Canvas3").getContext("2d");	
+	
+			ctx.strokeStyle = 'rgb(255,0,255)';	
+			ctx.moveTo(200,200)
+			
+			for(i=0;i<=360;i++){
+				ctx.moveTo(200,200)
+				tx = Math.cos(i)*200;
+				ty = Math.sin(i)*200;					
+				ctx.lineTo(tx+200,ty+200);
+			}
+			ctx.stroke();
+		}	
+
+		function drawspiral(){
+			var x = document.getElementById('Canvas4').width/2;
+			var y = document.getElementById('Canvas4').height/2;
+			var ctx=document.getElementById("Canvas4").getContext("2d");	
+	
+			ctx.strokeStyle = 'rgb(255,0,255)';	
+			for(i=0;i<=360;i++){
+				tx = Math.cos(i/6)*i;
+				ty = Math.sin(i/6)*i;					
+				ctx.lineTo(tx+200,ty+200);
+			}
+			ctx.stroke();
+		}			
+		</script>	
+	</head>
+	
+	<body onload="drawrandom(),drawsinus(),drawlines(),drawspiral()">
+		<table width="350">
+			<tr>
+				<td>
+					First we draw a picture on the canvas with random colors. Not that pretty.
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<canvas id="Canvas1" width="200" height="200" style="border:1px solid #c3c3c3;">
+						Your browser does not support the canvas element.
+					</canvas>
+				</td>
+			</tr>			
+			<tr>
+				<td>
+					then we try to use the sinus value of x, y and x*y
+				</td>
+			</tr>
+			<tr>
+				<td height="200">
+					<canvas id="Canvas2" width="200" height="200" style="border:1px solid #c3c3c3;">
+						Your browser does not support the canvas element.
+					</canvas>	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Lines using sin and cos
+				</td>
+			</tr>
+			<tr>
+				<td height="200">
+					<canvas id="Canvas3" width="400" height="400" style="border:1px solid #c3c3c3;">
+						Your browser does not support the canvas element.
+					</canvas>	
+				</td>
+			</tr>	
+			<tr>
+				<td>
+					changing the above code abit gives us this spiral
+				</td>
+			</tr>
+			<tr>
+				<td height="200">
+					<canvas id="Canvas4" width="400" height="400" style="border:1px solid #c3c3c3;">
+						Your browser does not support the canvas element.
+					</canvas>	
+				</td>
+			</tr>			
+		</table>
+	</body>
+</html>
