@@ -53,8 +53,7 @@ class autoload{
 			require_once('settings/defines.php');
 		}	
 		self::load_system();
-		self::find_classes($_SERVER['DOCUMENT_ROOT'].'/');
-		
+		self::find_classes($_SERVER['DOCUMENT_ROOT'].'/');		
 	} 
 	
 	/**

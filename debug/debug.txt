@@ -1,0 +1,20 @@
+23-04-2014 Kl.: 22:03 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:07 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:07 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:14 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:18 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:23 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:24 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:34 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:36 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+23-04-2014 Kl.: 22:37 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1

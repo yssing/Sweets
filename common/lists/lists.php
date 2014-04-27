@@ -8,7 +8,7 @@ class lists{
 		$textarray = $text->listText();
 		if(is_array($textarray)){
 			foreach($textarray as $line){
-				$output .= '["'.$line[1].'","'.PATH_WEB.'/cms/article/'.$line[0].'"],';									
+				$output .= '["'.$line[2].'","'.PATH_WEB.'/cms/article/'.$line[0].'"],';									
 			}
 		} 
 
