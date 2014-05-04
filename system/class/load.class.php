@@ -46,45 +46,21 @@ class autoload{
 	 */		
 	
 	/**
-	 * This method starts loading alle class files
+	 * This method starts loading all class files
+	 * The classes must be located in either system/class or in any module in the module folder.
 	 */
 	public static function load(){
 		if(is_file('settings/defines.php')){
 			require_once('settings/defines.php');
 		}	
 		self::load_system();
-		self::find_classes($_SERVER['DOCUMENT_ROOT'].'/');		
-	} 
-	
-	/**
-	 * This method traverse all folders and finds subfolders with the name class
-	 * It will however skip the system/class folder, as it is loaded in the parent method.
-	 */	
-	public static function find_classes($dir){
-		$dir = str_replace('//','/',$dir);
-		$root = scandir($dir);
-		foreach($root as $value){
-			if ($value != "." && $value != ".." && ($dir.'/'.$value != 'system/class')){
-				if (is_dir($value)) {
-					if(is_dir($value.'/class')){
-						$objects = scandir($dir.'/'.$value.'/class');
-						foreach ($objects as $object) {
-							if ($object != "." && $object != ".." && $object != "xslt.class.php"){
-								require_once($dir.'/'.$value.'/class/'.$object);
-							}
-						}
-					} else {
-						self::find_classes($dir.'/'.$value);
-					}
-				} 
-			}
-		}
+		self::load_modules();	
 	} 
 	 
 	/**
 	 * This method loads all system classes.
 	 */		 
-	public static function load_system($path = 'system/class/'){
+	private static function load_system($path = 'system/class/'){
 		if(is_file('settings/defines.php')){
 			require_once('settings/defines.php');
 		}
@@ -97,6 +73,30 @@ class autoload{
 			}
 		} else {
 			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * This method loads all module classes.
+	 */			
+	private static function load_modules($path = 'modules'){
+		$root = scandir($path);
+		foreach($root as $value){
+			if ($value != "." && $value != ".."){
+				if (is_dir($path.'/'.$value)) {
+					if(is_dir($path.'/'.$value.'/class')){
+						$objects = scandir($path.'/'.$value.'/class');
+						foreach ($objects as $object) {
+							if ($object != "." && $object != ".."){
+								require_once($path.'/'.$value.'/class/'.$object);
+							}
+						}
+					} else {
+						self::load_modules($path.'/'.$value);
+					}
+				} 
+			}
 		}
 		return true;
 	}

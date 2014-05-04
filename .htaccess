@@ -3,10 +3,16 @@
 	#Options +FollowSymLinks
 	RewriteEngine On
 	RewriteBase /
+	
+	#rewrite paths to use the module folder
+	RewriteRule ^/?cms/(.*)$ /modules/cms/$1 [L,R=301]
+	RewriteRule ^/?geography/(.*)$ /modules/geography/$1 [L,R=301]
+	RewriteRule ^/?photo/(.*)$ /modules/photo/$1 [L,R=301]
+	RewriteRule ^/?jobspecialisten/(.*)$ /modules/jobspecialisten/$1 [L,R=301]
+	
 	RewriteCond %{REQUEST_FILENAME} !-f
 	#RewriteCond %{REQUEST_FILENAME} !-d 
-	RewriteCond %{REQUEST_FILENAME} !-l 
-	RewriteRule ^(.*)$ index.php [L]	
+	RewriteRule ^(.*)$ index.php [L]
 	
 	# Prevent viewing of .htaccess file
 	<Files .htaccess>

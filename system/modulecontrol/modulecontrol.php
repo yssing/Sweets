@@ -6,7 +6,8 @@ class modulecontrol{
 		if(!user::validateAdmin()){
 			route::error(403);
 		}	
-		self::listModules($_SERVER['DOCUMENT_ROOT'].'/');		
+		//self::listModules($_SERVER['DOCUMENT_ROOT'].'/');
+		self::listModules('modules/');
 		$body = views::displayEditListview(self::$modules);
 		$body .= '<br />';
 		$body .= form::beginForm('upload','/system/module/upload');		
@@ -26,14 +27,14 @@ class modulecontrol{
 			route::error(403);
 		}
 		$body = '<h3>Install '.$args[0].'</h3>';
-		$body .= 'Will only install tables if the have not been installed before!';
+		$body .= 'Will only install tables if they have not been installed before!';
 		
-		if(is_dir($_SERVER['DOCUMENT_ROOT'].'/'.$args[0])) {
-			$folders = scandir($_SERVER['DOCUMENT_ROOT'].'/'.$args[0]);
+		if(is_dir($_SERVER['DOCUMENT_ROOT'].'/modules/'.$args[0])) {
+			$folders = scandir($_SERVER['DOCUMENT_ROOT'].'/modules/'.$args[0]);
 			foreach($folders as $folder){								
 				if($folder != '.' && $folder != '..'){
 					if(strpos($folder, 'control')){
-						include_once($_SERVER['DOCUMENT_ROOT'].'/'.$args[0].'/'.$folder.'/'.$folder.'.php');
+						include_once($_SERVER['DOCUMENT_ROOT'].'/modules/'.$args[0].'/'.$folder.'/'.$folder.'.php');
 						if(is_callable(array($folder,'installAction'))){
 							$folder::installAction();
 						}
@@ -68,15 +69,15 @@ class modulecontrol{
 					move_uploaded_file($_FILES["file"]["tmp_name"],$filename);
 					$zip = new ZipArchive;
 					if ($zip->open($filename) === true) {
-						$zip->extractTo($_SERVER['DOCUMENT_ROOT'].'/');
+						$zip->extractTo($_SERVER['DOCUMENT_ROOT'].'/modules');
 						$zip->close();
 						list($modulename) = explode('.',$filename); 
-						if(is_dir($_SERVER['DOCUMENT_ROOT'].'/'.$modulename)) {
-							$folders = scandir($_SERVER['DOCUMENT_ROOT'].'/'.$modulename);
+						if(is_dir($_SERVER['DOCUMENT_ROOT'].'/modules/'.$modulename)) {
+							$folders = scandir($_SERVER['DOCUMENT_ROOT'].'/modules/'.$modulename);
 							foreach($folders as $folder){								
 								if($folder != '.' && $folder != '..'){
 									if(strpos($folder, 'control')){
-										include_once($_SERVER['DOCUMENT_ROOT'].'/'.$modulename.'/'.$folder.'/'.$folder.'.php');
+										include_once($_SERVER['DOCUMENT_ROOT'].'/modules/'.$modulename.'/'.$folder.'/'.$folder.'.php');
 										if(is_callable(array($folder,'installAction'))){
 											$folder::installAction();
 										}
