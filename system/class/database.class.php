@@ -30,9 +30,6 @@
  * @since		File available since Release 1.0.0
  * @require		'generic.io.class.php'
  */
- 
- // hello
- 
 require_once('generic.IO.class.php');
 class database extends genericIO{
 	/**
