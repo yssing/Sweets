@@ -151,8 +151,8 @@ class plugin /*extends database*/{
 			while (false !== ($entry = readdir($handle))) {
 				if($entry != '.' && $entry != '..' && is_dir('plugins/'.$entry)){
 					$content = '<img src="'.PATH_WEB.'/template/'.template::getTheme().'/icon_big/plug_add.png" width="128px;" />';
-					$foldercontent[$j][$i] = $content.'<br /><a href="'.PATH_WEB.'/system/plugincontrol/toggle/'.$entry.'">'.$entry.'</a> 
-					| <a href="'.PATH_WEB.'/system/plugincontrol/remove/'.$entry.'">Slet</a>';
+					$foldercontent[$j][$i] = $content.'<br /><a href="'.PATH_SYS.'/plugincontrol/toggle/'.$entry.'">'.$entry.'</a> 
+					| <a href="'.PATH_SYS.'/plugincontrol/remove/'.$entry.'">Slet</a>';
 					if($i >= $cols){
 						$i = 1; 
 						$j++;

@@ -70,13 +70,14 @@ class language/* extends database*/{
 
 	/**
      * This method returns a sentence or string based on a
-	 * Type and a language parameter, for what language
+	 * Type and a language parameter, for what ever language
 	 * needs to be displayed.
 	 * If Language is not set, it will then look for the CountryCode session, and if
 	 * this session is not set, the method will use the netgeo class and find the 
 	 * proper language.
 	 * The method will also create an array of language values in a session, so to
 	 * avoid reloading the same value several times.
+	 * If a language type is not found, the method will return the Type encapsulated in curly brackets {}
 	 *
 	 * @param string $Type the table to use from the database.
 	 *
@@ -99,7 +100,7 @@ class language/* extends database*/{
 			if($language){
 				$_SESSION['LanguageVars'][$Type] = $language;
 			} else {
-				$language = $Type;
+				$language = '{'.$Type.'}';
 			}
 		} else {
 			$language = $_SESSION['LanguageVars'][$Type];

@@ -79,14 +79,14 @@ class form extends genericIO{
 	 * @static
 	 * @since Method available since Release 1.0.0
 	 */		
-	public static function beginForm($name,$action='',$settings=''){
+	public static function beginForm($name,$action='',$method='post',$settings=''){
 		if($action){
 			$action = 'action="'.$action.'"';
 		} else {
 			$action = 'action="'.$_SERVER['PHP_SELF'].'"';
 		}
 		self::$formName = $name;
-		$input = '<form name="'.$name.'" id="'.$name.'" method="post" '.$action.' ';
+		$input = '<form name="'.$name.'" id="'.$name.'" method="'.$method.'" '.$action.' ';
 		if(is_array($settings)){
 			while ($rowData = current($settings)) {
 				$input .=  key($settings).'="'.$rowData.'"';

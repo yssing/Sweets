@@ -135,7 +135,7 @@ class views extends genericIO{
 	 * @static
 	 * @since Method available since Release 1.0.0
 	 */		
-	public static function displayEditListview($data,$class = 'listview',$color = 1,$pagesize = PAGING){
+	public static function displayEditListview($data,$class = 'listview',$color = 1,$pagesize = PAGING,$settings = ''){
 		$table = '';
 		$i = 0;
 		$y = 0;
@@ -185,11 +185,17 @@ class views extends genericIO{
 			}
 		}
 		$table .= '</table>';
-		$table .= self::showPaging($y,$page,$pagesize,5);
+		$table .= self::showPaging($y,$page,$pagesize,5,$settings);
 		return $table;
 	}
 	
-	public static function showPaging($total,$page = 1,$pagesize = PAGING,$range = 5){
+	public static function showPaging($total,$page = 1,$pagesize = PAGING,$range = 5,$settings=''){
+		$arguments = '';
+		if(is_array($settings)){
+			foreach($settings as $key => $val){
+				$arguments = '&'.$key.'='.$val;
+			}
+		}		
 		$lastPage = ceil($total / $pagesize);
 		if ($page > 1) {
 			$start = $page;	
@@ -222,16 +228,17 @@ class views extends genericIO{
 					// if not current page...
 				} else {
 					// make it a link
-					$pagination .= ' <a href="?page='.$x.'"><label>'.$x.'</label></a> ';
+					$pagination .= ' <a href="?page='.$x.$arguments.'"><label>'.$x.'</label></a> ';
 				}
 			}
 		}
+		
 		if ($total > $pagesize){
-			$output = '<div class="pagination"><a href="?page=1"><span> << </span></a>';
-			$output .= '<a href="?page='.$previous.'"><span> < </span> </a>';
+			$output = '<div class="pagination"><a href="?page=1'.$arguments.'"><span> << </span></a>';
+			$output .= '<a href="?page='.$previous.$arguments.'"><span> < </span> </a>';
 			$output .= $pagination;
-			$output .= '<a href="?page='.$next.'"><span> > </span></a>';
-			$output .= '<a href="?page='.$lastPage.'"><span> >> </span></a>';
+			$output .= '<a href="?page='.$next.$arguments.'"><span> > </span></a>';
+			$output .= '<a href="?page='.$lastPage.$arguments.'"><span> >> </span></a>';
 			$output .= '<label> Af: '.$lastPage.' </label></div>';
 		} else {
 			$output = '';

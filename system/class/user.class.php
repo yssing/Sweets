@@ -193,16 +193,14 @@ class user {
 	}		
 	
 	/**
-	 * This method lists all the user entries in the database.
-	 *
-	 * @param int $status search for user with a specific status.	 
+	 * This method lists all the user entries in the database. 
 	 *	 
 	 * @return true or status on success or false on failure.
 	 *
      * @access public	 
 	 * @since Method available since Release 1.0.0
 	 */
-	public static function listUsers($status){
+	public static function listUsers(){
 		$salt = new salt();
 		return $salt->read("user","PK_UserID, UserFirstName, UserLastName, UserLogin, UserEMail");
 	}

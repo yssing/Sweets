@@ -31,10 +31,14 @@
 	/**
      * Defines for the various paths used in the portal
      */
-	define("PATH_SCRIPT", 	PATH_WEB."/");
-	define("PATH_SYS", 		PATH_SCRIPT . "system/");
-	define("PATH_CLASS", 	PATH_SCRIPT . "system/class/");
-	define("PATH_CONTRIB", 	PATH_SCRIPT . "contributions/");
+	define("PATH_ROOT", 	$_SERVER['DOCUMENT_ROOT']."/");
+	define("PATH_SYS", 		PATH_ROOT . "system/");
+	define("PATH_CLASS", 	PATH_ROOT . "system/class/");
+	define("PATH_CONTRIB", 	PATH_ROOT . "contributions/");
+	define("PATH_MOD",		PATH_ROOT . "modules/");
+	define("PATH_COM",		PATH_ROOT . "common/");
+	define("PATH_TEM",		PATH_ROOT . "template/");
+	
 	define("HIDDEN",2);
 	define("PASSWORD",1);
 	define("TEXT",0);

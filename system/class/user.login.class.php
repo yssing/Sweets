@@ -25,7 +25,7 @@
  * @since		File available since Release 1.0.0
  * @require		'database.class.php' 
  */
-require_once('database.class.php');
+//require_once('database.class.php');
 class userLogin /*extends database*/{
 
 	/**
@@ -85,10 +85,10 @@ class userLogin /*extends database*/{
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */		
-	public static function listUserLogin($userid = 0,$limit = 25){
+	public static function listUserLogin($userid = 0){
 		$database = new database();
 		if($userid){
-			return $database->read("user_login","UserLogin, UserLogout","FK_UserID = ".$userid,"",$limit);		
+			return $database->read("user_login","UserLogin, UserLogout","FK_UserID = ".$userid);		
 		}
 		return false;
 	}

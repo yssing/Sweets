@@ -29,12 +29,12 @@ class modulecontrol{
 		$body = '<h3>Install '.$args[0].'</h3>';
 		$body .= 'Will only install tables if they have not been installed before!';
 		
-		if(is_dir($_SERVER['DOCUMENT_ROOT'].'/modules/'.$args[0])) {
-			$folders = scandir($_SERVER['DOCUMENT_ROOT'].'/modules/'.$args[0]);
+		if(is_dir(PATH_MOD.$args[0])) {
+			$folders = scandir(PATH_MOD.$args[0]);
 			foreach($folders as $folder){								
 				if($folder != '.' && $folder != '..'){
 					if(strpos($folder, 'control')){
-						include_once($_SERVER['DOCUMENT_ROOT'].'/modules/'.$args[0].'/'.$folder.'/'.$folder.'.php');
+						include_once(PATH_MOD.$args[0].'/'.$folder.'/'.$folder.'.php');
 						if(is_callable(array($folder,'installAction'))){
 							$folder::installAction();
 						}
@@ -69,15 +69,15 @@ class modulecontrol{
 					move_uploaded_file($_FILES["file"]["tmp_name"],$filename);
 					$zip = new ZipArchive;
 					if ($zip->open($filename) === true) {
-						$zip->extractTo($_SERVER['DOCUMENT_ROOT'].'/modules');
+						$zip->extractTo(PATH_MOD);
 						$zip->close();
 						list($modulename) = explode('.',$filename); 
-						if(is_dir($_SERVER['DOCUMENT_ROOT'].'/modules/'.$modulename)) {
-							$folders = scandir($_SERVER['DOCUMENT_ROOT'].'/modules/'.$modulename);
+						if(is_dir(PATH_MOD.$modulename)) {
+							$folders = scandir(PATH_MOD.$modulename);
 							foreach($folders as $folder){								
 								if($folder != '.' && $folder != '..'){
 									if(strpos($folder, 'control')){
-										include_once($_SERVER['DOCUMENT_ROOT'].'/modules/'.$modulename.'/'.$folder.'/'.$folder.'.php');
+										include_once(PATH_MOD.$modulename.'/'.$folder.'/'.$folder.'.php');
 										if(is_callable(array($folder,'installAction'))){
 											$folder::installAction();
 										}
