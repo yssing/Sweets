@@ -2,7 +2,7 @@
 class newscontrol {
 	public static function indexAction($args){
 		if(!$news = news::readUserNews($args[0])){
-			route::redirect('cms/news/news');
+			route::redirect('modules/cms/news/news');
 		}
 
 		template::initiate('main');
@@ -46,7 +46,7 @@ class newscontrol {
 			route::error(403);
 		}
 		news::destroyNews($args[0]);
-		route::redirect('cms/usernews/list');
+		route::redirect('modules/cms/usernews/list');
 	}
 	
 	public static function editAction($args){
@@ -61,7 +61,7 @@ class newscontrol {
 		$teaserstyle = array("style" => "width:920px;height:220px;");
 		$textstyle = array("style" => "width:920px;height:420px;");
 
-		$body = form::beginForm('update',PATH_WEB.'/cms/news/update');
+		$body = form::beginForm('update','modules/cms/news/update');
 			$body .= form::fieldset('field1','<h3>'.language::readType('STICKY').'</h3>',form::check($sticky,'sticky'),$fieldset);
 			$body .= form::fieldset('field2','<h3>'.language::readType('ONLINE').'</h3>',form::input($online,'online',0,$date),$fieldset);
 			$body .= form::fieldset('field3','<h3>'.language::readType('OFFLINE').'</h3>',form::input($offline,'offline',0,$date),$fieldset);
@@ -97,8 +97,8 @@ class newscontrol {
 			} else {			
 				news::createNews($args['headline'],$args['teaser'],$args['bodytext'],$args['online'],$args['offline'],$args['icon'],$sticky);
 			}
-			route::redirect('cms/news/list');
 		}
+		route::redirect('modules/cms/news/list');
 	}	
 	
 	public static function installAction(){
@@ -107,7 +107,7 @@ class newscontrol {
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("Headline" => "varchar(200)",
 					"Teaser" => "text",
 					"BodyText" => "text",
@@ -115,7 +115,7 @@ class newscontrol {
 					"OnlineDate" => "datetime",
 					"OfflineDate" => "datetime",
 					"Icon" => "varchar(200)");
-		$result = $database->createTable('cms_news',$what,"PK_NewsID");
+		$result = $databaseadmin->createTable('cms_news',$what,"PK_NewsID");
 	}	
 	
 	public static function rssAction($args){

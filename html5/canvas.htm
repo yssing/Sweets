@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript">	
+		const NUMBEROFBALLS = 100;
+	
+		//the ball object
+		function ball(PosX,PosY,Size,FillColor,StrokeColor,DirX,DirY,Speed)
+		{
+			this.PosX=PosX;
+			this.PosY=PosY;
+			this.Size=Size;
+			this.FillColor=FillColor;
+			this.StrokeColor=StrokeColor;
+			this.DirX=DirX;
+			this.DirY=DirY;
+			this.Speed=Speed;
+		}
+	
+		function randomFromTo(from, to){
+			return Math.floor(Math.random() * (to - from + 1) + from);
+		}		
+		
+		function Setup(){
+			document.getElementById('myCanvas').width = window.innerWidth-20;
+			document.getElementById('myCanvas').height = window.innerHeight-20;	
+		
+			//setting up N instances of object ball
+			for(i=0;i<=NUMBEROFBALLS;i++){
+				PosX = Math.floor(Math.random()*document.getElementById('myCanvas').width);
+				PosY = Math.floor(Math.random()*document.getElementById('myCanvas').height);
+				Size = randomFromTo(5, 30);					
+				FillColor = 'rgb('+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+')';
+				StrokeColor = 'rgb('+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+')';
+				DirX = randomFromTo(0,1);
+				DirY = randomFromTo(0,1);
+				Speed = randomFromTo(2,20);
+				ball[i] = new ball(PosX,PosY,Size,FillColor,StrokeColor,DirX,DirY,Speed);
+			}			
+		}
+
+		function DelayDraw(ms){
+			setTimeout("moveball()", ms);
+		}
+	
+		function drawrect(){
+			var ctx=document.getElementById("myCanvas").getContext("2d");
+			ctx.clearRect(0,0,document.getElementById('myCanvas').width,document.getElementById('myCanvas').height);	
+	
+			ctx.fillStyle = 'rgb('+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+')';
+			ctx.fillRect(0,0,document.getElementById('myCanvas').width,document.getElementById('myCanvas').height);
+			ctx.lineWidth = 1;
+			ctx.fillStyle = '#0000ff';
+			ctx.textBaseline = 'top';
+			ctx.font = 'bold 30px sans-serif';
+			ctx.strokeText('Getting dizzy??',0,00);			
+		}
+		
+		function moveball(){
+			for(i=0;i<=NUMBEROFBALLS;i++){
+				if(ball[i].PosX+ball[i].Size+4 >= document.getElementById('myCanvas').width){
+					ball[i].DirX = 0;
+				}
+				if(ball[i].PosX-ball[i].Size-4 <= 0){
+					ball[i].DirX = 1;
+				}				
+
+				if(ball[i].PosY+ball[i].Size+4 >= document.getElementById('myCanvas').height){
+					ball[i].DirY = 0;
+				}
+				if(ball[i].PosY-ball[i].Size-4 <= 0){
+					ball[i].DirY = 1;
+				}					
+				
+				if(ball[i].DirX){
+					ball[i].PosX += ball[i].Speed;
+				}else{
+					ball[i].PosX -= ball[i].Speed;
+				}
+				if(ball[i].DirY){
+					ball[i].PosY += ball[i].Speed;
+				}else{
+					ball[i].PosY -= ball[i].Speed;
+				}				
+			}			
+			drawobjects();
+			DelayDraw(42);
+		}	
+			
+		function drawobjects(){
+			var ctx=document.getElementById("myCanvas").getContext("2d");	
+			ctx.clearRect(0,0,document.getElementById('myCanvas').width,document.getElementById('myCanvas').height);
+			
+			//looping through the array of objects
+			for(i=0;i<=NUMBEROFBALLS;i++){
+				ctx.lineWidth = 4;
+				ctx.fillStyle = ball[i].FillColor;
+				ctx.strokeStyle = ball[i].StrokeColor;
+				x = ball[i].PosX;
+				y = ball[i].PosY;
+				size = ball[i].Size;
+				
+				ctx.beginPath();
+				ctx.arc(x,y,size,0,Math.PI*2,true);
+				ctx.stroke();
+				ctx.fill();
+				ctx.closePath();
+			}	
+		}				
+			
+		</script>	
+	</head>
+	
+	<body onload="Setup(),moveball()">
+		<canvas id="myCanvas" width="200" height="200" style="position:absolute;top:0,left:0;border:1px solid #c3c3c3;">
+			Your browser does not support the canvas element.
+		</canvas>
+	</body>
+</html>

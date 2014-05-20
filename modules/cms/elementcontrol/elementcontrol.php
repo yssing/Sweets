@@ -22,9 +22,10 @@ class elementcontrol{
 			route::error(403);
 		}
 		
-		list($id,$bodytext) = element::readElement($args[0]);	
-		$body = form::beginForm('update','cms/element/update');
-		$body .= form::fieldset('field1','<h3>'.language::readType('TEXT').'</h3>',form::textarea($bodytext,'bodytext',array("style" => "width:900px;height:620px;"))).'<br />';
+		list($id,$bodytext,$path) = element::readElement($args[0]);	
+		$body = form::beginForm('update','modules/cms/element/update');
+		$body .= form::fieldset('field1','<h3>'.language::readType('PATH').'</h3>',form::input($path,'path',TEXT));
+		$body .= form::fieldset('field2','<h3>'.language::readType('TEXT').'</h3>',form::textarea($bodytext,'bodytext',array("style" => "width:900px;height:620px;"))).'<br />';
 		$body .= form::input($id,'id',2);	
 		$body .= form::endForm('update');
 
@@ -41,7 +42,7 @@ class elementcontrol{
 		}	
 		$bodytext = element::readElementPath($args['path'],$args['element']);
 		
-		$body = form::beginForm('update',PATH_WEB.'/cms/element/updatePath');
+		$body = form::beginForm('update','modules/cms/element/updatePath');
 		$style = array("style" => "width:920px;border:0px;");
 		$body .= form::fieldset('field1','',form::textarea($bodytext,'bodytext',array("style" => "width:900px;height:420px;")),$style).'<br />';
 		$body .= form::input($args['path'],'path',2);
@@ -62,7 +63,7 @@ class elementcontrol{
 		}
 
 		if($args['id'] && form::validate('update')){
-			element::updateElement($args['id'],$args['bodytext']);
+			element::updateElement($args['id'],$args['bodytext'],$args['path']);
 		} 
 		route::redirect('cms/element/edit/'.$args['id']);
 	}
@@ -88,9 +89,9 @@ class elementcontrol{
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("Path" => "varchar(100)","BodyText" => "text","Element" => "varchar(45)");
-		$result = $database->createTable('cms_text',$what,"PK_ElementID");
+		$result = $databaseadmin->createTable('cms_element',$what,"PK_ElementID");
 	}	
 	
 	public static function deleteAction($args){

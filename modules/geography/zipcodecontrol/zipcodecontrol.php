@@ -31,7 +31,7 @@ class zipcodecontrol{
 		
 		list($area,$municipality,$zipcode,$city) = zipcode::readZipcode($args[0]);
 
-		$body = form::beginForm('update',PATH_WEB.'/geography/zipcode/update');
+		$body = form::beginForm('update','modules/geography/zipcode/update');
 			$body .= form::fieldset('field1',language::readType('AREA'),form::input($area,'area',0,array("style" => "width:220px")));	
 			$body .= form::fieldset('field2',language::readType('MUNICIPALITY'),form::input($municipality,'municipality',0,array("style" => "width:220px")));	
 			$body .= form::fieldset('field3',language::readType('ZIPCODE'),form::input($zipcode,'zipcode',0,array("style" => "width:220px")));	
@@ -67,9 +67,9 @@ class zipcodecontrol{
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("Name" => "varchar(100)");
-		$result = $database->createTable('geography_zipcode',$what,"PK_MunicipalityID");
+		$result = $databaseadmin->createTable('geography_zipcode',$what,"PK_MunicipalityID");
 	}	
 }
 ?>

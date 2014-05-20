@@ -61,13 +61,23 @@ class database extends genericIO{
 	private $in_transaction = false;
 	
 	/**
+	 * the name of the table to access
+	 *
+	 * @access public
+	 */
+	private $db_table = ''; 
+	
+	private $db_join = '';
+	
+	/**
      * The constructor handles initializing of the database object.
 	 * Based on the values in the defines
 	 *
      * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public function __construct(){
+	public function __construct($table){
+		$this->db_table = TPREP.$table;
 		parent::__construct();
 		try {
 			$this->databaseHandler = new PDO('mysql:host='.DATABASESERVER.';dbname='.DATABASE, DBUSER, DBPASSWORD, array(
@@ -90,94 +100,7 @@ class database extends genericIO{
 	public function returnSQL(){
 		return $this->sqlString;
 	}
-	
-	/**
-     * This function shows the databases that the database object has access to
-	 * ONLY USE THIS FOR TESTING!!
-	 *
-	 * @return array $data returns an array of table names.
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-     */		
-	public function showDatabases(){
-		$data = array();
-		if(genericIO::$adminid){
-			$outerLoop = $this->databaseHandler->prepare("SHOW DATABASES");
-			if ($outerLoop->execute()) {
-				while ($row = $outerLoop->fetch()) {
-					$data[] = array($row['Database']);
-				}
-			}
-		}
-		return $data;
-	}
-	
-	/**
-     * This function shows the tables in a database
-	 * ONLY USE THIS AS ADMINISTRATOR!!
-	 *
-	 * @param string $database use this to list the tables of a specific database.
-	 *
-	 * @return array $data returns an array of database names.
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-     */		
-	public function showTables($database = ''){
-		$data = array();
-		if(genericIO::$adminid){
-			$sql = 'SHOW TABLES ';
-			if($database){
-				$sql .= 'FROM '.$database;
-			}
 
-			$outerLoop = $this->databaseHandler->prepare($sql);
-			if ($outerLoop->execute()) {
-				while ($row = $outerLoop->fetch()) {
-					if($database){
-						$data[] = array($row['Tables_in_'.$database]);
-					} else {
-						$data[] = array($row['Tables_in_information_schema']);
-					}
-				}
-			}
-		}
-		return $data;
-	}
-	
-	/**
-     * This function shows columns of a given table
-	 * ONLY USE THIS AS ADMINISTRATOR!!
-	 *
-	 * @param string $table use this to list the columns of a specific table.
-	 *
-	 * @return array $data returns an array of column information.
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-     */		
-	public function showColumns($table){	
-		$data = array();
-		if(genericIO::$adminid){
-			$sql = 'SHOW COLUMNS ';
-			if($table){
-				$sql .= 'FROM '.$table;
-			}
-
-			$outerLoop = $this->databaseHandler->prepare($sql);
-			if ($outerLoop->execute()) {
-				while ($row = $outerLoop->fetch()) {
-					for($i=0;$i<6;$i++){
-						$tmp[$i] = $row[$i];
-					}					
-					$data[] = $tmp;
-				}
-			}
-		}
-		return $data;	
-	}
-	
 	/**
 	 * Starts transaction
 	 *
@@ -261,7 +184,6 @@ class database extends genericIO{
 	 * As standard this method locks a table for writing, this can be usefull
 	 * where data integrity is important.
 	 *
-	 * @param string $table the table to be used database.
 	 * @param array $string what kind of lock.	 
 	 *
 	 * @return boolean If lock was successful
@@ -269,12 +191,12 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */	
-	public function lock($table,$type = "WRITE"){
+	public function lock($type = "WRITE"){
 		try{
-			$sql = "LOCK TABLES ".TPREP.$table." ".$type;
+			$sql = "LOCK TABLES ".$this->db_table." ".$type;
 			$prepared = $this->databaseHandler->prepare($sql);
 			if (!$prepared->execute()) {
-				throw new Exception('Could not lock '.TPREP.$table);
+				throw new Exception('Could not lock '.$this->db_table);
 			}
 		}
 		catch (Exception $e){
@@ -312,200 +234,12 @@ class database extends genericIO{
 	}
 	
 	/**
-	 * Add a new column to a table.
-	 * This method is in no way capable of figuring out anything, so take care what you input	 
-	 *
-	 * @param string $table the table to be used database.
-	 * @param string $name the name of the new column.	 
-	 * @param string $type the datatype of the new column.	 
-	 *
-	 * @return boolean If alter was successful
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-	 */			
-	public function addColumn($table,$name,$type){		
-		if(!$table || !$name || !$type){
-			return false;
-		}
-		try{
-			self::TransactionBegin();
-			$sql = 'ALTER TABLE '.$table.' ADD '.$name.' '.$type.' NOT NULL';
-			$prepared = $this->databaseHandler->prepare($sql);
-			if (!$prepared->execute()) {
-				throw new Exception('Could not unlock tables');
-			}
-		}	
-		catch (Exception $e){
-			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
-			self::TransactionRollback();
-			return false;
-		}	
-		self::TransactionEnd();
-		return true;			
-	}
-	
-	/**
-	 * This method creates a table in the database
-	 *
-	 * If the user does not have the correct permission, then it will throw an error!
-	 * The method will add 'NOT NULL' to any column if not already added.
-	 * The method will also add 2 default columns, CreateDate and DisabledDate
-	 *
-	 * @param string $table the table to be created.
-	 * @param string $what what columns and settings to create.
-	 * @param string $privatekey the tables private key.
-	 * @param string $charset what charset to use, default is utf8.
-	 *
-	 * @return boolean true on success or false on failure
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-	 */	
-	public function createTable($table,$what = '',$privatekey = '',$charset= 'utf8'){
-		if(!$table || !$what){
-			return false;
-		}
-		try{
-			self::TransactionBegin();
-			if(!$privatekey){
-				$privatekey = 'PK_'.$table.'ID';
-			}
-
-			$sql = 'CREATE TABLE IF NOT EXISTS `'.TPREP.$table.'` (
-			`'.$privatekey.'` int(10) unsigned NOT NULL AUTO_INCREMENT,';
-			
-			if($what != ''){
-				if(is_array($what)){
-					while ($rowData = current($what)) {
-						if(stripos($rowData,'NOT NULL')){
-							$sql .= '`'.key($what).'` '.$rowData.", ";
-						} else {
-							$sql .= '`'.key($what).'` '.$rowData." NOT NULL, ";
-						}
-						next($what);
-					}
-				} else {
-					$sql .= $what;
-				}
-			}
-
-			$sql .= '`FK_UserID` int(10) unsigned NOT NULL,';
-			$sql .= '`CreateDate` datetime NOT NULL,';
-			$sql .= '`DisabledDate` datetime NOT NULL,';
-			$sql .= '`Language` varchar(2) NOT NULL,';			
-			$sql .= ' PRIMARY KEY (`'.$privatekey.'`)
-			) ENGINE=InnoDB DEFAULT CHARSET='.$charset.' AUTO_INCREMENT=1;';
-
-			$this->sqlString = $sql;
-			
-			$innerLoop = $this->databaseHandler->prepare($sql);
-			if (!$innerLoop->execute()) {
-				throw new Exception('Could not create new table: '.TPREP.$table);
-			}
-		}	
-		catch (Exception $e){
-			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
-			self::TransactionRollback();
-			return false;
-		}	
-		self::TransactionEnd();
-		return true;
-	}
-	
-	/**
-	 * This method drops a table from the database
-	 *
-	 * If the user does not have the correct permission, then it will throw an error!
-	 *
-	 * @param string $table the table to be created.
-	 *
-	 * @return boolean true on success or false on failure
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-	 */		
-	public function dropTable($table){
-		if(!$table){
-			return false;
-		}	
-		try{
-			self::TransactionBegin();
-			$sql = 'DROP TABLE IF EXISTS `'.TPREP.$table.'`';
-			$innerLoop = $this->databaseHandler->prepare($sql);
-			if (!$innerLoop->execute()) {
-				throw new Exception('Could not drop table: '.TPREP.$table);
-			}
-		}	
-		catch (Exception $e){
-			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
-			self::TransactionRollback();
-			return false;
-		}	
-		self::TransactionEnd();
-		return true;	
-	}
-	
-	/**
-	 * This method changes a text field to UTF8 format
-	 *
-	 * First of all, don't mess with it if everything works fine.
-	 * It's usefull with tables containing names etc in a non utf8 format.
-	 * It simply runs through a table changing one row and one column
-	 * one step at a time.
-	 *
-	 * @param string $table the table to be used database.
-	 * @param string $what what column name to change.
-	 *
-	 * @return void
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-	 */	
-	public function changeToUTF8($table,$what){
-		$key = self::getPrivateKey($table);
-		$sql = "SELECT ".$key.", ".$what." FROM ".TPREP.$table;
-
-		try{
-			$outerLoop = $this->databaseHandler->prepare($sql);
-			if ($outerLoop->execute()) {
-				while ($row = $outerLoop->fetch()) {
-				
-					$newname = utf8_encode($row[$what]);				
-					$innerSQL = "UPDATE ".TPREP.$table." SET ".$what." = '".$newname."' WHERE ".$key." = ".$row[$key];
-					try{
-						$newname = utf8_encode($row[$what]);				
-						$innerSQL = "UPDATE ".TPREP.$table." SET ".$what." = '".$newname."' WHERE ".$key." = ".$row[$key];					
-						$innerLoop = $this->databaseHandler->prepare($innerSQL);
-						if (!$innerLoop->execute()) {
-							throw new Exception('Could not update column '.$what.' in '.TPREP.$table.' to utf 8!');
-						}
-					}	
-					catch (Exception $e){
-						self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
-						return false;
-					}
-				}
-			} else {
-				throw new Exception('Could not read the table "'.$table.'" for translation to UTF 8!');
-				
-			}
-		}	
-		catch (Exception $e){
-			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
-			return false;
-		}
-		return true;
-	}	
-	
-	/**
      * This function creates a new data entry in the database.
 	 * 
 	 * This function can create an sql string for inserting data
 	 * into the database and create a correct cache for the data.
 	 * Take care to encapsulate strings with the ' ' chars
 	 *
-	 * @param string $table the table to be used database.
 	 * @param array $values an array of values and keys to be inserted.
 	 *
 	 * @return bool Returns TRUE on success or FALSE on failure.
@@ -513,7 +247,7 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public function create($table,$values){
+	public function create($values){
 		$key = array();
 		$keyData = array();
 		try{	
@@ -523,7 +257,7 @@ class database extends genericIO{
 			$key = array_keys($values);
 			$keyData = array_values($values);
 		
-			$sql = "INSERT INTO ".TPREP.$table." (";			
+			$sql = "INSERT INTO ".$this->db_table." (";			
 			for($i=0; $i<$arraylength; $i++){
 				$sql .= trim($key[$i]);
 				if($i < $arraylength-1){
@@ -555,7 +289,7 @@ class database extends genericIO{
 			$execute = $prepared->execute();
 			var_dump($execute);
 			if (!$execute ) {
-				throw new Exception('It was not possible to create new entry in: '.TPREP.$table);				
+				throw new Exception('It was not possible to create new entry in: '.$this->db_table);				
 			}
 		}	
 		catch (Exception $e){
@@ -567,6 +301,10 @@ class database extends genericIO{
 		return true;
 	}
 	
+	public function join($table, $primarykey, $secondarykey, $join = 'FULL JOIN'){
+		$this->db_join = ' '.$join.' '.$table.' ON '.$primarykey.'='.$secondarykey;		
+	}	
+	
 	/**
      * This function fetches data from a table.
 	 * 
@@ -577,7 +315,6 @@ class database extends genericIO{
 	 * be added to the resulting sql string.
 	 * Any class that needs to access the database needs to go through this class.
 	 *
-	 * @param string $table the table to use from the database.
 	 * @param string $what what data to pick. It can only use a comma separated list
 	 * @param string $where the conditions, accepted both as comma separated list or as an ass. array.
 	 * @param string $order how to sort the data.
@@ -589,7 +326,7 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */	
-	public function read($table,$what = '',$where = '',$order = '',$limit = '',$disabled = false){
+	public function read($what = '',$where = '',$order = '',$limit = '',$disabled = false){
 		$data = array();
 		$tmp = array();
 		try{
@@ -598,12 +335,15 @@ class database extends genericIO{
 				$sql .= $what." ";
 			} else {
 				$sql .= " * ";
-				$columns = self::countAffectedColumns($table);
+				$columns = self::countAffectedColumns();
 				if(!$columns){
 					self::DBug('Fatal error!!');
 				}
 			}
-			$sql .= " FROM ".TPREP.$table." ";
+			$sql .= " FROM ".$this->db_table." ";
+			if($this->db_join){
+				$sql .= $this->db_join;
+			}
 			if($where){
 				if(is_array($where)){
 					$sql .= " WHERE ";
@@ -653,7 +393,7 @@ class database extends genericIO{
 					$data[] = $tmp;
 				}
 			} else {
-				throw new Exception('Could not fetch data from table: '.TPREP.$table);
+				throw new Exception('Could not fetch data from table: '.$this->db_table);
 			}
 		}	
 		catch (Exception $e){
@@ -668,7 +408,6 @@ class database extends genericIO{
 	 * 
 	 * The method have to have "what" clause in a comma separated string
 	 *
-	 * @param string $table the table to use from the database.
 	 * @param string $what what data to pick. It can only use a comma separated list
 	 * @param string $where the conditions, accepted both as comma separated list or as an ass. array.
 	 * @param string $order how to sort the data.
@@ -680,7 +419,7 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public function readAssociative($table,$what = '',$where = '',$order = '',$limit = '',$disabled = false){
+	public function readAssociative($what = '',$where = '',$order = '',$limit = '',$disabled = false){
 		$data = array();
 		$tmp = array();
 		try{
@@ -690,7 +429,10 @@ class database extends genericIO{
 			}
 			$sql .= $what." ";
 
-			$sql .= " FROM ".TPREP.$table." ";
+			$sql .= " FROM ".$this->db_table." ";
+			if($this->db_join){
+				$sql .= $this->db_join;
+			}			
 			if($where){
 				if(is_array($where)){
 					$sql .= " WHERE ";
@@ -736,7 +478,7 @@ class database extends genericIO{
 					$data[] = $tmp;
 				}
 			} else {
-				throw new Exception('Could not fetch data from table: '.TPREP.$table);
+				throw new Exception('Could not fetch data from table: '.$this->db_table);
 			}
 		}	
 		catch (Exception $e){
@@ -751,7 +493,6 @@ class database extends genericIO{
 	 *
 	 * This method is a short hand form of the method readAssociative. 
 	 *
-	 * @param string $table the table to use from the database.
 	 * @param string $what what data to pick. It can only use a comma separated list
 	 * @param string $where the conditions, accepted both as comma separated list or as an ass. array.
 	 * @param string $order how to sort the data.
@@ -762,15 +503,14 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */			
-	public function readSingleAssociative($table,$what = '',$where = '',$order = '',$disabled = false){
-		return self::readAssociative($table,$what,$where,$order,1,$disabled);
+	public function readSingleAssociative($what = '',$where = '',$order = '',$disabled = false){
+		return self::readAssociative($what,$where,$order,1,$disabled);
 	}
 	
 	/**
      * This function fetches a single row from a table.
 	 * It is a shorthand form of the method read, and it will unpack a 2D array to a 1D array
 	 *
-	 * @param string $table the table to use from the database.
 	 * @param string $what what data to pick. It can only use a comma separated list
 	 * @param string $where the conditions.
 	 * @param string $order how to sort the data.
@@ -781,83 +521,13 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public function readSingle($table,$what = '',$where = '',$order = '',$disabled = false){
-		$data = self::read($table,$what,$where,$order,1,$disabled);		
+	public function readSingle($what = '',$where = '',$order = '',$disabled = false){
+		$data = self::read($what,$where,$order,1,$disabled);		
 		if(is_array($data) && $data){
 			return $data[0];		
 		} else {
 			return $data;
 		}
-		/*
-		$data = array();
-		$tmp = array();
-		try{
-			$sql = "SELECT ";
-			if($what){
-				$sql .= $what." ";
-			} else {
-				$sql .= " * ";
-				$columns = self::countAffectedColumns($table);
-				if(!$columns){
-					self::DBug('Fatal error!!');
-				}
-			}
-			$sql .= " FROM ".TPREP.$table." ";
-			if($where){
-				if(is_array($where)){
-					$sql .= " WHERE ";
-					$arraylength = sizeof($where);
-					for($i=0; $i<$arraylength; $i++){
-						$sql .= trim($where[$i]);
-						if($i < $arraylength-1){
-							$sql .= " AND ";
-						}
-					}
-				} else {
-					$sql .= " WHERE ".$where;
-				}
-				if(!$disabled){
-					$sql .= " AND DisabledDate = '0000-00-00 00:00:00'";
-				}
-			} else {
-				if(!$disabled){
-					$sql .= " WHERE DisabledDate = '0000-00-00 00:00:00'";
-				}
-			}			
-			
-			if($order){
-				$sql .= " ORDER BY ".$order;
-			}
-			$sql .= " LIMIT 1";
-			
-			$this->sqlString = $sql;
-
-			$prepared = $this->databaseHandler->prepare($sql);
-			if ($prepared->execute()) {
-				while ($row = $prepared->fetch()) {
-					if($what){
-						$i = 0;
-						$rowlist = explode(',',$what);
-						foreach($rowlist as $singlerow){
-							$tmp[$i] = $row[$i];
-							$i++;
-						}
-					} else {
-						for($i=0;$i<$columns;$i++){
-							$tmp[$i] = $row[$i];
-						}
-					}
-					$data = $tmp;
-				}
-			} else {
-				throw new Exception('Could not fetch single row from table: '.TPREP.$table);
-			}
-		}	
-		catch (Exception $e){
-			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
-			return false;
-		}
-		return $data;*/
 	}	
 	
 	/**
@@ -867,7 +537,6 @@ class database extends genericIO{
 	 * and orders the data after the private key.
 	 * so it only needs a table name and if necessary, also a where clause.
 	 *
-	 * @param string $table the table to use from the database.
 	 * @param string $where the conditions.
 	 *
 	 * @return bool/array Returns array of data on success or FALSE on failure.
@@ -875,11 +544,11 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */	
-	public function readLastEntry($table,$where = ''){
+	public function readLastEntry($where = ''){
 		$data = array();
 		try{
-			$sql = "SELECT * FROM ".TPREP.$table." ";
-			$columns = self::countAffectedColumns($table);
+			$sql = "SELECT * FROM ".$this->db_table." ";
+			$columns = self::countAffectedColumns();
 			if(!$columns){
 				self::DBug('Fatal error!!');
 			}
@@ -900,7 +569,7 @@ class database extends genericIO{
 					$sql .= "WHERE ".$where;
 				}
 			}
-			$sql .= " ORDER BY ".self::getPrivateKey($table)." DESC LIMIT 1";
+			$sql .= " ORDER BY ".self::getPrivateKey($this->db_table)." DESC LIMIT 1";
 
 			$this->sqlString = $sql;
 			
@@ -912,7 +581,7 @@ class database extends genericIO{
 					}
 				}
 			} else {
-				throw new Exception('Could not fetch the last entry in table: '.TPREP.$table);
+				throw new Exception('Could not fetch the last entry in table: '.$this->db_table);
 			}
 		}	
 		catch (Exception $e){
@@ -933,10 +602,10 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */	
-	public function count($table,$where =''){
+	public function count($where =''){
 		$data = 0;
 		try{
-			$sql = "SELECT count(".self::getPrivateKey($table).") AS counter FROM ".TPREP.$table;
+			$sql = "SELECT count(".self::getPrivateKey().") AS counter FROM ".$this->db_table;
 			if($where){
 				$sql .= " WHERE ".$where;
 			}
@@ -949,46 +618,13 @@ class database extends genericIO{
 					$data = $row['counter'];
 				}
 			} else {
-				throw new Exception('Could not count number of columns in table: '.TPREP.$table);
+				throw new Exception('Could not count number of columns in table: '.$this->db_table);
 			}
 		}	
 		catch (Exception $e){
 			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
 		}
 		return $data;	
-	}
-
-	/**
-     * This method truncates a table
-	 *
-	 * @param string $table the table to use from the database.
-	 *
-	 * @return bool TRUE on success or FALSE on failure.
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-     */		
-	public function truncateTable($table){
-		if(!$table){
-			return false;
-		}
-
-		try{
-			self::TransactionBegin();
-			$sql = 'TRUNCATE TABLE '.$table;
-			$this->sqlString = $sql;
-			$prepared = $this->databaseHandler->prepare($sql);
-			if (!$prepared->execute()) {
-				throw new Exception('Could not update data in table: '.TPREP.$table);
-			}			
-		}	
-		catch (Exception $e){
-			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
-			self::TransactionRollback();
-			return false;
-		}	
-		self::TransactionEnd();
-		return true;
 	}
 	
 	/**
@@ -997,7 +633,6 @@ class database extends genericIO{
 	 * The method accepts an array with keys and values or a string
 	 * in normal sql format.
 	 *
-	 * @param string $table the table to use from the database.
 	 * @param string $what what data to update
 	 * @param string $where the conditions.
 	 *
@@ -1006,14 +641,14 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public function update($table,$values,$where){
-		if(!$table || !$values || !$where){
+	public function update($values,$where){
+		if(!$values || !$where){
 			return false;
 		}
 
 		try{
 			self::TransactionBegin();
-			$sql = "UPDATE ".TPREP.$table." SET ";
+			$sql = "UPDATE ".$this->db_table." SET ";
 
 			if(is_array($values)){
 				$arraylength = sizeof($values);
@@ -1037,7 +672,7 @@ class database extends genericIO{
 			$this->sqlString = $sql;		
 			$prepared = $this->databaseHandler->prepare($sql);
 			if (!$prepared->execute()) {
-				throw new Exception('Could not update data in table: '.TPREP.$table);
+				throw new Exception('Could not update data in table: '.$this->db_table);
 			}
 		}	
 		catch (Exception $e){
@@ -1052,7 +687,6 @@ class database extends genericIO{
 	/**
      * This method deletes a row in the table.
 	 *
-	 * @param string $table the table to use from the database.
 	 * @param string $where the conditions.
 	 *
 	 * @return bool TRUE on success or FALSE on failure.
@@ -1060,13 +694,13 @@ class database extends genericIO{
      * @access public
 	 * @since Method available since Release 1.0.0
      */
-	public function destroy($table,$where){
-		if(!$table || !$where){
+	public function destroy($where){
+		if(!$where){
 			return false;
 		}
 		try{
 			self::TransactionBegin();
-			$sql = "DELETE FROM ".TPREP.$table;
+			$sql = "DELETE FROM ".$this->db_table;
 			
 			if(is_array($where)){
 				$sql .= " WHERE ";
@@ -1087,7 +721,7 @@ class database extends genericIO{
 			
 			$prepared = $this->databaseHandler->prepare($sql);
 			if (!$prepared->execute()) {
-				throw new Exception('Could not delete row in table: '.TPREP.$table);
+				throw new Exception('Could not delete row in table: '.$this->db_table);
 			}			
 		}	
 		catch (Exception $e){
@@ -1105,7 +739,6 @@ class database extends genericIO{
 	 * The method uses the getPrivateKey to find the private key for the table, 
 	 * so its not necessary to provide it with the tables private key
 	 *
-	 * @param string $table the table are we working on
 	 * @param int $id The id for the row in the table.
 	 *
 	 * @return bool true on success or false on failure.	 
@@ -1113,10 +746,10 @@ class database extends genericIO{
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public function disable($table,$id){
+	public function disable($id){
 		$data = array("DisabledDate" => "NOW()");
-		$privatekey = self::getPrivateKey($table);
-		return self::update($table,$data,$privatekey." = ".$id);	
+		$privatekey = self::getPrivateKey();
+		return self::update($data,$privatekey." = ".$id);	
 	}
 
 	/**
@@ -1132,10 +765,10 @@ class database extends genericIO{
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public function enable($table,$id){
+	public function enable($id){
 		$data = array("DisabledDate" => "'0000-00-00 00:00:00'");
-		$privatekey = self::getPrivateKey($table);
-		return self::update($table,$data,$privatekey." = ".$id);
+		$privatekey = self::getPrivateKey();
+		return self::update($data,$privatekey." = ".$id);
 	}		
 
 	/**
@@ -1144,18 +777,16 @@ class database extends genericIO{
 	 * This function can count the number of rows in a table.
 	 * The information is fetched from MySQL information_schema
 	 *
-	 * @param string $table the table where the number of columns are counted.
-	 *
 	 * @return int Returns the number of table rows on success or 0 on failure.
 	 *
      * @access private
 	 * @since Method available since Release 1.0.0
      */		
-	private function countAffectedColumns($table){
+	private function countAffectedColumns(){
 		$data = 0;
 		try{
 			$sql = "SELECT count(*) AS counter FROM information_schema.`COLUMNS` C";
-			$sql .= " WHERE table_name = '".TPREP.$table."'";
+			$sql .= " WHERE table_name = '".$this->db_table."'";
 			$sql .= " AND TABLE_SCHEMA = '".DATABASE."'";
 		
 			$prepared = $this->databaseHandler->prepare($sql);
@@ -1164,7 +795,7 @@ class database extends genericIO{
 					$data = $row['counter'];
 				}
 			} else {
-				throw new Exception('Could not count number of columns in table: '.TPREP.$table);
+				throw new Exception('Could not count number of columns in table: '.$this->db_table);
 			}
 		}	
 		catch (Exception $e){
@@ -1183,11 +814,11 @@ class database extends genericIO{
      * @access private
 	 * @since Method available since Release 1.0.0
      */
-	private function getPrivateKey($table){
+	private function getPrivateKey(){
 		$data = '';
 		try{
 			$sql = "SELECT COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE K";
-			$sql .= " WHERE TABLE_NAME = '".TPREP.$table."'";
+			$sql .= " WHERE TABLE_NAME = '".$this->db_table."'";
 			$sql .= " AND TABLE_SCHEMA = '".DATABASE."'";
 		
 			$prepared = $this->databaseHandler->prepare($sql);
@@ -1196,7 +827,7 @@ class database extends genericIO{
 					$data = $row['COLUMN_NAME'];
 				}
 			} else {
-				throw new Exception('Could not find private key in table: '.TPREP.$table);
+				throw new Exception('Could not find private key in table: '.$this->db_table);
 			}
 		}	
 		catch (Exception $e){

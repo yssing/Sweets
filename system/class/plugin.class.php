@@ -36,8 +36,8 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function listPlugin(){
-		$database = new database();
-		return $database->read("cms_plugins","PK_PluginID,Name,Activated","","Name");
+		$database = new database("cms_plugins");
+		return $database->read("PK_PluginID,Name,Activated","","Name");
 	}	
 	
 	/**
@@ -54,10 +54,10 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function addPlugin($plugin){
-		$database = new database();
+		$database = new database("cms_plugins");
 		$data = array("Name" => "'".$plugin."'","Activated" => "1");			
 		$database->TransactionBegin();
-		if($database->create('cms_plugins',$data)){
+		if($database->create($data)){
 			$database->TransactionEnd();
 		} else {
 			$database->TransactionRollback();
@@ -77,8 +77,8 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function disablePlugin($pluginid){
-		$database = new database();
-		return $database->update("cms_plugins","Activated=0","PK_PluginID = ".$pluginid);			
+		$database = new database("cms_plugins");
+		return $database->update("Activated=0","PK_PluginID = ".$pluginid);			
 	}
 
 	/**
@@ -92,8 +92,8 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function enablePlugin($pluginid){
-		$database = new database();
-		return $database->update("cms_plugins","Activated=1","PK_PluginID = ".$pluginid);		
+		$database = new database("cms_plugins");
+		return $database->update("Activated=1","PK_PluginID = ".$pluginid);		
 	}	
 	
 	/**
@@ -107,8 +107,8 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */	
 	public static function readPlugin($pluginid){
-		$database = new database();
-		return $database->readSingle('cms_plugins','PK_PluginID, Activated, Name','PK_PluginID = '.$pluginid);
+		$database = new database("cms_plugins");
+		return $database->readSingle('PK_PluginID, Activated, Name','PK_PluginID = '.$pluginid);
 	}
 	
 	/**
@@ -122,9 +122,9 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function removePlugin($pluginid){
-		$database = new database();
+		$database = new database("cms_plugins");
 		$database->TransactionBegin();
-		if($database->destroy("cms_plugins","PK_PluginID = ".$pluginid)){
+		if($database->destroy("PK_PluginID = ".$pluginid)){
 			$database->TransactionEnd();
 		} else {
 			$database->TransactionRollback();
@@ -177,8 +177,8 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function doesExist($plugin){
-		$database = new database();
-		list($id) = $database->readSingle("cms_plugins","PK_PluginID","Name = '".$plugin."'");
+		$database = new database("cms_plugins");
+		list($id) = $database->readSingle("PK_PluginID","Name = '".$plugin."'");
 		return $id;	
 	}	
 	
@@ -191,9 +191,9 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function retrievePlugin(){
-		$database = new database();
+		$database = new database("cms_plugins");
 		$plugins = '';
-		$pluginlist = $database->read("cms_plugins","Name","Activated = 1");
+		$pluginlist = $database->read("Name","Activated = 1");
 		foreach($pluginlist as $plugin){
 			$plugins .= '<link href="'.PATH_WEB.'/plugins/'.$plugin[0].'/'.$plugin[0].'.css" type="text/css" rel="stylesheet" />'.chr(13);
 			$plugins .= '<script src="'.PATH_WEB.'/plugins/'.$plugin[0].'/'.$plugin[0].'.js" type="text/javascript"></script>'.chr(13);;
@@ -212,8 +212,8 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyPlugin($pluginid){
-		$database = new database();
-		if(!$database->destroy("cms_plugins","PK_PluginID = ".$pluginid)){
+		$database = new database("cms_plugins");
+		if(!$database->destroy("PK_PluginID = ".$pluginid)){
 			return false;
 		}
 		return true;

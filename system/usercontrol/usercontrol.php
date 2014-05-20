@@ -94,7 +94,7 @@ class usercontrol{
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("UserStatus" => "varchar(10)",
 			"UID" => "varchar(45)",
 			"Validated" => "tinyint(1)",	
@@ -116,10 +116,10 @@ class usercontrol{
 			"UserPassword" => "varchar(45)",
 			"AcceptNews" => "tinyint(1)",	
 			"AcceptMails" => "tinyint(1)");
-		$result = $database->createTable('user',$what,"PK_UserID");
+		$result = $databaseadmin->createTable('user',$what,"PK_UserID");
 		if($result){
 			$what = array("UserLogin" => "datetime", "UserLogout" => "datetime");
-			$result = $database->createTable('user_login',$what,"PK_UserLoginID");		
+			$result = $databaseadmin->createTable('user_login',$what,"PK_UserLoginID");		
 		}
 		if($result){
 			if($rootname && $password){

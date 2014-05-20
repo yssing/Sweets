@@ -41,12 +41,12 @@ class element{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function createElement($path,$body,$element){	
-		$database = new database();
+		$database = new database('cms_element');
 		$data = array("Path" => "'".$path."'",
 			"BodyText" => "'".$body."'",
 			"Element" => "'".$element."'",
 			"Language" => "'".$_SESSION['CountryCode']."'");
-		if(!$database->create('cms_element',$data)){
+		if(!$database->create($data)){
 			return false;
 		}
 		return true;
@@ -64,8 +64,8 @@ class element{
 	 * @since Method available since Release 1.0.0
      */
 	public static function doesExist($path,$element){
-		$database = new database();
-		list($id) = $database->readSingle("cms_element","PK_ElementID","Path = '".$path."' AND Element = '".$element."' AND Language = '".$_SESSION['CountryCode']."'");
+		$database = new database('cms_element');
+		list($id) = $database->readSingle("PK_ElementID","Path = '".$path."' AND Element = '".$element."' AND Language = '".$_SESSION['CountryCode']."'");
 		return $id;
 	}
 	
@@ -82,9 +82,9 @@ class element{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function updateElementPath($path,$body,$element){
-		$database = new database();
+		$database = new database('cms_element');
 		$data = array("BodyText" => "'".$body."'");	
-		return $database->update("cms_element",$data,"Path = '".$path."' AND Element = '".$element."' AND Language = '".$_SESSION['CountryCode']."'");
+		return $database->update($data,"Path = '".$path."' AND Element = '".$element."' AND Language = '".$_SESSION['CountryCode']."'");
 	}	
 	
 	/**
@@ -98,10 +98,10 @@ class element{
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */
-	public static function updateElement($id,$body){
-		$database = new database();
-		$data = array("BodyText" => "'".$body."'");
-		return $database->update("cms_element",$data,"PK_ElementID = ".$id);
+	public static function updateElement($id,$body,$path){
+		$database = new database('cms_element');
+		$data = array("BodyText" => "'".$body."'", "Path" => "'".$path."'");
+		return $database->update($data,"PK_ElementID = ".$id);
 	}
 
 	/**
@@ -117,8 +117,8 @@ class element{
 	 * @since Method available since Release 1.0.0
      */
 	public static function readElementPath($path,$element = '/',$alternative = ''){
-		$database = new database();
-		$tmp = $database->readSingle("cms_element","BodyText","Path = '".$path."' AND Element = '".$element."' AND Language = '".$_SESSION['CountryCode']."'");
+		$database = new database('cms_element');
+		$tmp = $database->readSingle("BodyText","Path = '".$path."' AND Element = '".$element."' AND Language = '".$_SESSION['CountryCode']."'");
 		if(sizeof($tmp) > 0){
 			list($text) = $tmp;
 			return '<label>'.$text.'</label>';
@@ -138,8 +138,8 @@ class element{
 	 * @since Method available since Release 1.0.0
      */			
 	public static function readElement($id){
-		$database = new database();
-		return $database->readSingle("cms_element","PK_ElementID, BodyText","PK_ElementID = ".$id);
+		$database = new database('cms_element');
+		return $database->readSingle("PK_ElementID, BodyText, Path","PK_ElementID = ".$id);
 	}	
 
 	/**
@@ -151,8 +151,8 @@ class element{
 	 * @since Method available since Release 1.0.0
      */			
 	public static function listElements(){
-		$database = new database();
-		return $database->read("cms_element","PK_ElementID, Path, Element","Language = '".$_SESSION['CountryCode']."'");
+		$database = new database('cms_element');
+		return $database->read("PK_ElementID, Path, Element","Language = '".$_SESSION['CountryCode']."'");
 	}	
 	
 	/**
@@ -166,8 +166,8 @@ class element{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyElement($elementid){
-		$database = new database();
-		if(!$database->destroy("cms_element","PK_ElementID = ".$elementid)){
+		$database = new database('cms_element');
+		if(!$database->destroy("PK_ElementID = ".$elementid)){
 			return false;
 		}
 		return true;

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript">		
+			const NUMBEROFSTARS = 800;
+			var star = new Array(NUMBEROFSTARS);
+			
+			var basicObject = function() {			
+				this.posx = 0;
+				this.posy = 0;
+				
+				this.randomFromTo = function(from, to){
+					return Math.floor(Math.random() * (to - from + 1) + from);
+				}
+			};			
+			
+			var starObject = function(){
+				this.Size = 0;
+				this.Color = 0;
+				this.Speed = 0;
+				
+				this.moveStar = function(view){
+					if(this.posy >= 700){
+						this.renewStar(500);
+					}										
+					view.fillStyle = this.Color;
+					view.beginPath();
+					view.arc(this.posx,this.posy,this.Size,0,Math.PI*2,true);
+					view.fill();
+					this.posy += this.Speed;
+				}
+				
+				this.setupStar = function(width,height){
+					this.posy = this.randomFromTo(-height,height);
+					this.posx = Math.floor(Math.random()*width);
+					this.Size = this.randomFromTo(1,2);					
+					this.Speed = this.randomFromTo(1,10);
+					tmpcolor = Math.floor(this.Speed*(255/10));
+					this.Color = 'rgb('+tmpcolor+','+tmpcolor+','+tmpcolor+')';					
+				}
+				
+				this.renewStar = function(height){
+					this.posy = this.randomFromTo(-height,0);
+				}
+			};	
+
+			function setup(){							
+				for(i=0;i<=NUMBEROFSTARS;i++){
+					starObject.prototype = new basicObject();
+					star[i] = new starObject();							 			
+					star[i].setupStar(700,500);
+				}	
+				drawObjects();
+			}
+			
+			function drawObjects(){
+				var ctx=document.getElementById("playfield").getContext("2d");
+				ctx.fillStyle="#000000";	
+				ctx.fillRect(0,0,700,500);
+				for(i=0;i<=NUMBEROFSTARS;i++){
+					star[i].moveStar(ctx);
+				}					
+				setTimeout("drawObjects()", 42);
+			}		
+		</script>	
+	</head>
+	
+	<body onload="setup()">
+		<canvas id="playfield" width="700" height="500" style="border:1px solid #c3c3c3;">
+			Your browser does not support the canvas element.
+		</canvas>
+	</body>
+</html>

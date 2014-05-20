@@ -37,8 +37,8 @@ class municipality{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function readSingleMunicipality($municipalityid){
-		$database = new database();
-		return $database->readSingle("geography_municipality","Municipality,MunicipalityCode","PK_MunicipalityID = ".$municipalityid);	
+		$database = new database("geography_municipality");
+		return $database->readSingle("Municipality,MunicipalityCode","PK_MunicipalityID = ".$municipalityid);	
 	}
 
 	/**
@@ -50,16 +50,16 @@ class municipality{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function listMunicipalities(){
-		$database = new database();
-		return $database->read("geography_municipality","PK_MunicipalityID,Municipality,MunicipalityCode","","Municipality");
+		$database = new database("geography_municipality");
+		return $database->read("PK_MunicipalityID,Municipality,MunicipalityCode","","Municipality");
 	}	
 	
 	/**
 	 * finds the newest item.
 	 */
 	public static function findlast(){
-		$database = new database();
-		list($id) = $database->readLastEntry('geography_municipality');
+		$database = new database("geography_municipality");
+		list($id) = $database->readLastEntry();
 		return $id;
 	}
 	
@@ -76,9 +76,9 @@ class municipality{
 	 * @since Method available since Release 1.0.0
      */
 	public static function updateMunicipality($municipalityid,$municipality,$municipalitycode){
-		$database = new database();
+		$database = new database("geography_municipality");
 		$data = array("Municipality" => "'".$municipality."'","MunicipalityCode" => $municipalitycode);
-		return $database->update("geography_municipality",$data,"PK_MunicipalityID = ".$municipalityid);
+		return $database->update($data,"PK_MunicipalityID = ".$municipalityid);
 	}	
 	
 	/**
@@ -93,9 +93,9 @@ class municipality{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function createMunicipality($municipality,$municipalitycode){
-		$database = new database();
+		$database = new database("geography_municipality");
 		$data = array("Municipality" => "'".$municipality."'","MunicipalityCode" => $municipalitycode);
-		if(!$database->create('geography_municipality',$data)){
+		if(!$database->create($data)){
 			return false;
 		}
 		return true;
@@ -112,8 +112,8 @@ class municipality{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyMunicipality($municipalityid){
-		$database = new database();
-		if(!$database->destroy("geography_municipality","PK_MunicipalityID = ".$municipalityid)){
+		$database = new database("geography_municipality");
+		if(!$database->destroy("PK_MunicipalityID = ".$municipalityid)){
 			return false;
 		}
 		return true;

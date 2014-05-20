@@ -58,9 +58,9 @@ class userlanguage{
 	 * @since Method available since 2013-11-03
      */
 	public static function listFlags(){
-		$database = new database();
+		$database = new database("generic_language");
 		$lan = '';
-		foreach($database->read("generic_language","DISTINCT Language") as $language){
+		foreach($database->read("DISTINCT Language") as $language){
 			$lan .= '<a href="'.PATH_WEB.route::getURL().'?lan='.$language[0].'" class="flagcontrol '.strtolower($language[0]).'"></a>';
 		}
 		return $lan;

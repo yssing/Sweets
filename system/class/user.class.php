@@ -47,11 +47,11 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function createUser($username,$userstatus = 'USER'){
-		$database = new database();
+		$database = new database('user');
 		if(!self::doesExist($username)){
 			$values = array("UserLogin" => "'".$username."'", "UserStatus" => "'".$userstatus."'");
-			if($database->create('user',$values)){
-				list($userid) = $database->readLastEntry('user',$values);
+			if($database->create($values)){
+				list($userid) = $database->readLastEntry($values);
 				self::updateUID($userid);
 			} else {
 				return false;
@@ -95,8 +95,8 @@ class user {
 	 * @since Method available since Release 1.0.0
      */			
 	public static function doesExist($username){
-		$database = new database();
-		list($id) = $database->readSingle("user","PK_UserID","UserLogin = '".$username."'");
+		$database = new database('user');
+		list($id) = $database->readSingle("PK_UserID","UserLogin = '".$username."'");
 		if($id){
 			return $id;
 		} else {
@@ -116,10 +116,10 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function updateUID($userid){
-		$database = new database();
+		$database = new database('user');
 		$data = array("UID" => "'".md5($userid.time().mt_srand())."'");
 		$where = 'PK_UserID = '.$userid;		
-		if(!$database->update('user',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;		
@@ -138,10 +138,10 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function updateUserStatus($status,$userid){
-		$database = new database();
+		$database = new database('user');
 		$data = array("UserStatus" => "'".$status."'");
 		$where = 'PK_UserID = '.$userid;		
-		if(!$database->update('user',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;		
@@ -164,9 +164,10 @@ class user {
 	 */		
 	public static function updateUserPassword($userPassword,$userid,$type = 'USER_SECRET'){
 		$salt = new salt();
+		$database = new database('user');
 		$data = array("UserPassword" => "'".md5($salt->readSalt($type).$userPassword)."'");
 		$where = 'PK_UserID = '.$userid;		
-		if(!$salt->update('user',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;
@@ -183,10 +184,10 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function updateUserValidate($userid){
-		$database = new database();
+		$database = new database('user');
 		$data = array("Validated" => "1");		
 		$where = 'PK_UserID = '.$userid;		
-		if(!$database->update('user',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;
@@ -201,8 +202,8 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function listUsers(){
-		$salt = new salt();
-		return $salt->read("user","PK_UserID, UserFirstName, UserLastName, UserLogin, UserEMail");
+		$database = new database('user');
+		return $database->read("PK_UserID, UserFirstName, UserLastName, UserLogin, UserEMail");
 	}
 	
 	/**
@@ -216,8 +217,8 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function readUser($userid){
-		$database = new database();
-		return $database->readSingle("user","PK_UserID, UserFirstName, UserLastName, UserLogin, UserEMail, AcceptNews, AcceptMails","PK_UserID = ".$userid);
+		$database = new database('user');
+		return $database->readSingle("PK_UserID, UserFirstName, UserLastName, UserLogin, UserEMail, AcceptNews, AcceptMails","PK_UserID = ".$userid);
 	}	
 
 	/**
@@ -231,8 +232,8 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function countUser($status){
-		$database = new database();
-		return $database->count("user","UserStatus = '".$status."'");
+		$database = new database('user');
+		return $database->count("UserStatus = '".$status."'");
 	}		
 	
 	/**
@@ -247,8 +248,8 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function countUserEMail($email){
-		$database = new database();
-		return $database->count("user","UserEMail = '".$email."'");
+		$database = new database('user');
+		return $database->count("UserEMail = '".$email."'");
 	}
 	
 	/**
@@ -263,8 +264,8 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function countUserLogin($userlogin){
-		$database = new database();
-		return $database->count("user","UserLogin = '".$userlogin."'");
+		$database = new database('user');
+		return $database->count("UserLogin = '".$userlogin."'");
 	}
 	
 	/**
@@ -279,8 +280,8 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function readUserCredentials($email){
-		$database = new database();
-		return $database->readSingle("user","PK_UserID, UID","UserEMail = '".$email."'");
+		$database = new database('user');
+		return $database->readSingle("PK_UserID, UID","UserEMail = '".$email."'");
 	}
 
 	/**
@@ -294,8 +295,8 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function readUserID($UID){
-		$database = new database();
-		list($userid) = $database->readSingle("user","PK_UserID","UID = '".$UID."'");
+		$database = new database('user');
+		list($userid) = $database->readSingle("PK_UserID","UID = '".$UID."'");
 		return $userid;
 	}
 	
@@ -320,13 +321,14 @@ class user {
 	 */			
 	public static function userlogin($username,$password,$remember = 0){
 		$salt = new salt();
+		$database = new database('user');
 		$what = "PK_UserID, UserLogin, UserStatus, Validated, UserFirstName, UserLastName";
 		if(validation::isEMail($username)){
 			$where = array("UserEMail = '".$username."'","UserPassword = '".md5($salt->readSalt('USER_SECRET').$password)."'");
 		} else {
 			$where = array("UserLogin = '".$username."'","UserPassword = '".md5($salt->readSalt('USER_SECRET').$password)."'");
 		}	
-		$user = $salt->readSingle("user",$what,$where);
+		$user = $database->readSingle($what,$where);
 		if(is_array($user) && sizeof($user)){
 			list($id,$login,$status,$valid,$first,$last) = $user;
 			if($status != "LOCKED"){
@@ -371,13 +373,14 @@ class user {
 	 */			
 	public static function adminlogin($username,$password){
 		$salt = new salt();
+		$database = new database('user');
 		$what = "PK_UserID, UserLogin, UserStatus, Validated, UserFirstName, UserLastName";
 		if(validation::isEMail($username)){
 			$where = array("UserEMail = '".$username."'","UserPassword = '".md5($salt->readSalt('ADMIN_SECRET').$password)."'");
 		} else {
 			$where = array("UserLogin = '".$username."'","UserPassword = '".md5($salt->readSalt('ADMIN_SECRET').$password)."'");
 		}
-		$user = $salt->readSingle("user",$what,$where);
+		$user = $database->readSingle($what,$where);
 		if(is_array($user) && sizeof($user)){
 			list($id,$login,$status,$valid,$first,$last) = $user;
 			if($status == 'ADMIN'){
@@ -496,8 +499,8 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function getLastUser(){
-		$database = new database();
-		return $database->readLastEntry('user');
+		$database = new database('user');
+		return $database->readLastEntry();
 	}
 	
 	/**
@@ -514,8 +517,8 @@ class user {
 		if(!$userid){
 			return false;
 		} 
-		$database = new database();
-		if(!$database->destroy("user","PK_UserID = ".$userid)){
+		$database = new database('user');
+		if(!$database->destroy("PK_UserID = ".$userid)){
 			return false;
 		}		
 		return true;

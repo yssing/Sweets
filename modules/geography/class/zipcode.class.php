@@ -38,8 +38,8 @@ class zipcode{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function readSingleZipcode($zipcode){
-		$database = new database();
-		list($cityname) = $database->readSingle("geography_zipcode","City","Zipcode = ".$zipcode);
+		$database = new database("geography_zipcode");
+		list($cityname) = $database->readSingle("City","Zipcode = ".$zipcode);
 		return $cityname;	
 	}
 
@@ -54,8 +54,8 @@ class zipcode{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function readZipcode($id){
-		$database = new database();
-		return $database->readSingle("geography_zipcode","FK_AreaID,FK_MunicipalityID,Zipcode,City","PK_ZipcodeID = ".$id);
+		$database = new database("geography_zipcode");
+		return $database->readSingle("FK_AreaID,FK_MunicipalityID,Zipcode,City","PK_ZipcodeID = ".$id);
 	}
 	
 	/**
@@ -73,12 +73,12 @@ class zipcode{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function updateZipcode($id,$area,$municipality,$zipcode,$city){
-		$database = new database();
+		$database = new database("geography_zipcode");
 		$data = array("FK_AreaID" => $area,
 			"FK_MunicipalityID" => $municipality,
 			"Zipcode" => "'".$zipcode."'",
 			"City" => "'".$city."'");
-		return $database->update("geography_zipcode",$data,"PK_ZipcodeID = ".$id);
+		return $database->update($data,"PK_ZipcodeID = ".$id);
 	}
 	
 	/**
@@ -95,12 +95,12 @@ class zipcode{
 	 * @since Method available since Release 1.0.0
      */
 	public static function createNews($area,$municipality,$zipcode,$city){
-		$database = new database();
+		$database = new database("geography_zipcode");
 		$data = array("FK_AreaID" => $area,
 			"FK_MunicipalityID" => $municipality,
 			"Zipcode" => "'".$zipcode."'",
 			"City" => "'".$city."'");
-		if(!$database->create('geography_zipcode',$data)){
+		if(!$database->create($data)){
 			return false;
 		}
 		return true;
@@ -115,8 +115,8 @@ class zipcode{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function listZipcodes(){
-		$database = new database();
-		return $database->read("geography_zipcode","PK_ZipcodeID,FK_MunicipalityID,FK_AreaID,Zipcode,City","","City");
+		$database = new database("geography_zipcode");
+		return $database->read("PK_ZipcodeID,FK_MunicipalityID,FK_AreaID,Zipcode,City","","City");
 	}
 }
 ?>

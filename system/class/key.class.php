@@ -42,9 +42,9 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function createKey($Key,$Value){
-		$database = new database();
+		$database = new database('generic_key');
 		$data = array("KeySetting" => "'".$Key."'" ,"ValueSetting" => "'".$Value."'");
-		if(!$database->create('generic_key',$data)){
+		if(!$database->create($data)){
 			return false;
 		}
 		return true;
@@ -62,8 +62,8 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function doesExist($key){
-		$database = new database();
-		list($id) = $database->readSingle("generic_key","PK_KeyID","KeySetting = '".$key."'");
+		$database = new database('generic_key');
+		list($id) = $database->readSingle("PK_KeyID","KeySetting = '".$key."'");
 		return $id;	
 	}
 	
@@ -76,8 +76,8 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function findlast(){
-		$database = new database();
-		list($id) = $database->readLastEntry('generic_key');
+		$database = new database('generic_key');
+		list($id) = $database->readLastEntry();
 		return $id;
 	}	
 	
@@ -93,11 +93,11 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function updateKey($id,$Key,$Value){
-		$database = new database();
+		$database = new database('generic_key');
 		$data = array("ValueSetting" => "'".$Value."'", "KeySetting" => "'".$Key."'");
 		$where = " PK_KeyID = ".$id;
 		
-		if(!$database->update('generic_key',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}
 		return true;
@@ -112,8 +112,8 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function listKeys(){
-		$database = new database();
-		return $database->read("generic_key","PK_KeyID, KeySetting, ValueSetting");	
+		$database = new database('generic_key');
+		return $database->read("PK_KeyID, KeySetting, ValueSetting");	
 	}	
 	
 	/**
@@ -129,7 +129,7 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function readKey($Key){
-		$database = new database();
+		$database = new database('generic_key');
 		if(!$Key){
 			return false;
 		}
@@ -138,7 +138,7 @@ class key /*extends database*/{
 		} else {
 			$where = "KeySetting = '".$Key."'";
 		}
-		$Value = $database->readSingle("generic_key",'',$where); 
+		$Value = $database->readSingle('',$where); 
 		if(is_array($Value)){
 			return $Value;
 		} else {
@@ -159,7 +159,7 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function readValue($key){
-		$database = new database();
+		$database = new database('generic_key');
 		if(!$key){
 			return false;
 		}
@@ -168,7 +168,7 @@ class key /*extends database*/{
 		} else {
 			$where = "KeySetting = '".$key."'";
 		}
-		$Value = $database->readSingle("generic_key",'ValueSetting',$where); 
+		$Value = $database->readSingle('ValueSetting',$where); 
 		if(is_array($Value)){
 			list($Value) = $Value;
 			return $Value;
@@ -188,12 +188,12 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function destroyKey($Key){
-		$database = new database();
+		$database = new database('generic_key');
 		if(!$Key){
 			return false;
 		}
 		$where = "PK_KeyID = ".$Key;
-		if(!$database->destroy('generic_key',$where)){
+		if(!$database->destroy($where)){
 			return false;
 		}
 		return true;

@@ -45,7 +45,7 @@ class news {
 	 * @since Method available since Release 1.0.0
      */
 	public static function createNews($headline,$teaser,$body,$online,$offline,$icon,$sticky){
-		$database = new database();
+		$database = new database('cms_news');
 		$data = array("Headline" => "'".$headline."'",
 			"Teaser" => "'".$teaser."'",
 			"BodyText" => "'".$body."'",
@@ -54,7 +54,7 @@ class news {
 			"Icon" => "'".$icon."'",
 			"Sticky" => $sticky,
 			"Language" => "'".$_SESSION['CountryCode']."'");
-		if(!$database->create('cms_news',$data)){
+		if(!$database->create($data)){
 			return false;
 		}
 		return true;
@@ -64,8 +64,8 @@ class news {
 	 * finds the latest news item.
 	 */
 	public static function findlast(){
-		$database = new database();
-		list($id) = $database->readLastEntry('cms_news');
+		$database = new database('cms_news');
+		list($id) = $database->readLastEntry();
 		return $id;
 	}	
 	
@@ -87,7 +87,7 @@ class news {
 	 * @since Method available since Release 1.0.0
      */
 	public static function updateNews($newsid,$headline,$teaser,$body,$online,$offline,$icon,$sticky){
-		$database = new database();
+		$database = new database('cms_news');
 		$data = array("Headline" => "'".$headline."'",
 			"Teaser" => "'".$teaser."'",
 			"BodyText" => "'".$body."'",
@@ -96,7 +96,7 @@ class news {
 			"Icon" => "'".$icon."'",
 			"Sticky" => $sticky,
 			"Language" => "'".$_SESSION['CountryCode']."'");
-		return $database->update("cms_news",$data,"PK_NewsID = ".$newsid);
+		return $database->update($data,"PK_NewsID = ".$newsid);
 	}
 
 	/**
@@ -108,8 +108,8 @@ class news {
 	 * @since Method available since Release 1.0.0
      */
 	public static function listNews(){
-		$database = new database();
-		return $database->read("cms_news","PK_NewsID,Headline,Teaser","Language = '".$_SESSION['CountryCode']."'");
+		$database = new database('cms_news');
+		return $database->read("PK_NewsID,Headline,Teaser","Language = '".$_SESSION['CountryCode']."'");
 	}
 	
 	/**
@@ -122,8 +122,8 @@ class news {
      */
 	public static function listRssNews(){
 		$return = array();
-		$database = new database();
-		$result = $database->readAssociative("cms_news","PK_NewsID,Headline,Teaser,Icon,FK_UserID,CreateDate","Language = '".$_SESSION['CountryCode']."'","PK_NewsID",10);
+		$database = new database('cms_news');
+		$result = $database->readAssociative("PK_NewsID,Headline,Teaser,Icon,FK_UserID,CreateDate","Language = '".$_SESSION['CountryCode']."'","PK_NewsID",10);
 		foreach($result as $row){
 			$line = array();
 			foreach($row as $key => $value){
@@ -158,8 +158,8 @@ class news {
      */
 	public static function listUserNews($from = 0,$to = 5){
 		$return = array();
-		$database = new database();
-		$result = $database->readAssociative("cms_news","PK_NewsID,Headline,Teaser,BodyText,Icon,FK_UserID,CreateDate","Language = '".$_SESSION['CountryCode']."'","PK_NewsID",$from.",".$to);
+		$database = new database('cms_news');
+		$result = $database->readAssociative("PK_NewsID,Headline,Teaser,BodyText,Icon,FK_UserID,CreateDate","Language = '".$_SESSION['CountryCode']."'","PK_NewsID",$from.",".$to);
 		foreach($result as $row){
 			$line = array();
 			foreach($row as $key => $value){
@@ -199,8 +199,8 @@ class news {
      */
 	public static function readUserNews($newsid){
 		$return = array();
-		$database = new database();
-		$result = $database->readSingleAssociative("cms_news","PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,Icon,Sticky,CreateDate,FK_UserID","PK_NewsID = ".$newsid." AND Language = '".$_SESSION['CountryCode']."'");
+		$database = new database('cms_news');
+		$result = $database->readSingleAssociative("PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,Icon,Sticky,CreateDate,FK_UserID","PK_NewsID = ".$newsid." AND Language = '".$_SESSION['CountryCode']."'");
 		
 		foreach($result as $row){
 			$line = array();
@@ -230,8 +230,8 @@ class news {
 	 * the same as above, but with out the associative array
 	 */
 	public static function readNews($newsid){
-		$database = new database();
-		return $database->readSingle("cms_news","PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,icon,Sticky,CreateDate,FK_UserID","PK_NewsID = ".$newsid." AND Language = '".$_SESSION['CountryCode']."'");	
+		$database = new database('cms_news');
+		return $database->readSingle("PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,icon,Sticky,CreateDate,FK_UserID","PK_NewsID = ".$newsid." AND Language = '".$_SESSION['CountryCode']."'");	
 	}	
 	
 	/**
@@ -245,8 +245,8 @@ class news {
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyNews($newsid){
-		$database = new database();
-		if(!$database->destroy("cms_news","PK_NewsID = ".$newsid)){
+		$database = new database('cms_news');
+		if(!$database->destroy("PK_NewsID = ".$newsid)){
 			return false;
 		}
 		return true;

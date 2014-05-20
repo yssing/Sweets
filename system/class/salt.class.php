@@ -26,7 +26,7 @@
  * @require		'database.class.php'
  */
 require_once('database.class.php'); 
-class salt extends database{
+class salt {
 
 	/**
 	 * This method creates a new salt entry in the database.
@@ -39,8 +39,9 @@ class salt extends database{
      * @access public
 	 */
 	public function createSalt($name,$value){
+		$database = new database('generic_salt');
 		$values = array("Salt_type" => "'".$name."'", "Salt" => "'".$value."'");
-		if(!self::create('generic_salt',$values)){
+		if(!$database->create($values)){
 			return false;
 		}
 		return true;
@@ -55,7 +56,8 @@ class salt extends database{
 	 * @since Method available since Release 1.0.0
 	 */	
 	public function listSalt(){
-		return self::read("generic_salt");	
+		$database = new database('generic_salt');
+		return $database->read();	
 	}
 
 	/**
@@ -74,12 +76,13 @@ class salt extends database{
 		if(!$id){
 			return false;
 		}
+		$database = new database('generic_salt');
 		if(is_string($id)){
 			$where = "Salt_type = '".$id."'";
 		} else {
 			$where = "PK_SaltID = ".$id;
 		}
-		$salt = self::readSingle("generic_salt","Salt",$where); 
+		$salt = $database->readSingle("Salt",$where); 
 		if(is_array($salt)){
 			list($salt) = $salt;
 			return $salt;
@@ -102,6 +105,7 @@ class salt extends database{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public function updateSalt($id,$salt){
+		$database = new database('generic_salt');
 		$data = "Salt = '".$salt."'";
 		if(is_string($id)){
 			$where = " Salt_type = '".$id."'";
@@ -109,7 +113,7 @@ class salt extends database{
 			$where = " PK_SaltID = ".$id;
 		}
 
-		if(!self::update('generic_salt',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;
@@ -126,12 +130,12 @@ class salt extends database{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function destroySalt($saltid){
-		$database = new database();
+		$database = new database('generic_salt');
 		if(!$saltid){
 			return false;
 		}
 		$where = "PK_SaltID = ".$saltid;
-		if(!$database->destroy('generic_salt',$where)){
+		if(!$database->destroy($where)){
 			return false;
 		}
 		return true;

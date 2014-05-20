@@ -1,0 +1,50 @@
+18-05-2014 Kl.: 22:17 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:17 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:17 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:19 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:19 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:21 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:29 Caught exception: Could not fetch data from table: frame_cms_news
+SELECT PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,Icon,Sticky,CreateDate,FK_UserID  FROM frame_cms_news  WHERE PK_NewsID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:32 Caught exception: Could not fetch data from table: frame_cms_news
+SELECT PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,Icon,Sticky,CreateDate,FK_UserID  FROM frame_cms_news  WHERE PK_NewsID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:34 Caught exception: Could not fetch data from table: frame_cms_news
+SELECT PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,Icon,Sticky,CreateDate,FK_UserID  FROM frame_cms_news  WHERE PK_NewsID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:40 Caught exception: Could not fetch data from table: frame_cms_news
+SELECT PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,Icon,Sticky,CreateDate,FK_UserID  FROM frame_cms_news  WHERE PK_NewsID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:40 Caught exception: Could not fetch data from table: frame_cms_news
+SELECT PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,Icon,Sticky,CreateDate,FK_UserID  FROM frame_cms_news  WHERE PK_NewsID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:40 Caught exception: Could not fetch data from table: frame_cms_news
+SELECT PK_NewsID,Headline,Teaser,BodyText,OnlineDate,OfflineDate,Icon,Sticky,CreateDate,FK_UserID  FROM frame_cms_news  WHERE PK_NewsID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:42 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:42 Caught exception: Could not fetch data from table: frame_cms_text
+SELECT PK_TextID,TextKey,Headline,BodyText,Language  FROM frame_cms_text  WHERE PK_TextID = plugins AND Language = 'DK' AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+18-05-2014 Kl.: 22:51 Caught exception: Could not fetch data from table: frame_cms_element
+SELECT PK_ElementID, BodyText, Path  FROM frame_cms_element  WHERE PK_ElementID = uploads AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+20-05-2014 Kl.: 00:03 Caught exception: It was not possible to create new entry in: frame_js_questions
+INSERT INTO frame_js_questions (Question,FK_GroupID,Min,Max,Language,CreateDate,FK_UserID) VALUES ('<p>Test</p>',F,1,10,'DK', NOW(), 8)
+20-05-2014 Kl.: 07:14 Caught exception: It was not possible to create new entry in: frame_js_questions
+INSERT INTO frame_js_questions (Question,FK_GroupID,Min,Max,Language,CreateDate,FK_UserID) VALUES ('<p>Test</p>',F,1,10,'DK', NOW(), 8)
+20-05-2014 Kl.: 07:21 Caught exception: Could not create new table: Array
+CREATE TABLE IF NOT EXISTS `frame_Array` (
+			`PK_ArrayID` int(10) unsigned NOT NULL AUTO_INCREMENT,PK_QuestionID`FK_UserID` int(10) unsigned NOT NULL,`CreateDate` datetime NOT NULL,`DisabledDate` datetime NOT NULL,`Language` varchar(2) NOT NULL, PRIMARY KEY (`PK_ArrayID`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+20-05-2014 Kl.: 07:21 Caught exception: Could not create new table: Array
+CREATE TABLE IF NOT EXISTS `frame_Array` (
+			`PK_ArrayID` int(10) unsigned NOT NULL AUTO_INCREMENT,PK_AnswerID`FK_UserID` int(10) unsigned NOT NULL,`CreateDate` datetime NOT NULL,`DisabledDate` datetime NOT NULL,`Language` varchar(2) NOT NULL, PRIMARY KEY (`PK_ArrayID`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+20-05-2014 Kl.: 07:21 Caught exception: Could not create new table: Array
+CREATE TABLE IF NOT EXISTS `frame_Array` (
+			`PK_ArrayID` int(10) unsigned NOT NULL AUTO_INCREMENT,PK_QuestionGroupID`FK_UserID` int(10) unsigned NOT NULL,`CreateDate` datetime NOT NULL,`DisabledDate` datetime NOT NULL,`Language` varchar(2) NOT NULL, PRIMARY KEY (`PK_ArrayID`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+20-05-2014 Kl.: 07:27 Caught exception: Could not fetch data from table: frame_js_questions
+SELECT Question, FK_GroupID, Min, Max  FROM frame_js_questions  WHERE PK_QuestionID = <p>Test< AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1
+20-05-2014 Kl.: 07:27 Caught exception: Could not fetch data from table: frame_js_questions
+SELECT Question, FK_GroupID, Min, Max  FROM frame_js_questions  WHERE PK_QuestionID = plugins AND DisabledDate = '0000-00-00 00:00:00' LIMIT 1

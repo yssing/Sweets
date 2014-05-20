@@ -23,11 +23,11 @@ class photocontrol {
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("Name" => "varchar(100)",
 			"Description" => "text",
 			"URL" => "varchar(200)");
-		$result = $database->createTable('photo',$what,"PK_PhotoID");
+		$result = $databaseadmin->createTable('photo',$what,"PK_PhotoID");
 	}		
 
 	public static function uploadAction($args){

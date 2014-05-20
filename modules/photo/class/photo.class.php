@@ -40,12 +40,12 @@ class photo{
 	 * @since Method available since Release 1.0.0
      */	
 	public static function createPhoto($Name,$Description,$URL,$language = STD_LANGUAGE){
-		$database = new database();
+		$database = new database('photo');
 		$data = array("Name" => "'".$Name."'",
 			"Description" => "'".$Description."'",
 			"URL" => "'".$URL."'",
 			"Language" => "'".$language."'");			
-		if(!$database->create('photo',$data)){
+		if(!$database->create($data)){
 			return false;
 		}	
 	}

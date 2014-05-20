@@ -12,8 +12,8 @@ class databasecontrol{
 			route::error(403);
 		}
 		
-		$database = new database();		
-		$body = views::displayEditListview($database->showTables(DATABASE));
+		$databaseadmin = new databaseadmin();		
+		$body = views::displayEditListview($databaseadmin->showTables(DATABASE));
 		$body .= '<h2>This is only a quick and simple database editor, in no way is it meant to replace managers like phpmyadmin!</h2>';
 		$body .= form::beginField('head1',language::readType('ADDTABLE'));
 			$body .= form::beginForm('add',PATH_WEB.'/system/database/addtable');	
@@ -40,8 +40,8 @@ class databasecontrol{
 			route::error(403);
 		}	
 		$columns = array();
-		$database = new database();
-		$table = $database->showColumns($args[0]);
+		$databaseadmin = new databaseadmin();
+		$table = $databaseadmin->showColumns($args[0]);
 		$body = views::displayListview($table);
 		//build 2D array
 		foreach($table as $row){
@@ -87,9 +87,9 @@ class databasecontrol{
 		if(!user::validateAdmin()){
 			route::error(403);
 		}	
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		if(form::validate('change') && $args['confirm'] == 'Y'){
-			$database->changeToUTF8($args['table_name'],$args['column_name']);	
+			$databaseadmin->changeToUTF8($args['table_name'],$args['column_name']);	
 		}
 		route::redirect('system/database/edit/'.$args['table_name']);
 	}
@@ -99,8 +99,8 @@ class databasecontrol{
 			route::error(403);
 		}
 		if(form::validate('add') && $args['confirm'] == 'Y'){
-			$database = new database();
-			$database->createTable($args['table_name'],' ',$args['privatekey']);
+			$databaseadmin = new databaseadmin();
+			$databaseadmin->createTable($args['table_name'],' ',$args['privatekey']);
 		}
 		route::redirect('system/database/edit/'.TPREP.$args['table_name']);
 	}
@@ -109,9 +109,9 @@ class databasecontrol{
 		if(!user::validateAdmin()){
 			route::error(403);
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		if(form::validate('truncate') && $args['confirm'] == 'Y'){
-			$database->truncateTable($args['table_name']);
+			$databaseadmin->truncateTable($args['table_name']);
 		}
 		route::redirect('system/database/edit/'.$args['table_name']);
 	}
@@ -120,9 +120,9 @@ class databasecontrol{
 		if(!user::validateAdmin()){
 			route::error(403);
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		if(form::validate('drop') && $args['confirm'] == 'Y'){
-			echo $database->dropTable(trim($args['table_name']));
+			echo $databaseadmin->dropTable(trim($args['table_name']));
 		}
 		route::redirect('system/database/list');		
 	}
@@ -131,9 +131,9 @@ class databasecontrol{
 		if(!user::validateAdmin()){
 			route::error(403);
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		if(form::validate('add') && $args['confirm'] == 'Y'){
-			$database->addColumn($args['table_name'],$args['name'],$args['type']);
+			$databaseadmin->addColumn($args['table_name'],$args['name'],$args['type']);
 		}	
 		route::redirect('system/database/edit/'.$args['table_name']);
 	}
@@ -142,8 +142,9 @@ class databasecontrol{
 		if(!user::validateAdmin()){
 			route::error(403);
 		}
+		$databaseadmin = new databaseadmin();
 		if(form::validate('import')){
-			//$database->importTable($args['table_name'],$args['type'],$args['file']);
+			//$databaseadmin->importTable($args['table_name'],$args['type'],$args['file']);
 		}
 	}
 	

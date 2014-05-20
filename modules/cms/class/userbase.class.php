@@ -41,10 +41,10 @@ class userBase extends user{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function updateUserName($first,$last,$userid){
-		$database = new database();
+		$database = new database('user');
 		$data = array("UserFirstName" => "'".$first."'","UserlastName" => "'".$last."'");
 		$where = 'PK_UserID = '.$userid;
-		if(!$database->update('user',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;
@@ -69,7 +69,7 @@ class userBase extends user{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function updateUserAddress($street,$number,$floor,$door,$zipcode,$city,$area,$country,$userid){
-		$database = new database();
+		$database = new database('user');
 		$data = array(
 			"UserStreet" => "'".$street."'",
 			"UserNumber" => "'".$number."'",
@@ -81,7 +81,7 @@ class userBase extends user{
 			"FK_AreaID" => $area);
 		
 		$where = 'PK_UserID = '.$userid;
-		if(!$database->update('user',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;
@@ -102,7 +102,7 @@ class userBase extends user{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function updateUserContact($phone,$cell,$fax,$mail,$userid){
-		$database = new database();
+		$database = new database('user');
 		$data = array(
 			"UserPhone" => "'".$phone."'",
 			"UserCell" => "'".$cell."'",
@@ -110,7 +110,7 @@ class userBase extends user{
 			"UserEMail" => "'".$mail."'");
 		
 		$where = 'PK_UserID = '.$userid;
-		if(!$database->update('user',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;
@@ -129,13 +129,13 @@ class userBase extends user{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function updateUserSettings($acceptnews,$acceptmails,$userid){
-		$database = new database();
+		$database = new database('user');
 		$data = array(
 		"AcceptNews" => $acceptnews,
 		"AcceptMails" => $acceptmails);
 		
 		$where = 'PK_UserID = '.$userid;
-		if(!$database->update('user',$data,$where)){
+		if(!$database->update($data,$where)){
 			return false;
 		}		
 		return true;

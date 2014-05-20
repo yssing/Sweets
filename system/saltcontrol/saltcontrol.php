@@ -58,8 +58,9 @@ class saltcontrol{
 			}
 		}
 		$salt = new salt();
+		$databaseadmin = new databaseadmin();
 		$what = array("Salt_Type" => "varchar(45)", "Salt" => "varchar(45)");
-		$result = $salt->createTable('generic_salt',$what,"PK_SaltID");
+		$result = $databaseadmin->createTable('generic_salt',$what,"PK_SaltID");
 		if($result){
 			$salt->createSalt('USER_SECRET',$salt->generateRandStr(32));
 			$salt->createSalt('ADMIN_SECRET',$salt->generateRandStr(32));

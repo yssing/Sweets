@@ -12,7 +12,7 @@ class themecontrol{
 		$body = '<h3>'.language::readType('SELECTED').': '.theme::readTheme().'</h3><br />';
 		$body .= views::displayListview(theme::listerTheme(),'');	
 		$body .= '<br /><br />';		
-		$body .= form::beginForm('upload',PATH_WEB.'/cms/theme/upload');		
+		$body .= form::beginForm('upload','modules/cms/theme/upload');		
 			$input = array("style" => "width:350px;");
 			$body .= form::file('','file',$input).'<br />';
 		$body .= form::endForm('upload');		

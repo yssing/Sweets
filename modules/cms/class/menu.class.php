@@ -45,7 +45,7 @@ class menu {
 	 * @since Method available since Release 1.0.0
      */
 	public static function createMenuItem($headline, $path, $glyph='-', $priority=0, $submenuid=0, $brand=0, $active=0, $navheader=0, $divider=0){
-		$database = new database();
+		$database = new database('cms_menu');
 		if($headline && $path){
 			$data = array("Headline" => "'".$headline."'",
 				"Path" => "'".$path."'",
@@ -57,7 +57,7 @@ class menu {
 				"NavHeader" => $navheader,
 				"Divider" => $divider,
 				"Language" => "'".$_SESSION['CountryCode']."'");
-			if(!$database->create('cms_menu',$data)){
+			if(!$database->create($data)){
 				return false;
 			}
 		}
@@ -73,8 +73,8 @@ class menu {
 	 * @since Method available since Release 1.0.0
      */		
 	public static function findlast(){
-		$database = new database();
-		list($id) = $database->readLastEntry('cms_menu');
+		$database = new database('cms_menu');
+		list($id) = $database->readLastEntry();
 		return $id;
 	}	
 	
@@ -89,8 +89,8 @@ class menu {
 	 * @since Method available since Release 1.0.0
      */		
 	public static function readMenuItem($menuId){
-		$database = new database();
-		return $database->readSingle("cms_menu","PK_MenuID,Headline,Path,Glyph,Priority,FK_MenuID,Brand,Active,NavHeader,Divider","PK_MenuID = ".$menuId." AND Language = '".$_SESSION['CountryCode']."'");
+		$database = new database('cms_menu');
+		return $database->readSingle("PK_MenuID,Headline,Path,Glyph,Priority,FK_MenuID,Brand,Active,NavHeader,Divider","PK_MenuID = ".$menuId." AND Language = '".$_SESSION['CountryCode']."'");
 	}	
 
 	/**
@@ -105,8 +105,8 @@ class menu {
 	 * @since Method available since Release 1.0.0
      */			
 	private static function buildMenu($menuId = 0,$subMenuId = 0){
-		$database = new database();
-		return $database->readSingle("cms_menu","PK_MenuID,Headline,Path,Glyph,Priority,FK_MenuID,Brand,Active,NavHeader,Divider","PK_MenuID = ".$menuId." AND FK_MenuID = ".$subMenuId."  AND Language = '".$_SESSION['CountryCode']."'");
+		$database = new database('cms_menu');
+		return $database->readSingle("PK_MenuID,Headline,Path,Glyph,Priority,FK_MenuID,Brand,Active,NavHeader,Divider","PK_MenuID = ".$menuId." AND FK_MenuID = ".$subMenuId."  AND Language = '".$_SESSION['CountryCode']."'");
 	}
 	
 	/**
@@ -118,8 +118,8 @@ class menu {
 	 * @since Method available since Release 1.0.0
      */		
 	public static function listAllItems(){
-		$database = new database();
-		return $database->read("cms_menu","PK_MenuID,Headline","Language = '".$_SESSION['CountryCode']."'");		
+		$database = new database('cms_menu');
+		return $database->read("PK_MenuID,Headline","Language = '".$_SESSION['CountryCode']."'");		
 	}
 	
 	/**
@@ -133,9 +133,9 @@ class menu {
 	 * @since Method available since Release 1.0.0
      */		
 	public static function listMenu($submenu = 0){
-		$database = new database();
+		$database = new database('cms_menu');
 		$menu = array();
-		$menuArray = $database->read("cms_menu","PK_MenuID, FK_MenuID","Language = '".$_SESSION['CountryCode']."'","Brand DESC, FK_MenuID, Priority");
+		$menuArray = $database->read("PK_MenuID, FK_MenuID","Language = '".$_SESSION['CountryCode']."'","Brand DESC, FK_MenuID, Priority");
 		$max = sizeof($menuArray);
 		for($i = 0; $i < $max;$i++){
 			list($menuId,$subMenuId) = $menuArray[$i];
@@ -156,8 +156,8 @@ class menu {
 	 * @TODO: make it use template blocks
      */		
 	public static function makeSubMenu($submenu){
-		$database = new database();
-		$menuArray = $database->read("cms_menu","PK_MenuID,Headline,Path,Glyph,Priority,FK_MenuID,Brand,Active,NavHeader,Divider","FK_MenuID = ".$submenu." AND Language = '".$_SESSION['CountryCode']."'","Brand DESC, FK_MenuID, Priority");
+		$database = new database('cms_menu');
+		$menuArray = $database->read("PK_MenuID,Headline,Path,Glyph,Priority,FK_MenuID,Brand,Active,NavHeader,Divider","FK_MenuID = ".$submenu." AND Language = '".$_SESSION['CountryCode']."'","Brand DESC, FK_MenuID, Priority");
 		$menu = '';
 
 		foreach($menuArray as $singleLine){
@@ -200,8 +200,8 @@ class menu {
 	 * @TODO: make it use template blocks
      */			
 	public static function makeMenu(){
-		$database = new database();
-		$menuArray = $database->read("cms_menu","PK_MenuID,Headline,Path,Glyph,Priority,FK_MenuID,Brand,Active,NavHeader,Divider","FK_MenuID = 0 AND Language = '".$_SESSION['CountryCode']."'","Brand DESC, FK_MenuID, Priority");
+		$database = new database('cms_menu');
+		$menuArray = $database->read("PK_MenuID,Headline,Path,Glyph,Priority,FK_MenuID,Brand,Active,NavHeader,Divider","FK_MenuID = 0 AND Language = '".$_SESSION['CountryCode']."'","Brand DESC, FK_MenuID, Priority");
 		$brand = '';
 		$menuList = '';
 		foreach($menuArray as $singleLine){
@@ -271,9 +271,9 @@ class menu {
 	 * @since Method available since Release 1.0.0
      */			
 	public static function updateMenuItem($menuId, $headline, $path, $glyph='-', $priority=0, $submenuid=0, $brand=0, $active=0, $navheader=0, $divider=0){
-		$database = new database();
+		$database = new database('cms_menu');
 		$data = array("Headline" => "'".$headline."'","Path" => "'".$path."'","Glyph" => "'".$glyph."'","Priority" => $priority, "FK_MenuID" => $submenuid, "Brand" => $brand, "Active" => $active, "NavHeader" => $navheader, "Divider" => $divider, "Language" => "'".$_SESSION['CountryCode']."'");
-		return $database->update("cms_menu",$data,"PK_MenuID = ".$menuId);
+		return $database->update($data,"PK_MenuID = ".$menuId);
 	}
 	
 	/**
@@ -287,8 +287,8 @@ class menu {
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyMenuItem($menuId){
-		$database = new database();
-		if(!$database->destroy("cms_menu","PK_MenuID = ".$menuId)){
+		$database = new database('cms_menu');
+		if(!$database->destroy("PK_MenuID = ".$menuId)){
 			return false;
 		}
 		return true;

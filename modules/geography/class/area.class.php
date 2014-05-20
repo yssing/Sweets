@@ -37,8 +37,8 @@ class area{
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function readSingleArea($areaid){
-		$database = new database();
-		return $database->readSingle("geography_area","AreaName,AreaCode,FK_ParentID","PK_AreaID = ".$areaid);
+		$database = new database("geography_area");
+		return $database->readSingle("AreaName,AreaCode,FK_ParentID","PK_AreaID = ".$areaid);
 	}
 	
 	/**
@@ -50,16 +50,16 @@ class area{
 	 * @since Method available since Release 1.0.0
      */
 	public static function listAreas(){
-		$database = new database();
-		return $database->read("geography_area","PK_AreaID,FK_ParentID,AreaName,AreaCode","","AreaName");
+		$database = new database("geography_area");
+		return $database->read("PK_AreaID,FK_ParentID,AreaName,AreaCode","","AreaName");
 	}
 	
 	/**
 	 * finds the newest item.
 	 */
 	public static function findlast(){
-		$database = new database();
-		list($id) = $database->readLastEntry('geography_area');
+		$database = new database("geography_area");
+		list($id) = $database->readLastEntry();
 		return $id;
 	}
 	
@@ -77,9 +77,9 @@ class area{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function updateArea($areaid,$area,$areacode,$parentid){
-		$database = new database();
+		$database = new database("geography_area");
 		$data = array("AreaName" => "'".$area."'","AreaCode" => $areacode,"FK_ParentID" => $parentid);
-		return $database->update("geography_area",$data,"PK_AreaID = ".$areaid);
+		return $database->update($data,"PK_AreaID = ".$areaid);
 	}	
 	
 	/**
@@ -95,9 +95,9 @@ class area{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function createArea($area,$areacode,$parentid){
-		$database = new database();
+		$database = new database("geography_area");
 		$data = array("AreaName" => "'".$area."'","AreaCode" => $areacode,"FK_ParentID" => $parentid);
-		if(!$database->create('geography_area',$data)){
+		if(!$database->create($data)){
 			return false;
 		}
 		return true;
@@ -114,8 +114,8 @@ class area{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyArea($areaid){
-		$database = new database();
-		if(!$database->destroy("geography_area","PK_AreaID = ".$areaid)){
+		$database = new database("geography_area");
+		if(!$database->destroy("PK_AreaID = ".$areaid)){
 			return false;
 		}
 		return true;

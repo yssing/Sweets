@@ -43,7 +43,6 @@ class import extends database{
 		if(!file_exists($csvfile)) {
 			return false;
 		}
-		$database = new database();
 		$csvarray = array();
 		
 		if (($handle = fopen($csvfile, "r")) !== false) {
@@ -64,7 +63,6 @@ class import extends database{
 		if(!file_exists($jsonfile)) {
 			return false;
 		}
-		$database = new database();
 		$jsonarray = array();
 		
 		$string = file_get_contents($jsonfile);
@@ -78,7 +76,6 @@ class import extends database{
 		if(!file_exists($xmlfile)) {
 			return false;
 		}
-		$database = new database();
 		$xmlarray = array();
 		
 		$xmlstr = file_get_contents($xmlfile);

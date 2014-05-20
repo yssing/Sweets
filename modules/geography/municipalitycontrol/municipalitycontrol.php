@@ -39,7 +39,7 @@ class municipalitycontrol{
 			$code = '';
 		}
 		
-		$body = form::beginForm('update',PATH_WEB.'/geography/municipalitycontrol/update');
+		$body = form::beginForm('update','modules/geography/municipalitycontrol/update');
 			$body .= form::fieldset('field1','<h3>Kommune</h3>',form::input($municipality,'municipality',TEXT));	
 			$body .= form::fieldset('field2','<h3>Kommunekode</h3>',form::input($code,'code',TEXT));	
 			$body .= form::input($id,'id',HIDDEN);
@@ -72,9 +72,9 @@ class municipalitycontrol{
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("Municipality" => "varchar(100)","MunicipalityCode" => "int(10)");
-		$result = $database->createTable('geography_municipality',$what,"PK_MunicipalityID");	
+		$result = $databaseadmin->createTable('geography_municipality',$what,"PK_MunicipalityID");	
 	}	
 
 	public static function deleteAction($args){

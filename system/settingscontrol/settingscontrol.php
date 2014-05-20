@@ -55,9 +55,9 @@ class settingscontrol {
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("KeySetting" => "varchar(45)", "ValueSetting" => "text");
-		$result = $database->createTable('generic_key',$what,"PK_KeyID");
+		$result = $databaseadmin->createTable('generic_key',$what,"PK_KeyID");
 	}	
 	
 	public static function deleteAction($args){

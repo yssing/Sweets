@@ -26,7 +26,7 @@
  * @require		'database.class.php'
  */
 
-class theme /*extends database*/{
+class theme{
 
 	/**
      * This method list all themes

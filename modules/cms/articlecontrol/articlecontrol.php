@@ -52,13 +52,13 @@ class articlecontrol {
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$database = new database('cms_text');
 		$what = array("Headline" => "varchar(100)",
 			"BodyText" => "text",
 			"TextKey" => "varchar(45)",
 			"DateOnline" => "datetime",
 			"DateOffline" => "datetime");
-		$result = $database->createTable('cms_text',$what,"PK_TextID");
+		$result = $database->createTable($what,"PK_TextID");
 	}		
 	
 	public static function editAction($args){
@@ -75,7 +75,7 @@ class articlecontrol {
 			$language = $_SESSION['CountryCode'];
 		}
 		$fieldset = array("style" => "width:890px;");
-		$body = form::beginForm('update',PATH_WEB.'/cms/article/update');
+		$body = form::beginForm('update','modules/cms/article/update');
 			$body .= form::fieldset('field1','<h3>'.language::readType('KEY').'</h3>',form::input($key,'key',TEXT)).'<br />';
 			$body .= form::fieldset('field2','<h3>'.language::readType('LANGUAGE').'</h3>',form::input($language,'language',TEXT)).'<br />';
 			$body .= form::fieldset('field3','<h3>'.language::readType('HEADLINE').'</h3>',form::input($headline,'headline',TEXT,$fieldset)).'<br />';
@@ -101,8 +101,8 @@ class articlecontrol {
 			} else {			
 				text::createText($args['headline'],$args['bodytext'],$args['key'],$args['language']);
 			}
-			route::redirect('cms/article/list');
 		}
+		route::redirect('cms/article/list');
 	}	
 }
 ?>

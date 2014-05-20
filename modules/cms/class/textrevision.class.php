@@ -42,13 +42,13 @@ class textrevision{
 	 * @since Method available since Release 1.0.0
      */	
 	public static function createRevision($headline,$body,$key,$language,$textid){
-		$database = new database();
+		$database = new database('cms_text_revision');
 		$data = array("Headline" => "'".$headline."'",
 			"BodyText" => "'".$body."'",
 			"TextKey" => "'".$key."'",
 			"Language" => "'".$language."'",
 			"FK_TextID" => $textid);
-		if(!$database->create('cms_text_revision',$data)){			
+		if(!$database->create($data)){			
 			return false;
 		}
 		return true;
@@ -65,8 +65,8 @@ class textrevision{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function listRevisions($textid){
-		$database = new database();
-		return $database->read("cms_text_revision","TextKey,Headline,Language,CreateDate","FK_TextID = ".$textid,"Headline");
+		$database = new database('cms_text_revision');
+		return $database->read("TextKey,Headline,Language,CreateDate","FK_TextID = ".$textid,"Headline");
 	}	
 }
 ?>

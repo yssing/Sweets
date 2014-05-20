@@ -42,13 +42,13 @@ class menucontrol{
 			}
 		}
 
-		$body = form::beginForm('update',PATH_WEB.'/cms/menu/update');
+		$body = form::beginForm('update','modules/cms/menu/update');
 			$style = array("style" => "width:320px;border:0px;");
 			$input = array("style" => "width:300px");		
-			$body .= form::fieldset('field1','<h3>'.language::readType('HEADLINE').'</h3>',form::input($headline,'headline',0,$input),$style);
+			$body .= form::fieldset('field1','<h3>'.language::readType('HEADLINE').'</h3>',form::input($headline,'headline',TEXT,$input),$style);
 			$body .= form::fieldset('field2','<h3>'.language::readType('PATH').'</h3>',form::select($linklist,$link,'link'),$style);
 			$body .= form::fieldset('field3','<h3>'.language::readType('GLYPH').'</h3>',form::select($glyphs,$glyph,'glyphs'),$style);
-			$body .= form::fieldset('field4','<h3>'.language::readType('PRIORITY').'</h3>',form::input($priority,'priority',0,$input),$style);
+			$body .= form::fieldset('field4','<h3>'.language::readType('PRIORITY').'</h3>',form::input($priority,'priority',TEXT,$input),$style);
 			$body .= form::fieldset('field5','<h3>'.language::readType('SUBMENU').'</h3>',form::select(menu::listAllItems(),$submenuid,'submenuid'),$style);
 			
 			$body .= form::fieldset('field6','<h3>'.language::readType('HIGHLIGHTED').'</h3>',form::check($brand,'brand'),$style).'<br />';
@@ -93,7 +93,7 @@ class menucontrol{
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("Headline" => "varchar(200)",
 					"Path" => "varchar(200)",
 					"Priority" => "int(10)",
@@ -103,7 +103,7 @@ class menucontrol{
 					"NavHeader" => "tinyint(1)",
 					"Divider" => "tinyint(1)",
 					"Glyph" => "tinyint(1)");
-		$result = $database->createTable('cms_text',$what,"PK_MenuID");	
+		$result = $databaseadmin->createTable('cms_menu',$what,"PK_MenuID");	
 	}		
 
 	public static function deleteAction($args){

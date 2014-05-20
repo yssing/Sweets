@@ -42,12 +42,12 @@ class text{
 	 * @since Method available since Release 1.0.0
      */	
 	public static function createText($headline,$body,$key,$language = STD_LANGUAGE){
-		$database = new database();
+		$database = new database('cms_text');
 		$data = array("Headline" => "'".$headline."'",
 			"BodyText" => "'".$body."'",
 			"TextKey" => "'".$key."'",
 			"Language" => "'".$language."'");			
-		if(!$database->create('cms_text',$data)){
+		if(!$database->create($data)){
 			return false;
 		}	
 	}
@@ -61,8 +61,8 @@ class text{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function findlast(){
-		$database = new database();
-		list($id) = $database->readLastEntry('cms_text');
+		$database = new database('cms_text');
+		list($id) = $database->readLastEntry();
 		return $id;
 	}
 	
@@ -80,13 +80,13 @@ class text{
 	 * @since Method available since Release 1.0.0
      */
 	public static function updateText($textid,$key,$headline,$body,$language = STD_LANGUAGE){
-		$database = new database();
+		$database = new database('cms_text');
 		$data = array("Headline" => "'".$headline."'",
 			"Headline" => "'".$headline."'",
 			"BodyText" => "'".$body."'",
 			"TextKey" => "'".$key."'",
 			"Language" => "'".$language."'");
-		return $database->update("cms_text",$data,"PK_TextID = ".$textid);
+		return $database->update($data,"PK_TextID = ".$textid);
 	}	
 	
 	/**
@@ -98,8 +98,8 @@ class text{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function listText(){
-		$database = new database();
-		return $database->read("cms_text","PK_TextID,TextKey,Headline,Language,CreateDate","Language = '".$_SESSION['CountryCode']."'","Headline");
+		$database = new database('cms_text');
+		return $database->read("PK_TextID,TextKey,Headline,Language,CreateDate","Language = '".$_SESSION['CountryCode']."'","Headline");
 	}	
 	
 	/**
@@ -114,8 +114,8 @@ class text{
 	 * @since Method available since Release 1.0.0
      */
 	public static function readText($textid){
-		$database = new database();
-		list($id,$key,$headline,$bodytext,$language) = $database->readSingle("cms_text","PK_TextID,TextKey,Headline,BodyText,Language","PK_TextID = ".$textid." AND Language = '".$_SESSION['CountryCode']."'");
+		$database = new database('cms_text');
+		list($id,$key,$headline,$bodytext,$language) = $database->readSingle("PK_TextID,TextKey,Headline,BodyText,Language","PK_TextID = ".$textid." AND Language = '".$_SESSION['CountryCode']."'");
 		$bodytext = str_replace('../','/',$bodytext);
 		if(!$language){
 			$language = $_SESSION['CountryCode'];
@@ -139,8 +139,8 @@ class text{
 			return false;
 		}	
 		$language = (isset($_SESSION['CountryCode'])) ? $_SESSION['CountryCode'] : STD_LANGUAGE;
-		$database = new database();
-		if($bodytext = $database->readSingle("cms_text","BodyText","TextKey = '".$key."' AND Language = '".$language."'")){
+		$database = new database('cms_text');
+		if($bodytext = $database->readSingle("BodyText","TextKey = '".$key."' AND Language = '".$language."'")){
 			list($bodytext) = $bodytext;
 			return $bodytext;
 		}
@@ -158,8 +158,8 @@ class text{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyText($textid){
-		$database = new database();
-		if(!$database->destroy("cms_text","PK_TextID = ".$textid)){
+		$database = new database('cms_text');
+		if(!$database->destroy("PK_TextID = ".$textid)){
 			return false;
 		}
 		return true;

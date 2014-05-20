@@ -63,9 +63,9 @@ class languagecontrol {
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("Type" => "varchar(45)", "String" => "Text");
-		$result = $database->createTable('generic_language',$what,"PK_LanguageID");
+		$result = $databaseadmin->createTable('generic_language',$what,"PK_LanguageID");
 	}
 	
 	public static function deleteAction($args){

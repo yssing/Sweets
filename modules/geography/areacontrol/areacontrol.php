@@ -27,9 +27,9 @@ class areacontrol{
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("AreaName" => "varchar(100)","FK_ParentID" => "int(10)","AreaCode" => "int(10)");
-		$result = $database->createTable('geography_area',$what,"PK_AreaID");
+		$result = $databaseadmin->createTable('geography_area',$what,"PK_AreaID");
 	}	
 	
 	public static function editAction($args){
@@ -47,7 +47,7 @@ class areacontrol{
 			$areacode = 0;
 		}
 		
-		$body = form::beginForm('update',PATH_WEB.'/geography/areacontrol/update');
+		$body = form::beginForm('update','modules/geography/areacontrol/update');
 			$body .= form::fieldset('field1','<h3>Område</h3>',form::input($areaname,'areaname',TEXT));	
 			$body .= form::fieldset('field2','<h3>Område kode</h3>',form::input($areacode,'areacode',TEXT));	
 			$body .= form::fieldset('field3','<h3>Forældre</h3>',form::input($parentid,'parentid',TEXT));	

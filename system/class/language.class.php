@@ -36,8 +36,8 @@ class language/* extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function listLanguage(){
-		$database = new database();
-		return $database->read("generic_language","PK_LanguageID,Type,Language,String","","Type, Language");
+		$database = new database("generic_language");
+		return $database->read("PK_LanguageID,Type,Language,String","","Type, Language");
 	}
 	
 	/**
@@ -59,10 +59,10 @@ class language/* extends database*/{
 		if(!$Type || !$Language || !$String){
 			return false;
 		}
-		$database = new database();
+		$database = new database("generic_language");
 		$data = array("Type" => "'".$Type."'","Language" => "'".$Language."'","String" => "'".$String."'");	
 
-		if(!$database->create('generic_language',$data)){
+		if(!$database->create($data)){
 			return false;
 		}		
 		return true;		
@@ -87,7 +87,7 @@ class language/* extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function readType($Type){
-		$database = new database();
+		$database = new database("generic_language");
 		if(!isset($_SESSION['CountryCode'])){
 			netgeo::getNetGeo();
 			$Language = netgeo::$CountryCode;
@@ -96,7 +96,7 @@ class language/* extends database*/{
 			$Language = $_SESSION['CountryCode'];
 		}
 		if(!isset($_SESSION['LanguageVars'][$Type])){
-			list($language) = $database->readSingle("generic_language","String",array("Type = '".$Type."'","Language = '".$Language."'"));
+			list($language) = $database->readSingle("String",array("Type = '".$Type."'","Language = '".$Language."'"));
 			if($language){
 				$_SESSION['LanguageVars'][$Type] = $language;
 			} else {
@@ -119,8 +119,8 @@ class language/* extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function readLanguage($languageid){
-		$database = new database();
-		return $database->readSingle("generic_language","PK_LanguageID,Type,Language,String","PK_LanguageID = ".$languageid);
+		$database = new database("generic_language");
+		return $database->readSingle("PK_LanguageID,Type,Language,String","PK_LanguageID = ".$languageid);
 	}
 
 	/**
@@ -137,9 +137,9 @@ class language/* extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function updateLanguage($languageid,$Type,$Language,$String){
-		$database = new database();
+		$database = new database("generic_language");
 		$data = array("Type" => "'".$Type."'","Language" => "'".$Language."'","String" => "'".$String."'");	
-		return $database->update("generic_language",$data,"PK_LanguageID = ".$languageid);		
+		return $database->update($data,"PK_LanguageID = ".$languageid);		
 	}
 	
 	/**
@@ -151,8 +151,8 @@ class language/* extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function findlast(){
-		$database = new database();
-		list($id) = $database->readLastEntry('generic_language');
+		$database = new database("generic_language");
+		list($id) = $database->readLastEntry();
 		return $id;
 	}	
 	
@@ -176,8 +176,8 @@ class language/* extends database*/{
 		if(!$languageid){
 			return false;
 		} 
-		$database = new database();
-		if(!$database->destroy("generic_language", "PK_LanguageID = ".$languageid)){
+		$database = new database("generic_language");
+		if(!$database->destroy("PK_LanguageID = ".$languageid)){
 			return false;
 		}
 		return true;

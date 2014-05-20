@@ -39,9 +39,9 @@ class userLogin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */	
 	public static function createLogin(){
-		$database = new database();
+		$database = new database('user_login');
 		if(genericIO::$userid || genericIO::$adminid){
-			if(!$database->create('user_login',array("UserLogin" => "NOW()"))){
+			if(!$database->create(array("UserLogin" => "NOW()"))){
 				return false;
 			}
 		} else {
@@ -62,15 +62,15 @@ class userLogin /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */			
 	public function createLogout(){
-		$database = new database();
+		$database = new database('user_login');
 		if(genericIO::$userid){
-			list($loginid) = $database->readLastEntry("user_login",array("FK_UserID" => genericIO::$userid,"UserLogout" => "'0000-00-00 00:00:00'"));		
+			list($loginid) = $database->readLastEntry(array("FK_UserID" => genericIO::$userid,"UserLogout" => "'0000-00-00 00:00:00'"));		
 		} else if (genericIO::$adminid){
-			list($loginid) = $database->readLastEntry("user_login",array("FK_UserID" => genericIO::$adminid,"UserLogout" => "'0000-00-00 00:00:00'"));	
+			list($loginid) = $database->readLastEntry(array("FK_UserID" => genericIO::$adminid,"UserLogout" => "'0000-00-00 00:00:00'"));	
 		} else {
 			return false;
 		}
-		if(!$database->update("user_login",array("UserLogout" => "NOW()"),"PK_UserLoginID = ".$loginid)){
+		if(!$database->update(array("UserLogout" => "NOW()"),"PK_UserLoginID = ".$loginid)){
 			return false;
 		}		
 		return true;		
@@ -86,9 +86,9 @@ class userLogin /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function listUserLogin($userid = 0){
-		$database = new database();
+		$database = new database('user_login');
 		if($userid){
-			return $database->read("user_login","UserLogin, UserLogout","FK_UserID = ".$userid);		
+			return $database->read("UserLogin, UserLogout","FK_UserID = ".$userid);		
 		}
 		return false;
 	}
@@ -102,11 +102,11 @@ class userLogin /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function readLastLogin(){
-		$database = new database();
+		$database = new database('user_login');
 		if(genericIO::$userid){
-			list($id,$userid,$lastlogin) = $database->readLastEntry("user_login","FK_UserID = ".genericIO::$userid);	
+			list($id,$userid,$lastlogin) = $database->readLastEntry("FK_UserID = ".genericIO::$userid);	
 		} else if (genericIO::$adminid){
-			list($id,$userid,$lastlogin) = $database->readLastEntry("user_login","FK_UserID = ".genericIO::$adminid);
+			list($id,$userid,$lastlogin) = $database->readLastEntry("FK_UserID = ".genericIO::$adminid);
 		} else {
 			return false;
 		}

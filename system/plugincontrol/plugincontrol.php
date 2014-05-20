@@ -102,9 +102,9 @@ class plugincontrol{
 				route::error(403);
 			}
 		}
-		$database = new database();
+		$databaseadmin = new databaseadmin();
 		$what = array("Name" => "varchar(200)", "Activated" => "tinyint(1)");
-		$result = $database->createTable('cms_plugins',$what,"PK_PluginID");
+		$result = $databaseadmin->createTable('cms_plugins',$what,"PK_PluginID");
 	}	
 	
 	public static function removeAction($args){
