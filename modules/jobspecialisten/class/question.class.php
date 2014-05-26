@@ -1,6 +1,6 @@
 <?php
 /**
- * This class handles progression keys.
+ * This class handles user surveys.
  *
  * Copyright (C) <2014> <Frederik Yssing>
  * This program is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@ class question{
 	public static function createQuestion($question,$group,$min = 1,$max = 10){
 		$database = new database('js_questions');
 		$data = array("Question" => "'".$question."'",
-			"FK_GroupID" => $group,
+			"FK_QuestionGroupID" => $group,
 			"Min" => $min,
 			"Max" => $max,
 			"Language" => "'".$_SESSION['CountryCode']."'");			
@@ -55,7 +55,8 @@ class question{
 	
 	public static function listQuestions(){
 		$database = new database('js_questions');
-		return $database->read("PK_QuestionID, Question, FK_GroupID, Min, Max","Language = '".$_SESSION['CountryCode']."'","FK_GroupID");
+		$database->join('js_question_groups', 'FK_QuestionGroupID', 'PK_QuestionGroupID');
+		return $database->read("PK_QuestionID, Question, FK_QuestionGroupID, GroupName, Min, Max","Language = '".$_SESSION['CountryCode']."'","PK_QuestionID");
 	}
 	
 	public static function readQuestion($keyid){
@@ -63,13 +64,13 @@ class question{
 			return false;
 		}	
 		$database = new database('js_questions');
-		return $database->readSingle("PK_QuestionID, Question, FK_GroupID, Min, Max","PK_QuestionID = ".$keyid);
+		return $database->readSingle("PK_QuestionID, Question, FK_QuestionGroupID, Min, Max","PK_QuestionID = ".$keyid);
 	}	
 	
 	public static function updateQuestion($keyid,$question,$group,$min,$max){
 		$database = new database('js_questions');
 		$data = array("Question" => "'".$question."'",
-			"FK_GroupID" => $group,
+			"FK_QuestionGroupID" => $group,
 			"Min" => $min,
 			"Max" => $max);
 		return $database->update($data,"PK_QuestionID = ".$keyid);

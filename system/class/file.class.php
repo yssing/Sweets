@@ -112,6 +112,7 @@ class files extends genericIO{
 	 * It can deal with the most common file types found on the web. 
 	 *
 	 * @param string $path the path to the folder.	 
+	 * @param bool $showClass show class folders or not.	 
 	 *
 	 * @return string $foldercontent The array with the content.	 
 	 *

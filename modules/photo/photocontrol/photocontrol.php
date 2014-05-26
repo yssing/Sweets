@@ -2,8 +2,19 @@
 include_once('contributions/resize.class.php');	
 class photocontrol {
 	public static function indexAction($args){
-		$route = new route();
-		$element = new element();
+		if(!user::validateAdmin()){
+			if(user::countUser('ADMIN')){
+				route::error(403);
+			}
+		}
+	}
+	
+	public static function listAction(){
+		if(!user::validateAdmin()){
+			if(user::countUser('ADMIN')){
+				route::error(403);
+			}
+		}
 		
 		$body = views::displayListview(files::folderLister('photo/',false),'').'<br />';
 		$body .= form::beginForm('photo',PATH_WEB.'/photo/photo/upload');	
@@ -15,6 +26,7 @@ class photocontrol {
 			template::header(language::readType('EDIT'));
 			template::body($body);
 		template::end();
+	
 	}
 	
 	public static function installAction(){

@@ -70,9 +70,10 @@ class views extends genericIO{
 	 * after each td and tr.
 	 *
 	 * @param array $data the data to format and display.
-	 * @param string $class the css class used to style the dropdown.
+	 * @param string $link An action for click on a row.
 	 * @param string $color use changing background color or not.
 	 * @param integer $pagesize used with the paging	 
+	 * @param string $class the css class used to style the dropdown.
 	 *
 	 * @return string $table the formatted listview.	 
 	 *
@@ -80,7 +81,7 @@ class views extends genericIO{
 	 * @static
 	 * @since Method available since Release 1.0.0
 	 */		
-	public static function displayListview($data,$class = 'listview',$color = 1,$pagesize = PAGING){
+	public static function displayListview($data, $link = '', $color = 1, $pagesize = PAGING, $class = 'listview'){
 		$table = '';
 		$i = 0;
 		$y = 0;
@@ -104,7 +105,13 @@ class views extends genericIO{
 				}		
 				foreach($row as $tddata){
 					$table .= '<td>';
-					$table .= '&nbsp;'.$tddata.'&nbsp;';
+					if($link){
+						$table .= '<a href="/'.$link.'/'.$row[0].'">';
+						$table .= '&nbsp;'.$tddata.'&nbsp;';						
+						$table .= '</a>';
+					} else {
+						$table .= '&nbsp;'.$tddata.'&nbsp;';
+					}
 					$table .= '</td>';
 					if(self::$ERROR_REPORT){
 						$table .= chr(13);

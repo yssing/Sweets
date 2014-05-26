@@ -59,6 +59,13 @@ class articlecontrol {
 			"DateOnline" => "datetime",
 			"DateOffline" => "datetime");
 		$result = $database->createTable($what,"PK_TextID");
+		// text revisions
+		$database = new database('cms_text_revision');
+		$what = array("Headline" => "varchar(100)",
+			"BodyText" => "text",
+			"TextKey" => "varchar(45)",
+			"FK_TextID" => "int(10)");
+		$result = $database->createTable($what,"PK_TextRevisionID");		
 	}		
 	
 	public static function editAction($args){
@@ -81,12 +88,26 @@ class articlecontrol {
 			$body .= form::fieldset('field3','<h3>'.language::readType('HEADLINE').'</h3>',form::input($headline,'headline',TEXT,$fieldset)).'<br />';
 			$body .= form::fieldset('field4','<h3>'.language::readType('TEXT').'</h3>',form::textarea($bodytext,'bodytext',array("style" => "width:900px;height:620px;"))).'<br />';
 			$body .= form::input($id,'id',HIDDEN);
-		$body .= form::endForm('update');		
+		$body .= form::endForm('update');
+		$body .= '<h3>'.language::readType('REVISIONS').'</h3>';
+		$body .= views::displayListview(textrevision::listRevisions($args[0]),'modules/cms/article/revision');
 				
 		template::initiate('admin');
 			template::header(language::readType('EDIT'));
 			template::body($body);
 		template::end();
+	}
+	
+	public static function revisionAction($args){
+		if(!user::validateAdmin()){
+			route::error(403);
+		}
+		list($headline,$bodytext,$createdate) = textrevision::readRevision($args[0]);
+		$body = '<div class="border">'.$headline.' <br />'.$createdate.'</div><br /><div class="border">'.$bodytext.'</div>';
+		template::initiate('admin');
+			template::header(language::readType('REVISION'));
+			template::body($body);
+		template::end();		
 	}
 	
 	public static function updateAction($args){

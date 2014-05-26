@@ -54,6 +54,11 @@ class textrevision{
 		return true;
 	}
 	
+	public static function readRevision($revisionid){
+		$database = new database('cms_text_revision');
+		return $database->readSingle("Headline,BodyText,CreateDate","PK_TextRevisionID = ".$revisionid);
+	}
+	
 	/**
      * This method reads and returns older revisions of the article.
 	 *
@@ -66,7 +71,7 @@ class textrevision{
      */		
 	public static function listRevisions($textid){
 		$database = new database('cms_text_revision');
-		return $database->read("TextKey,Headline,Language,CreateDate","FK_TextID = ".$textid,"Headline");
+		return $database->read("PK_TextRevisionID,Headline,Language,CreateDate","FK_TextID = ".$textid,"PK_TextRevisionID DESC");
 	}	
 }
 ?>

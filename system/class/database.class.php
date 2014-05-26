@@ -300,9 +300,21 @@ class database extends genericIO{
 		self::TransactionEnd();
 		return true;
 	}
+
 	
-	public function join($table, $primarykey, $secondarykey, $join = 'FULL JOIN'){
-		$this->db_join = ' '.$join.' '.$table.' ON '.$primarykey.'='.$secondarykey;		
+	/**
+     * This method can join the primary table with a secondary.
+	 *
+	 * @param string $table what data to pick. It can only use a comma separated list
+	 * @param string $primarykey the key from the primary table
+	 * @param string $secondarykey secondary key.
+	 * @param string $join join type, defaults to JOIN.
+	 *
+     * @access public
+	 * @since Method available since Release 1.0.0
+     */		
+	public function join($table, $primarykey, $secondarykey, $join = 'JOIN'){
+		$this->db_join = ' '.$join.' '.TPREP.$table.' ON '.$this->db_table.".".$primarykey.'='.TPREP.$table.".".$secondarykey;		
 	}	
 	
 	/**
@@ -355,14 +367,14 @@ class database extends genericIO{
 						}
 					}
 				} else {
-					$sql .= " WHERE ".$where;
+					$sql .= " WHERE ".$this->db_table.".".$where;
 				}
 				if(!$disabled){
-					$sql .= " AND DisabledDate = '0000-00-00 00:00:00'";
+					$sql .= " AND ".$this->db_table.".DisabledDate = '0000-00-00 00:00:00'";
 				}
 			} else {
 				if(!$disabled){
-					$sql .= " WHERE DisabledDate = '0000-00-00 00:00:00'";
+					$sql .= " WHERE ".$this->db_table.".DisabledDate = '0000-00-00 00:00:00'";
 				}
 			}
 			if($order){
