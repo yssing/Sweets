@@ -16,8 +16,7 @@ It uses plugins for frontend/client-side functionality.
 
 It supports different languages, with Danish, English and German as standard languages, more can be added.
 
-BeePee is in general covered by GNU license, those extensions found in the contribution folder can be covered by other
-license schemes.
+Sweets is in general covered by GNU license, those extensions and modules found in the contribution and module folder can be covered by other license schemes.
 
 Best regards /Frederik
 
