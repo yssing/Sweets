@@ -26,15 +26,17 @@
  * @since		File available since Release 1.0.0
  * @require		'generic.io.class.php'
  */
-require_once('generic.IO.class.php');
-class views extends genericIO{
+include_once('baseclass.class.php');
+class views extends baseclass{
+
+	public static $pagination = '';
 
 	/**
 	 * Creates a 2D array with sequential numbers.
 	 *
 	 * @param int $size the relative path to the folder.
 	 *
-	 * @return array $data Returns a filled 2D array.	 
+	 * @return array $data Returns a filled 2D array.
 	 *
 	 * @access public
 	 * @static
@@ -53,7 +55,7 @@ class views extends genericIO{
 	 *
 	 * @param array $data the data to format and display.
 	 *
-	 * @return string $json the json formatted list.	 
+	 * @return string $json the json formatted list.
 	 *
 	 * @access public
 	 * @static
@@ -72,10 +74,10 @@ class views extends genericIO{
 	 * @param array $data the data to format and display.
 	 * @param string $link An action for click on a row.
 	 * @param string $color use changing background color or not.
-	 * @param integer $pagesize used with the paging	 
+	 * @param integer $pagesize used with the paging
 	 * @param string $class the css class used to style the dropdown.
 	 *
-	 * @return string $table the formatted listview.	 
+	 * @return string $table the formatted listview.
 	 *
 	 * @access public
 	 * @static
@@ -88,42 +90,34 @@ class views extends genericIO{
 		$page = (isset($_REQUEST['page'])) ? $_REQUEST['page'] : 1;
 		$from = ($page * $pagesize) - $pagesize;
 		$to = $from + $pagesize;
-		$table .= '<table border="0" class="'.$class.'" cellpadding="0" cellspacing="0">';
-		foreach($data as $row){
-			$y++;
-			if($y >= $from && $y < $to){
-				if($color){
-					if($i == 1){
-						$table .= '<tr style="background:#efefef">';	
-						$i = 0;
-					} else {
-						$table .= '<tr style="background:#ffffff">';
-						$i = 1;
-					}
-				} else {
+		if (is_array($data)){
+			$table .= '<table border="0" class="table table-hover '.$class.'" cellpadding="0" cellspacing="0">';
+			foreach($data as $row){
+				$y++;
+				if ($y >= $from && $y < $to){
 					$table .= '<tr>';
-				}		
-				foreach($row as $tddata){
-					$table .= '<td>';
-					if($link){
-						$table .= '<a href="/'.$link.'/'.$row[0].'">';
-						$table .= '&nbsp;'.$tddata.'&nbsp;';						
-						$table .= '</a>';
-					} else {
-						$table .= '&nbsp;'.$tddata.'&nbsp;';
+					foreach($row as $tddata){
+						$table .= '<td>';
+						if ($link){
+							$table .= '<a href="/'.$link.'/'.$row[0].'">';
+							$table .= '&nbsp;'.$tddata.'&nbsp;';
+							$table .= '</a>';
+						} else {
+							$table .= '&nbsp;'.$tddata.'&nbsp;';
+						}
+						$table .= '</td>';
+						if (self::$ERROR_REPORT){
+							$table .= chr(13);
+						}
 					}
-					$table .= '</td>';
-					if(self::$ERROR_REPORT){
+					$table .= '</tr>';
+					if (self::$ERROR_REPORT){
 						$table .= chr(13);
 					}
 				}
-				$table .= '</tr>';
-				if(self::$ERROR_REPORT){
-					$table .= chr(13);
-				}
 			}
+			$table .= '</table>';
 		}
-		$table .= '</table>';
 		$table .= self::showPaging($y,$page,$pagesize,5);
 		return $table;
 	}
@@ -133,76 +127,116 @@ class views extends genericIO{
 	 *
 	 * @param array $data the data to format and display.
 	 * @param string $class the css class used to style the dropdown.
-	 * @param string $color use changing background color or not.
+	 * @param integer $showadd Show the add buttons and paging.
 	 * @param integer $pagesize used with the paging
 	 *
-	 * @return string $table the formatted listview.	 
+	 * @return string $table the formatted listview.
 	 *
 	 * @access public
 	 * @static
 	 * @since Method available since Release 1.0.0
 	 */		
-	public static function displayEditListview($data,$class = 'listview',$color = 1,$pagesize = PAGING,$settings = ''){
+	public static function displayEditListview($data,$class = 'listview',$showadd = 1,$pagesize = PAGING,$settings = ''){
+		$url = route::getBaseURL();
+		$url = str_replace('/list','',$url);
+		$url = PATH_WEB.'/'.$url;
+
 		$table = '';
+		$view = '';
 		$i = 0;
 		$y = 0;
 		$page = (isset($_REQUEST['page'])) ? $_REQUEST['page'] : 1;
 		$from = ($page * $pagesize) - $pagesize;
 		$to = $from + $pagesize;
-		$table .= '<table border="0" class="'.$class.'" cellpadding="0" cellspacing="0">';
-		foreach($data as $row){
-			$y++;
-			if($y >= $from && $y < $to){
-				if($color){
-					if($i == 1){
-						$table .= '<tr style="background:#efefef">';	
-						$i = 0;
-					} else {
-						$table .= '<tr style="background:#ffffff">';
-						$i = 1;
+		
+		if(is_array($data)){		
+			$view .= '<table border="0" class="table table-hover '.$class.'" cellpadding="0" cellspacing="0">';
+			foreach($data as $row){
+				$y++;
+				if ($y >= $from && $y < $to){
+					$view .= '<tr>';
+					foreach($row as $tddata){
+						$view .= '<td> '.$tddata.' </td>';
+						
+						if (self::$ERROR_REPORT){
+							$view .= chr(13);
+						}
 					}
-				} else {
-					$table .= '<tr>';
-				}		
-				foreach($row as $tddata){
-					$table .= '<td>';
-					$table .= '&nbsp;'.$tddata.'&nbsp;';
-					$table .= '</td>';
-					if(self::$ERROR_REPORT){
-						$table .= chr(13);
+					if (!empty($row[0])){
+						$view .= '<td width="60">&nbsp;<a class="btn btn-primary btn-xs" href="'.$url.'/edit/'.$row[0].'">'.language::readType('EDIT').'</a>&nbsp;</td>';
 					}
-				}
-				if(!empty($row[0])){
-					$table .= '<td width="60">&nbsp;<a href="edit/'.$row[0].'">'.language::readType('EDIT').'</a>&nbsp;</td>';
-				}
-				if(self::$ERROR_REPORT){
-					$table .= chr(13);
-				}
-				if(!empty($row[0])){
-					$table .= '<td width="60">&nbsp;<a href="delete/'.$row[0].'">'.language::readType('DELETE').'</a>&nbsp;</td>';
-				}
-				if(self::$ERROR_REPORT){
-					$table .= chr(13);
-				}
-				
-				$table .= '</tr>';
-				if(self::$ERROR_REPORT){
-					$table .= chr(13);
+					if (self::$ERROR_REPORT){
+						$view .= chr(13);
+					}
+					if (!empty($row[0])){
+						$view .= '<td width="60">&nbsp;<a class="btn btn-danger btn-xs" href="javascript:confirmDel(\''.$url.'/delete/'.$row[0].'\')">'.language::readType('DELETE').'</a>&nbsp;</td>';
+					}
+					if (self::$ERROR_REPORT){
+						$view .= chr(13);
+					}
+					
+					$view .= '</tr>';
+					if (self::$ERROR_REPORT){
+						$view .= chr(13);
+					}
 				}
 			}
+			$view .= '</table>';
 		}
-		$table .= '</table>';
-		$table .= self::showPaging($y,$page,$pagesize,5,$settings);
+		
+		$paging = self::showPaging($y,$page,$pagesize,5,$settings);	
+		
+		// only show find form, if there are multiple pages
+		$searchVal = (isset($_REQUEST['searchfield'])) ? $_REQUEST['searchfield'] : '';
+		if ($paging || $searchVal){
+			$table .= form::findForm($searchVal);
+		}
+		
+		if ($showadd){
+			$table .= form::newButton();		
+			$table .= $paging;	
+			$table .= '<br>'.$view;
+			$table .= form::newButton();
+			$table .= $paging;
+		} else {
+			$table .= $paging;
+			$table .= '<br>'.$view;
+			$table .= $paging;
+		}
 		return $table;
 	}
 	
+	/**
+	 * Creates a paging list.
+	 *
+	 * @param integer $total the number of pages.
+	 * @param integer $page the page that is shown.
+	 * @param integer $pagesize how many items per page.
+	 * @param integer $range The maximum of pages before and after current page.
+	 *
+	 * @return string the string prepended with 0.
+	 *
+	 * @access public
+	 * @static
+	 * @since Method available since Release 1.0.0
+	 */		
 	public static function showPaging($total,$page = 1,$pagesize = PAGING,$range = 5,$settings=''){
+		if (self::$pagination){
+			return self::$pagination;
+		}
+		
+		$url = baseclass::curPageURL();
 		$arguments = '';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			foreach($settings as $key => $val){
-				$arguments = '&'.$key.'='.$val;
+				$arguments .= '&'.$key.'='.$val;
 			}
-		}		
+		}
+		
+		if (isset($_REQUEST['searchfield'])){
+			$arguments .= '&searchfield='.$_REQUEST['searchfield'];
+		}
+		
 		$lastPage = ceil($total / $pagesize);
 		if ($page > 1) {
 			$start = $page;	
@@ -214,52 +248,54 @@ class views extends genericIO{
 		for ($x = ($page - $range); $x < (($page + $range + 1)); $x++) {
 			// if it's a valid page number...
 			if (($x > 0) && ($x <= $lastPage)) {
-			
+
 				// if we're on current page...
 				if ($x == $page) {
-					if($x > 1){
+					if ($x > 1){
 						$previous = $x-1;
 					} else {
 						//$previous = 1;
 						$previous = ceil($total / $pagesize);
 					}
-					if($x < $lastPage){
+					if ($x < $lastPage){
 						$next = $x+1;
 					} else {
 						//$next = $lastPage;
 						$next = 1;
-					}			
+					}
 					
 					// 'highlight' it but don't make a link
-					$pagination .= ' <label class="current">'.$x.'</label> ';
+					$pagination .= ' <li class="active"><span>'.$x.'</span></li> ';
 					// if not current page...
 				} else {
 					// make it a link
-					$pagination .= ' <a href="?page='.$x.$arguments.'"><label>'.$x.'</label></a> ';
+					$pagination .= '<li><a href="'.$url.'/?page='.$x.$arguments.'">'.$x.'</a></li>';
 				}
 			}
 		}
 		
 		if ($total > $pagesize){
-			$output = '<div class="pagination"><a href="?page=1'.$arguments.'"><span> << </span></a>';
-			$output .= '<a href="?page='.$previous.$arguments.'"><span> < </span> </a>';
+			$output = '<ul class="pagination">';
+			$output .= '<li><a href="'.$url.'/?page=1'.$arguments.'"><<</a></li>';
+			$output .= '<li><a href="'.$url.'/?page='.$previous.$arguments.'"> < </a></li>';
 			$output .= $pagination;
-			$output .= '<a href="?page='.$next.$arguments.'"><span> > </span></a>';
-			$output .= '<a href="?page='.$lastPage.$arguments.'"><span> >> </span></a>';
-			$output .= '<label> Af: '.$lastPage.' </label></div>';
+			$output .= '<li><a href="'.$url.'/?page='.$next.$arguments.'"> > </a></li>';
+			$output .= '<li><a href="'.$url.'/?page='.$lastPage.$arguments.'">>></a></li>';
+			$output .= '<li class="active"><span> Af: '.$lastPage.' </span></li></ul>';
 		} else {
 			$output = '';
 		}
+		self::$pagination = $output;
 		return $output;
-	}		
+	}
 	
 	/**
 	 * prepend a number with n amounts of 0.
 	 *
-	 * @param string $number the number to be prepended.	 
-	 * @param int $n the the maximum amount of 0 to be prepended.	 
+	 * @param string $number the number to be prepended.
+	 * @param int $n the the maximum amount of 0 to be prepended.
 	 *
-	 * @return string the string prepended with 0.	 
+	 * @return string the string prepended with 0.
 	 *
 	 * @access public
 	 * @static
@@ -267,7 +303,7 @@ class views extends genericIO{
 	 */	
 	public static function number_pad($number,$n){
 		return str_pad(intval($number),$n,"0",STR_PAD_LEFT);
-	}		
+	}
 	
 	/**
 	 * Seperates a number with thousand seperator.
@@ -275,7 +311,7 @@ class views extends genericIO{
 	 * @param int $number the number to be formatted. 
 	 * @param int $decimals the number of decimals. 
 	 *
-	 * @return string the formatted string.	 
+	 * @return string the formatted string.
 	 *
 	 * @access public
 	 * @static
@@ -289,14 +325,14 @@ class views extends genericIO{
 	 * Formats a thousand seperated number/string.
 	 * So it can be used in regular math
 	 *
-	 * @param int $number the number to be formatted.  
+	 * @param int $number the number to be formatted.
 	 *
-	 * @return number the formatted number.	 
+	 * @return number the formatted number.
 	 *
 	 * @access public
 	 * @static
 	 * @since Method available since Release 1.0.0
-	 */		
+	 */
 	public static function formatNumber($number){
 		$number = str_replace(".", "", $number);
 		$number = str_replace(",", ".", $number);
@@ -316,7 +352,7 @@ class views extends genericIO{
 	 * @access public
 	 * @static
 	 * @since Method available since Release 1.0.0
-	 */		
+	 */
 	public static function moneyFormat($number, $currencySymbol = '$', $decimals = 2){
 		return $currencySymbol.self::TSeperator($number,$decimals);
 	}

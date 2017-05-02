@@ -19,7 +19,7 @@
 	$client->client_id = ''; $application_line = __LINE__;
 	$client->client_secret = '';
 
-	if(strlen($client->client_id) == 0
+	if (strlen($client->client_id) == 0
 	|| strlen($client->client_secret) == 0)
 		die('Please go to Yahoo Apps page https://developer.apps.yahoo.com/wsregapp/ , '.
 			'create an application, and in the line '.$application_line.
@@ -27,11 +27,11 @@
 			'The Callback URL must be '.$client->redirect_uri).' Make sure you enable the '.
 			'necessary permissions to execute the API calls your application needs.';
 
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
-		if(($success = $client->Process()))
+		if (($success = $client->Process()))
 		{
-			if(strlen($client->access_token))
+			if (strlen($client->access_token))
 			{
 				$success = $client->CallAPI(
 					'http://query.yahooapis.com/v1/yql', 
@@ -43,9 +43,9 @@
 		}
 		$success = $client->Finalize($success);
 	}
-	if($client->exit)
+	if ($client->exit)
 		exit;
-	if($success)
+	if ($success)
 	{
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

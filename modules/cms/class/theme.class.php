@@ -44,16 +44,18 @@ class theme{
 		$j = 0;
 		if ($handle = opendir('template/')) {
 			while (false !== ($entry = readdir($handle))) {
-				if($entry != '.' && $entry != '..' && is_dir('template/'.$entry)){
-					if(file_exists('template/'.$entry.'/example.png')){
+				if ($entry != '.' && $entry != '..' && is_dir('template/'.$entry)){
+					if (file_exists('template/'.$entry.'/example.png')){
 						$content = '<img src="'.PATH_WEB.'/template/'.$entry.'/example.png" width="180px;" />';	
+					} else if (file_exists('template/'.$entry.'/example.jpg')){
+						$content = '<img src="'.PATH_WEB.'/template/'.$entry.'/example.jpg" width="180px;" />';	
 					} else {
 						$content = '<img src="'.PATH_WEB.'/template/'.template::getTheme().'/icon_big/plug_add.png" width="180px;" />';	
 					}
 					
-					$foldercontent[$j][$i] = $content.'<br /><a href="'.PATH_WEB.'/cms/theme/activate/'.$entry.'">'.language::readType('ENABLE').' '.$entry.'</a> 
+					$foldercontent[$j][$i] = $content.'<br /><a href="'.PATH_WEB.'/modules/cms/theme/activate/'.$entry.'">'.language::readType('ENABLE').' '.$entry.'</a> 
 					| <a href="'.PATH_WEB.'/cms/theme/delete/'.$entry.'">'.language::readType('DELETE').'</a>';
-					if($i >= $cols){
+					if ($i >= $cols){
 						$i = 1; 
 						$j++;
 					}
@@ -78,11 +80,11 @@ class theme{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function enableTheme($theme){
-		if(!key::doesExist('[TEMPLATE]')){
-			key::createKey('[TEMPLATE]','default');
+		if (!key::doesExist('TEMPLATE')){
+			key::createKey('TEMPLATE','default');
 		}
-		list($keyid) = key::readKey('[TEMPLATE]');
-		return key::updateKey($keyid,'[TEMPLATE]',$theme);
+		list($keyid) = key::readKey('TEMPLATE');
+		return key::updateKey($keyid,'TEMPLATE',$theme);
 	}
 	
 	/**
@@ -94,7 +96,7 @@ class theme{
 	 * @since Method available since Release 1.0.0
      */
 	public static function readTheme(){
-		list($id,$key,$name) = key::readKey('[TEMPLATE]');
+		list($id,$key,$name) = key::readKey('TEMPLATE');
 		return $name;
 	}
 }

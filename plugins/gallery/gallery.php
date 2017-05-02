@@ -23,74 +23,105 @@
  * @since		File available since 2013-12-22
  */
 
-class gallery /*extends database*/{
+class gallery{
 	
 	public static function indexAction(){	
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
-		$database = new database();
 
-		$body = views::displayEditListview($database->read('gallery','PK_GalleryID, Gallery, Image, Width, Height'));
+		$dbobject = new dbobject('gallery');
+		$dbobject->read("PK_GalleryID");
+		$dbobject->read("Gallery");
+		$dbobject->read("Image");
+		$dbobject->read("Width");
+		$dbobject->read("Height");
+
+		$body = views::displayEditListview($dbobject->fetch());
+			$body .= '<br><br><br>';
 			$body .= form::beginForm('gallery','/plugins/gallery/insert');
 			$body .= form::fieldset('fld2','Galleri navn',form::input('','galleryName',0));
-			$body .= form::fieldset('fld2','Billede',form::select(files::listFolderContent('uploads/medium'),'---','galleryImage',1).'<br /><br />');
+			
+			if(modules::isModule('ephoto')){
+				$body .= photo::showControl();
+			} else {
+				$body .= form::fieldset('fld2','Billede',form::select(files::listFolderContent('uploads/images/medium'),'---','icon',1).'<br /><br />');
+			}
 		$body .= form::endForm('gallery');
-		//$body .= '<br /><a href="createtable">Create table</a><br />';
-		
+
 		template::initiate('admin');
-			template::noCache();
 			template::title('Plug-ins');
 			template::header('<h3>Rediger galleri</h3>');
-			template::replace('[MENU]',adminmenu::createMenu($_SERVER['DOCUMENT_ROOT'].'/'));
 			template::body($body);	
 			template::replace('[PATH]',PATH_WEB);
-		template::end();		
+		template::end();
 	}
 	
 	public static function installAction(){
-		if(!user::validateAdmin()){
-			route::error(403);
+		if (!user::validateAdmin()){
+			if (user::countUser('ADMIN')){
+				route::error(403);
+			}
 		}
-		$database = new database();
-		$what = array("Image" => "varchar(100)", "Gallery" => "varchar(100)", "Width" => "int(10)", "Height" => "int(10)");
-		$result = $database->createTable('gallery',$what,"PK_GalleryId");
-		route::redirect('/plugins/gallery');	
-	}
+		$databaseadmin = new databaseadmin();
+		$what = array("Image" => "varchar(255)",
+			"Gallery" => "varchar(100)",
+			"Width" => "int(10)",
+			"Height" => "int(10)");
+		$result = $databaseadmin->createTable('gallery',$what,"PK_GalleryId");
+		route::redirect('/plugins/gallery');
+	}	
 	
 	public static function insertAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
-		$database = new database();
-		list($Width,$Height) = getimagesize('uploads/images/'.$args['galleryImage']);
-		$values = array("Image" =>  "'".$args['galleryImage']."'", "Gallery" => "'".$args['galleryName']."'", "Width" => $Width, "Height" => $Height);
-		if(!$database->create('gallery',$values)){
-			$database->TransactionRollback();
+		
+		if(modules::isModule('ephoto')){
+			list($Width,$Height) = getimagesize($args['icon']);
+			$img = $args['icon'];
+		} else {
+			list($Width,$Height) = getimagesize('uploads/images/full/'.$args['icon']);
+			$img = 'uploads/images/full/'.$args['icon'];
 		}
-		$database->TransactionEnd();
+
+		$dbobject = new dbobject('gallery');
+		$dbobject->create('Image',$img);
+		$dbobject->create('Gallery',$args['galleryName']);
+		$dbobject->create('Width',$Width);
+		$dbobject->create('Height',$Height);
+		$dbobject->commit();
+		
 		route::redirect('/plugins/gallery');
 	}
 	
 	public static function editAction(){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
-		$database = new database();
 		route::redirect('/plugins/gallery');
 	}
 	
 	public static function listAction($args){
-		$database = new database();
-		echo views::displayJSON($database->read('gallery','Image, Width, Height','Gallery = \''.$args[0].'\''));
+		$dbobject = new dbobject('gallery');
+
+		$dbobject->read("Image");
+		$dbobject->read("Width");
+		$dbobject->read("Height");		
+		$dbobject->where("Gallery",$args[0]);		
+		
+		echo views::displayJSON($dbobject->fetch());
 	}
 	
 	public static function deleteAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
-		$database = new database();
-		$database->destroy('gallery','PK_GalleryId = '.$args[0]);
+		
+		$dbobject = new dbobject('gallery');
+		$dbobject->destroy();
+		$dbobject->where("PK_GalleryId",$args[0]);		
+		$dbobject->commit();
 		route::redirect('/plugins/gallery');
 	}
 }

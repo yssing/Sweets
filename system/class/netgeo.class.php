@@ -26,8 +26,8 @@
  * @since      	File available since Release 1.0.0
  * @require		'generic.IO.class.php'
  */
-require_once('generic.IO.class.php');
-class netGeo extends genericIO{
+include_once('baseclass.class.php');
+class netGeo extends baseclass{
 
 	/**
      * The ip adress to look up, if supplied.
@@ -115,7 +115,7 @@ class netGeo extends genericIO{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function getNetGeo($ip = 0){		
-		if($ip){
+		if ($ip){
 			$url = 'http://freegeoip.net/xml/'.$ip;
 		} else {
 			$url = 'http://freegeoip.net/xml/';
@@ -123,7 +123,7 @@ class netGeo extends genericIO{
 
 		try{
 			$result = file_get_contents($url, false);
-			if(!$result){
+			if (!$result){
 				throw new Exception('Could not get a response from freegeoip.net');
 				return false;
 			} else {
@@ -154,7 +154,7 @@ class netGeo extends genericIO{
 		$XMLFile = '';
 		try{
 			$XMLFile = simplexml_load_string($file);
-			if(!$XMLFile){
+			if (!$XMLFile){
 				self::DBug('Could not load XML file!');
 				return false;
 			} else {

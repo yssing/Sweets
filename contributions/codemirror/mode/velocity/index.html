@@ -51,7 +51,7 @@
 #parse( "lecorbusier.vm" )
 #parse( $foo )
 
-#evaluate( 'string with VTL #if(true)will be displayed#end' )
+#evaluate( 'string with VTL #if (true)will be displayed#end' )
 
 #define( $hello ) Hello $who #end #set( $who = "World!") $hello ## displays Hello World!
 
@@ -59,7 +59,7 @@
 
     $foreach.count $customer.Name
 
-    #if( $foo == ${bar})
+    #if ( $foo == ${bar})
         it's true!
         #break
     #{else}

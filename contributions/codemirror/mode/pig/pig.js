@@ -27,7 +27,7 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
     var isEnd = false;
     var ch;
     while(ch = stream.next()) {
-      if(ch == "/" && isEnd) {
+      if (ch == "/" && isEnd) {
         state.tokenize = tokenBase;
         break;
       }
@@ -58,10 +58,10 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
     if (ch == '"' || ch == "'")
       return chain(stream, state, tokenString(ch));
     // is it one of the special chars
-    else if(/[\[\]{}\(\),;\.]/.test(ch))
+    else if (/[\[\]{}\(\),;\.]/.test(ch))
       return ret(ch);
     // is it a number?
-    else if(/\d/.test(ch)) {
+    else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/);
       return ret("number", "number");
     }
@@ -77,7 +77,7 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
     }
     // single line comment or operator
     else if (ch=="-") {
-      if(stream.eat("-")){
+      if (stream.eat("-")){
         stream.skipToEnd();
         return ret("comment", "comment");
       }
@@ -126,7 +126,7 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
     },
 
     token: function(stream, state) {
-      if(stream.eatSpace()) return null;
+      if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       return style;
     }

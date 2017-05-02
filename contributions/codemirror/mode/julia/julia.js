@@ -24,7 +24,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
   function in_array(state) {
     var ch = cur_scope(state);
-    if(ch=="[" || ch=="{") {
+    if (ch=="[" || ch=="{") {
       return true;
     }
     else {
@@ -33,7 +33,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
   }
 
   function cur_scope(state) {
-    if(state.scopes.length==0) {
+    if (state.scopes.length==0) {
       return null;
     }
     return state.scopes[state.scopes.length - 1];
@@ -44,11 +44,11 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     // Handle scope changes
     var leaving_expr = state.leaving_expr;
     state.leaving_expr = false;
-    if(leaving_expr) {
-      if(stream.match(/^'+/)) {
+    if (leaving_expr) {
+      if (stream.match(/^'+/)) {
         return 'operator';
       }
-      if(stream.match("...")) {
+      if (stream.match("...")) {
         return 'operator';
       }
     }
@@ -63,42 +63,42 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
         stream.skipToEnd();
         return 'comment';
     }
-    if(ch==='[') {
+    if (ch==='[') {
       state.scopes.push("[");
     }
 
-    if(ch==='{') {
+    if (ch==='{') {
       state.scopes.push("{");
     }
 
     var scope=cur_scope(state);
 
-    if(scope==='[' && ch===']') {
+    if (scope==='[' && ch===']') {
       state.scopes.pop();
       state.leaving_expr=true;
     }
 
-    if(scope==='{' && ch==='}') {
+    if (scope==='{' && ch==='}') {
       state.scopes.pop();
       state.leaving_expr=true;
     }
 
     var match;
-    if(match=stream.match(openers, false)) {
+    if (match=stream.match(openers, false)) {
       state.scopes.push(match);
     }
 
-    if(!in_array(state) && stream.match(closers, false)) {
+    if (!in_array(state) && stream.match(closers, false)) {
       state.scopes.pop();
     }
 
-    if(in_array(state)) {
-      if(stream.match("end")) {
+    if (in_array(state)) {
+      if (stream.match("end")) {
         return 'number';
       }
 
     }
-    if(stream.match("=>")) {
+    if (stream.match("=>")) {
       return 'operator';
     }
     // Handle Number Literals
@@ -245,7 +245,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
     indent: function(state, textAfter) {
       var delta = 0;
-      if(textAfter=="end" || textAfter=="]" || textAfter=="}" || textAfter=="else" || textAfter=="elseif" || textAfter=="catch" || textAfter=="finally") {
+      if (textAfter=="end" || textAfter=="]" || textAfter=="}" || textAfter=="else" || textAfter=="elseif" || textAfter=="catch" || textAfter=="finally") {
         delta = -1;
       }
       return (state.scopes.length + delta) * 2;

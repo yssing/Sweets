@@ -1,0 +1,142 @@
+<script type="text/javascript">
+
+	function tSubPhotoView(element){
+		$("#subfolder"+element).slideToggle();
+	};
+	
+	function showMonthImg(path){
+		$("#ephoto_thumbnails").html('<img src="/template/[TEMPLATE]/images/download.gif" class="ephoto-spinner">');
+		$("#ephoto_discription").html('');
+		
+		var data = {};
+		data['path'] = path;
+		data['id'] = $("#ephoto_selectorId").val();
+		data['type'] = $("#ephoto_selectorType").val();
+
+		$.post('/modules/ephoto/photo/list_thumbnails/', data, function(data){ 	
+			$("#ephoto_thumbnails").html(data);
+		});
+	};
+	
+	$( "#ephoto_search" ).change(function( event ) {
+		event.preventDefault();
+
+		$("#ephoto_thumbnails").html('<img src="/template/[TEMPLATE]/images/download.gif" class="ephoto-spinner">');
+		$("#ephoto_discription").html('');
+		
+		var data = {};
+		data['path'] = $( "#ephoto_search" ).val();
+		data['id'] = $("#ephoto_selectorId").val();
+
+		$.post('/modules/ephoto/photo/find_thumbnails/', data, function(data){ 	
+			$("#ephoto_thumbnails").html(data);
+		});
+	});	
+	
+	function description(path){
+		$("#ephoto_discription").html('<img src="/template/[TEMPLATE]/images/download.gif" class="ephoto-spinner">');
+		
+		var data = {};
+		data['path'] = path;
+
+		$.post('/modules/ephoto/photo/description/', data, function(data){ 	
+			$("#ephoto_discription").html(data);
+		});
+	};
+	
+	function updateDescription(){
+		var data = {};
+		data['path'] = $("#ephoto_path").val();
+		data['name'] = $("#ephoto_name").val();
+		data['description'] = $("#ephoto_text").val();
+
+		$("#ephoto_discription").html('<img src="/template/[TEMPLATE]/images/download.gif" class="ephoto-spinner">');
+		
+		$.post('/modules/ephoto/photo/update/', data, function(data){ 	
+			$("#ephoto_discription").html(data);
+		});		
+	}
+	
+	function deleteImage(path,image){
+		$("#ephoto_thumbnails").html('<img src="/template/[TEMPLATE]/images/download.gif" class="ephoto-spinner">');
+		$("#ephoto_discription").html('');
+		var data = {};
+		data['path'] = path;
+		data['image'] = image;
+
+		$.post('/modules/ephoto/photo/delete/', data, function(data){ 	
+			$("#ephoto_thumbnails").html(data);
+		});	
+	}
+	
+	function showImage(path){
+		showLightBox('<img src="/template/[TEMPLATE]/images/download.gif" class="ephoto-spinner center">',250,250);
+		var data = {};
+		data['path'] = path;
+
+		$.post('/modules/ephoto/photo/get_image_info/', data, function(data){
+			var obj = jQuery.parseJSON( data );
+
+			if (typeof showLightBox == 'function') { 
+				if (typeof toggleFullScreen == 'function'){
+					imgSrc = '<img src="'+obj[0]+'" class="center" onclick="toggleFullScreen(\'lightbox_content\')" />';
+				} else {
+					imgSrc = '<img src="'+obj[0]+'" class="center" />';
+				}
+				showLightBox(imgSrc,obj[1]+20,obj[2]+20);
+			}
+		});
+	}
+	
+	function selectImage(image,id){
+		$("#"+id+"").val(image);
+	}
+	
+	function addImages(selector,target){
+		var imagelist = '';
+		var sorthighest = 0;
+		var imagearray = Array();
+		var i = 1;
+
+		$("input:checkbox").each(function(){
+			var $imgobj = $(this);
+
+			if ($imgobj.is(':checked')){
+				if($imgobj.attr('sort') > sorthighest){
+					sorthighest = parseInt($imgobj.attr('sort'));
+				}
+				$("#"+selector.replace("img", "lbl")).html(sorthighest+1);
+			} else {
+				$imgobj.attr('sort',"0");
+				
+				if(!$("#"+selector).is(':checked')){
+					var lblid = selector.replace("img", "lbl");
+					$("#"+lblid).html('');
+				}
+			}
+		});	
+
+		// update sort number for the selected image.
+		$("#"+selector).attr('sort',parseInt(sorthighest+1));
+
+		// loop through all select images and put the data into an array
+		$("input:checkbox:checked").each(function(){
+			var $imgobj = $(this);
+			imagearray[parseInt($imgobj.attr('sort'))] = $imgobj.data('image');
+		});			
+		// loop through the array and build the image list.
+		$.each(imagearray, function(key, value) {
+			if (value != null){
+				imagelist += value;
+				if (i < imagearray.length) {
+					imagelist += ',\r\n';
+				}
+			}
+			i++;
+		});
+
+		$("#"+target+"").val(imagelist);
+	}
+</script>
+
+[EPHOTO_FOLDER_LIST]

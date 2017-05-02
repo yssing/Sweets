@@ -37,8 +37,12 @@ class area{
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function readSingleArea($areaid){
-		$database = new database("geography_area");
-		return $database->readSingle("AreaName,AreaCode,FK_ParentID","PK_AreaID = ".$areaid);
+		$dbobject = new dbobject('geography_area');
+		$dbobject->read("AreaName");
+		$dbobject->read("AreaCode");
+		$dbobject->read("FK_ParentID");
+		$dbobject->where("PK_AreaID",$areaid);
+		return $dbobject->fetchSingle();		
 	}
 	
 	/**
@@ -49,18 +53,18 @@ class area{
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */
-	public static function listAreas(){
-		$database = new database("geography_area");
-		return $database->read("PK_AreaID,FK_ParentID,AreaName,AreaCode","","AreaName");
-	}
-	
-	/**
-	 * finds the newest item.
-	 */
-	public static function findlast(){
-		$database = new database("geography_area");
-		list($id) = $database->readLastEntry();
-		return $id;
+	public static function listAreas($searchval = ''){
+		$dbobject = new dbobject('geography_area');
+		$dbobject->read("PK_AreaID");
+		$dbobject->read("FK_ParentID");
+		$dbobject->read("AreaName");
+		$dbobject->read("AreaCode");
+		if ($searchval){
+			$dbobject->wildcard("AreaName",$searchval);
+			$dbobject->wildcard("AreaCode",$searchval);
+		}		
+		$dbobject->orderby("AreaName");
+		return $dbobject->fetch();		
 	}
 	
 	/**
@@ -77,9 +81,12 @@ class area{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function updateArea($areaid,$area,$areacode,$parentid){
-		$database = new database("geography_area");
-		$data = array("AreaName" => "'".$area."'","AreaCode" => $areacode,"FK_ParentID" => $parentid);
-		return $database->update($data,"PK_AreaID = ".$areaid);
+		$dbobject = new dbobject('geography_area');
+		$dbobject->update('AreaName',$area);
+		$dbobject->update('AreaCode',$areacode);
+		$dbobject->update('FK_ParentID',$parentid);
+		$dbobject->where("PK_AreaID", $areaid);
+		return $dbobject->commit();
 	}	
 	
 	/**
@@ -95,12 +102,14 @@ class area{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function createArea($area,$areacode,$parentid){
-		$database = new database("geography_area");
-		$data = array("AreaName" => "'".$area."'","AreaCode" => $areacode,"FK_ParentID" => $parentid);
-		if(!$database->create($data)){
-			return false;
+		$dbobject = new dbobject('geography_area');
+		$dbobject->create('AreaName',$area);
+		$dbobject->create('AreaCode',$areacode);
+		$dbobject->create('FK_ParentID',$parentid);
+		if ($dbobject->commit()){
+			return $dbobject->readLastEntry();
 		}
-		return true;
+		return false;			
 	}	
 	
 	/**
@@ -114,11 +123,10 @@ class area{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyArea($areaid){
-		$database = new database("geography_area");
-		if(!$database->destroy("PK_AreaID = ".$areaid)){
-			return false;
-		}
-		return true;
+		$dbobject = new dbobject('geography_area');
+		$dbobject->destroy();
+		$dbobject->where("PK_AreaID",$areaid);
+		return $dbobject->commit();			
 	}
 }
 ?>

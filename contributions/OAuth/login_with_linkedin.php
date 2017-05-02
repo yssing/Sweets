@@ -24,7 +24,7 @@
 	 */
 	$client->scope = 'r_fullprofile r_emailaddress';
 
-	if(strlen($client->client_id) == 0
+	if (strlen($client->client_id) == 0
 	|| strlen($client->client_secret) == 0)
 		die('Please go to LinkedIn Apps page https://www.linkedin.com/secure/developer?newapp= , '.
 			'create an application, and in the line '.$application_line.
@@ -32,11 +32,11 @@
 			'The Callback URL must be '.$client->redirect_uri).' Make sure you enable the '.
 			'necessary permissions to execute the API calls your application needs.';
 
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
-		if(($success = $client->Process()))
+		if (($success = $client->Process()))
 		{
-			if(strlen($client->access_token))
+			if (strlen($client->access_token))
 			{
 				$success = $client->CallAPI(
 					'http://api.linkedin.com/v1/people/~', 
@@ -47,14 +47,14 @@
 		}
 		$success = $client->Finalize($success);
 	}
-	if($client->exit)
+	if ($client->exit)
 		exit;
-	if(strlen($client->authorization_error))
+	if (strlen($client->authorization_error))
 	{
 		$client->error = $client->authorization_error;
 		$success = false;
 	}
-	if($success)
+	if ($success)
 	{
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

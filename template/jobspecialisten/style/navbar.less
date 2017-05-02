@@ -1,0 +1,112 @@
+/* Navigation Bar */
+
+.ph-line-nav {
+	background-color: @header-background; 
+	font-family: @main-font;
+	font-size: 1.4em;
+	text-decoration: none;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	z-index: 100;
+	min-height: 70px;
+	text-transform: uppercase;
+	.radius(0px);
+	.boxshadow(2px,2px,grey);
+
+	.effect {
+		width: 90px;
+		height: 2px;
+		bottom: 10px;
+		background: @background-color;
+		box-shadow: 0 1px 0 white; 
+		margin-left: -45px;
+	}
+
+	img{
+		float: left;
+		margin-top: 15px;
+		position: absolute;
+	}
+	
+	.navigation {
+		float: right;
+		//width: 50%;
+		overflow: hidden;
+		position: relative;	
+		text-align: center !important;
+
+		a {
+			display: block;
+			position: relative;
+			float: left;
+			// 120 for 5 items
+			// min-width: 120px;
+			// 180 for 3 items
+			min-width: 180px;
+			text-decoration: none;
+			padding-bottom: 1em;
+			padding-top: 1em;
+			text-align: center;
+			color: @text-color-light;
+			.transition(0.7s);
+		}
+		/*
+		// 5 menu items
+		a:nth-child(1):hover ~ .effect {
+			left: 10%; 
+		}
+		a:nth-child(2):hover ~ .effect {
+			left: 30%; 
+		}
+		a:nth-child(3):hover ~ .effect {
+			left: 50%; 
+		}
+		a:nth-child(4):hover ~ .effect {
+			left: 70%; 
+		}
+		a:nth-child(5):hover ~ .effect {
+			left: 90%; 
+		}
+		*/	
+
+		a:nth-child(1):hover ~ .effect {
+			left: 16.5%; 
+		}
+		a:nth-child(2):hover ~ .effect {
+			left: 49.5%; 
+		}
+		a:nth-child(3):hover ~ .effect {
+			left: 83.5%; 
+		}		
+		
+		.effect {
+			float: right;
+			position: absolute;
+			left: -16.5%;
+			.transition(0.7s);
+		}
+	}
+}
+
+.navbar-brand{
+	margin-top: -15px;
+}
+
+.navbar-toggle {
+    background-color: grey;
+    border: 1px solid grey;
+    border-radius: 4px;
+    float: right;
+    margin-bottom: 8px;
+    margin-right: 15px;
+    margin-top: 18px;
+    padding: 9px 10px;
+    position: relative;
+	
+	.icon-bar{
+		background-color: lightgrey;
+		height: 2px;
+	}
+}
+/* end of menu navigation */

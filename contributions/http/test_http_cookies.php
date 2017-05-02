@@ -9,13 +9,13 @@
 	$user=""; /* Define your PHP Classes site access name here */  $user_line=__LINE__;
 	$password=""; /* Define your PHP Classes site access name here */  $password_line=__LINE__;
 	$url="http://www.phpclasses.org/login.html?page=/browse.html/file/5/download/1/name/http.php";
-	if($user=="")
+	if ($user=="")
 	{
 		echo "PHP Classes site user was not specified in script ".__FILE__." line $user_line\n";
 		exit;
 	}
 
-	if($password=="")
+	if ($password=="")
 	{
 		echo "PHP Classes site password was not specified in script ".__FILE__." line $password_line\n";
 		exit;
@@ -27,7 +27,7 @@
 	$http=new http_class;
 	$http->GetRequestArguments($url,$arguments);
 	$error=$http->Open($arguments);
-	if($error=="")
+	if ($error=="")
 	{
 		$arguments["RequestMethod"]="POST";
 		$arguments["PostValues"]=array(
@@ -37,22 +37,22 @@
 			"dologin"=>"1"
 		);
 		$error=$http->SendRequest($arguments);
-		if($error=="")
+		if ($error=="")
 		{
 			$error=$http->ReadReplyHeaders($headers);
-			if($error=="")
+			if ($error=="")
 			{
 				for($header=0,Reset($headers);$header<count($headers);Next($headers),$header++)
 				{
-					if(Key($headers)=="set-cookie")
+					if (Key($headers)=="set-cookie")
 						break;
 				}
-				if($header<count($headers))
+				if ($header<count($headers))
 				{
 					for(;;)
 					{
 						$error=$http->ReadReplyBody($body,1000);
-						if($error!=""
+						if ($error!=""
 						|| strlen($body)==0)
 							break;
 					}
@@ -60,7 +60,7 @@
 				else
 					$error="This page did not set a cookie";
 			}
-			if($error==""
+			if ($error==""
 			&& ($error=$http->Close())==""
 			&& ($error=$http->Open(array(
 				"HostName"=>$arguments["HostName"]
@@ -74,7 +74,7 @@
 				for(;;)
 				{
 					$error=$http->ReadReplyBody($body,1000);
-					if($error!=""
+					if ($error!=""
 					|| strlen($body)==0)
 						break;
 					echo $body;
@@ -82,9 +82,9 @@
 			}
 		}
 		$close_error=$http->Close();
-		if($error=="")
+		if ($error=="")
 			$error=$close_error;
 	}
-	if($error!="")
+	if ($error!="")
 		echo "Error: $error\n";
 ?>

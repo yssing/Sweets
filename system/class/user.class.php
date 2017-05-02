@@ -29,8 +29,8 @@
  * @require		'salt.class.php'
  * @require		'database.class.php'
  */
-require_once('salt.class.php');
-require_once('database.class.php');
+include_once('salt.class.php');
+include_once('dbobject.class.php');
 class user {
 
 	/**
@@ -47,19 +47,19 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function createUser($username,$userstatus = 'USER'){
-		$database = new database('user');
-		if(!self::doesExist($username)){
-			$values = array("UserLogin" => "'".$username."'", "UserStatus" => "'".$userstatus."'");
-			if($database->create($values)){
-				list($userid) = $database->readLastEntry($values);
+		if (!self::doesExist($username)){
+			$dbobject = new dbobject('user');
+			$dbobject->create('UserLogin',$username);
+			$dbobject->create('UserStatus',$userstatus);
+			if ($dbobject->commit()){
+				$userid = $dbobject->readLastEntry();
 				self::updateUID($userid);
+				return $userid;
 			} else {
 				return false;
 			}
-			return $userid;
-		} else {
-			return false;
 		}
+		return false;
 	}
 	
 	/**
@@ -73,10 +73,10 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	 
 	public static function validateEMail($email){
-		if(self::countUserEMail($email) || !$email){
+		if (self::countUserEMail($email) || !$email){
 			return false;
 		} else {
-			if(validation::isEMail($email)){
+			if (validation::isEMail($email)){
 				return true;
 			} else {
 				return false;
@@ -95,13 +95,11 @@ class user {
 	 * @since Method available since Release 1.0.0
      */			
 	public static function doesExist($username){
-		$database = new database('user');
-		list($id) = $database->readSingle("PK_UserID","UserLogin = '".$username."'");
-		if($id){
-			return $id;
-		} else {
-			return false;
-		}
+		$dbobject = new dbobject('user');
+		$dbobject->read("PK_UserID");
+		$dbobject->where("UserLogin", $username);
+		list($id) = $dbobject->fetchSingle();
+		return ($id) ? ($id) : false;	
 	}	
 
 	/**
@@ -116,13 +114,11 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function updateUID($userid){
-		$database = new database('user');
-		$data = array("UID" => "'".md5($userid.time().mt_srand())."'");
-		$where = 'PK_UserID = '.$userid;		
-		if(!$database->update($data,$where)){
-			return false;
-		}		
-		return true;		
+		$dbobject = new dbobject('user');
+		$dbobject->update('UID',md5($userid.time().mt_srand()));
+		$dbobject->where("PK_UserID", $userid);
+		return $dbobject->commit();		
+		
 	}
 	
 	/**
@@ -138,13 +134,10 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function updateUserStatus($status,$userid){
-		$database = new database('user');
-		$data = array("UserStatus" => "'".$status."'");
-		$where = 'PK_UserID = '.$userid;		
-		if(!$database->update($data,$where)){
-			return false;
-		}		
-		return true;		
+		$dbobject = new dbobject('user');
+		$dbobject->update('UserStatus', $status);
+		$dbobject->where("PK_UserID", $userid);
+		return $dbobject->commit();			
 	}
 	
 	/**
@@ -164,46 +157,57 @@ class user {
 	 */		
 	public static function updateUserPassword($userPassword,$userid,$type = 'USER_SECRET'){
 		$salt = new salt();
-		$database = new database('user');
-		$data = array("UserPassword" => "'".md5($salt->readSalt($type).$userPassword)."'");
-		$where = 'PK_UserID = '.$userid;		
-		if(!$database->update($data,$where)){
-			return false;
-		}		
-		return true;
+		$dbobject = new dbobject('user');
+		$dbobject->update('UserPassword', md5($salt->readSalt($type).$userPassword));
+		$dbobject->where("PK_UserID", $userid);
+		return $dbobject->commit();	
 	}
 		
 	/**
-	 * This method sets the user validation to 1/true.
+	 * This method sets the user validation.
 	 *
-	 * @param int $userid the user id in the database.	 
+	 * @param int $userid the user id in the database.
+	 * @param int $validate validated status, defaults to 1.
 	 *
 	 * @return true on success or false on failure.
 	 *
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */		
-	public static function updateUserValidate($userid){
-		$database = new database('user');
-		$data = array("Validated" => "1");		
-		$where = 'PK_UserID = '.$userid;		
-		if(!$database->update($data,$where)){
-			return false;
-		}		
-		return true;
+	public static function updateUserValidate($userid, $validate = 1){
+		$dbobject = new dbobject('user');
+		$dbobject->update('Validated', $validate);
+		$dbobject->where("PK_UserID", $userid);
+		if ($dbobject->commit()){
+			self::updateUID($userid);
+			return true;
+		}
 	}		
 	
 	/**
 	 * This method lists all the user entries in the database. 
+	 *
+	 * @param String $searchval If any wildcard search is done.
 	 *	 
 	 * @return true or status on success or false on failure.
 	 *
      * @access public	 
 	 * @since Method available since Release 1.0.0
 	 */
-	public static function listUsers(){
-		$database = new database('user');
-		return $database->read("PK_UserID, UserFirstName, UserLastName, UserLogin, UserEMail");
+	public static function listUsers($searchval = ''){
+		$dbobject = new dbobject("user");
+		$dbobject->read("PK_UserID");
+		$dbobject->read("UserFirstName");
+		$dbobject->read("UserLastName");
+		$dbobject->read("UserLogin");
+		$dbobject->read("UserEMail");
+		if ($searchval){
+			$dbobject->wildcard("UserFirstName",$searchval);
+			$dbobject->wildcard("UserLastName",$searchval);
+			$dbobject->wildcard("UserLogin",$searchval);
+			$dbobject->wildcard("UserEMail",$searchval);
+		}
+		return $dbobject->fetch();
 	}
 	
 	/**
@@ -213,14 +217,41 @@ class user {
 	 *	 
 	 * @return array The table row found.
 	 *
-     * @access public	 
+     * @access public
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function readUser($userid){
-		$database = new database('user');
-		return $database->readSingle("PK_UserID, UserFirstName, UserLastName, UserLogin, UserEMail, AcceptNews, AcceptMails","PK_UserID = ".$userid);
+		$dbobject = new dbobject("user");
+		$dbobject->read("PK_UserID");
+		$dbobject->read("UserFirstName");
+		$dbobject->read("UserLastName");
+		$dbobject->read("UserLogin");
+		$dbobject->read("UserEMail");
+		$dbobject->read("AcceptNews");
+		$dbobject->read("AcceptMails");
+		$dbobject->read("UserStatus");
+		$dbobject->where("PK_UserID",$userid);
+		return $dbobject->fetchSingle();
 	}	
-
+	
+	/**
+	 * This method reads a users e-mail.
+	 *
+	 * @param int $userid the users id.	 
+	 *	 
+	 * @return string/bool $email on success else false.
+	 *
+     * @access public	 
+	 * @since Method available since Release 1.0.0
+	 */	
+	public static function readUserMail($userid){
+		$dbobject = new dbobject("user");
+		$dbobject->read("UserEMail");
+		$dbobject->where("PK_UserID",$userid);
+		list($email) = $dbobject->fetchSingle();		
+		return $email;		
+	}
+	
 	/**
 	 * This method counts the number of user with a specific status.
 	 *
@@ -232,8 +263,9 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */
 	public static function countUser($status){
-		$database = new database('user');
-		return $database->count("UserStatus = '".$status."'");
+		$dbobject = new dbobject("user");
+		$dbobject->where("UserStatus",$status);
+		return $dbobject->count();
 	}		
 	
 	/**
@@ -248,8 +280,9 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function countUserEMail($email){
-		$database = new database('user');
-		return $database->count("UserEMail = '".$email."'");
+		$dbobject = new dbobject("user");
+		$dbobject->where("UserEMail",$email);
+		return $dbobject->count();		
 	}
 	
 	/**
@@ -264,13 +297,14 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function countUserLogin($userlogin){
-		$database = new database('user');
-		return $database->count("UserLogin = '".$userlogin."'");
+		$dbobject = new dbobject("user");
+		$dbobject->where("UserLogin",$userlogin);
+		return $dbobject->count();			
 	}
 	
 	/**
 	 * This method reads a users credentials.
-	 * The method is used in the recover password code.
+	 * The method is used in the recover-password code.
 	 *
 	 * @param string $email the users email.	 
 	 *	 
@@ -280,8 +314,13 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function readUserCredentials($email){
-		$database = new database('user');
-		return $database->readSingle("PK_UserID, UID","UserEMail = '".$email."'");
+		$dbobject = new dbobject("user");
+		$dbobject->read("UserLogin");
+		$dbobject->read("PK_UserID");
+		$dbobject->read("UID");
+
+		$dbobject->where("UserEMail",$email);
+		return $dbobject->fetchSingle();		
 	}
 
 	/**
@@ -289,15 +328,35 @@ class user {
 	 *
 	 * @param string $UID the users unique ID.	 
 	 *	 
-	 * @return array The table row found.
+	 * @return int The userid found.
 	 *
      * @access public	 
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function readUserID($UID){
-		$database = new database('user');
-		list($userid) = $database->readSingle("PK_UserID","UID = '".$UID."'");
+		$dbobject = new dbobject("user");
+		$dbobject->read("PK_UserID");
+		$dbobject->where("UID",$UID);
+		list($userid) = $dbobject->fetchSingle();		
 		return $userid;
+	}
+	
+	/**
+	 * This method reads a users UID from the ID.
+	 *
+	 * @param int $ID the users ID.	 
+	 *	 
+	 * @return string The UID found.
+	 *
+     * @access public	 
+	 * @since Method available since Release 1.0.0
+	 */		
+	public static function readUID($userid){
+		$dbobject = new dbobject("user");
+		$dbobject->read("UID");
+		$dbobject->where("PK_UserID",$userid);
+		list($UID) = $dbobject->fetchSingle();		
+		return $UID;		
 	}
 	
 	/**
@@ -311,29 +370,46 @@ class user {
 	 *
 	 * @param string $username the users login name.
 	 * @param string $password the users password.
-	 * @param string $remember create a cookie for fast login.
+	 * @param int $remember create a cookie for fast login.
+	 * @param int $cookie login by cookie, then pw is already hashed.
 	 *
-	 * @return true or status on success or false on failure.
+	 * @return $id or status on success or false on failure.
 	 * if status, then the user rights are wrong.
 	 *
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */			
-	public static function userlogin($username,$password,$remember = 0){
+	public static function userLogin($username,$password,$remember = 0,$cookie = 0){		
 		$salt = new salt();
-		$database = new database('user');
-		$what = "PK_UserID, UserLogin, UserStatus, Validated, UserFirstName, UserLastName";
-		if(validation::isEMail($username)){
-			$where = array("UserEMail = '".$username."'","UserPassword = '".md5($salt->readSalt('USER_SECRET').$password)."'");
+		$dbobject = new dbobject('user');
+		
+		if ($cookie){
+			$passwordHashed = $password;
 		} else {
-			$where = array("UserLogin = '".$username."'","UserPassword = '".md5($salt->readSalt('USER_SECRET').$password)."'");
+			$passwordHashed = md5($salt->readSalt('USER_SECRET').$password);
+		}
+		
+		$dbobject->read('PK_UserID');
+		$dbobject->read('UserLogin');
+		$dbobject->read('UserStatus');
+		$dbobject->read('Validated');
+		$dbobject->read('UserFirstName');
+		$dbobject->read('UserLastName');		
+		
+		if (validation::isEMail($username)){
+			$dbobject->where('UserEMail',$username);
+		} else {
+			$dbobject->where('UserLogin',$username);
 		}	
-		$user = $database->readSingle($what,$where);
-		if(is_array($user) && sizeof($user)){
+		$dbobject->where('UserPassword',$passwordHashed);			
+		$user = $dbobject->fetchSingle();
+		
+		if (is_array($user) && sizeof($user)){
 			list($id,$login,$status,$valid,$first,$last) = $user;
-			if($status != "LOCKED"){
-				if($remember){
-					setcookie("rememberlogin", $login.":".$password.":".$salt->readSalt('COOKIE_SECRET'), (time()+3600*8760));
+			if ($status == "USER" && $valid == 1){
+				if ($remember){
+					// set cookie with a path '/' enables the cookie all over the site.
+					setcookie("rememberlogin", $login.":".$passwordHashed.":".$salt->readSalt('COOKIE_SECRET'), (time()+3600*8760),'/');
 				}	
 				$_SESSION['userSession'] = array(
 					"UserID" => $id,
@@ -343,8 +419,9 @@ class user {
 					"LastName" => $last,
 					"Status" => $status,
 					"SessionSecret" => $salt->readSalt('SESSION_SECRET'),
-				);			
-				return true;
+				);
+				baseclass::$userid = $id;				
+				return $id;
 			} else {
 				return $status;
 			}
@@ -371,19 +448,28 @@ class user {
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */			
-	public static function adminlogin($username,$password){
+	public static function adminLogin($username,$password){
 		$salt = new salt();
-		$database = new database('user');
-		$what = "PK_UserID, UserLogin, UserStatus, Validated, UserFirstName, UserLastName";
-		if(validation::isEMail($username)){
-			$where = array("UserEMail = '".$username."'","UserPassword = '".md5($salt->readSalt('ADMIN_SECRET').$password)."'");
+		$dbobject = new dbobject('user');	
+		
+		$dbobject->read('PK_UserID');
+		$dbobject->read('UserLogin');
+		$dbobject->read('UserStatus');
+		$dbobject->read('Validated');
+		$dbobject->read('UserFirstName');
+		$dbobject->read('UserLastName');		
+		
+		if (validation::isEMail($username)){
+			$dbobject->where('UserEMail',$username);
 		} else {
-			$where = array("UserLogin = '".$username."'","UserPassword = '".md5($salt->readSalt('ADMIN_SECRET').$password)."'");
-		}
-		$user = $database->readSingle($what,$where);
-		if(is_array($user) && sizeof($user)){
+			$dbobject->where('UserLogin',$username);
+		}	
+		$dbobject->where('UserPassword',md5($salt->readSalt('ADMIN_SECRET').$password));			
+		$user = $dbobject->fetchSingle();
+
+		if (is_array($user) && sizeof($user)){
 			list($id,$login,$status,$valid,$first,$last) = $user;
-			if($status == 'ADMIN'){
+			if ($status == 'ADMIN'){
 				$_SESSION['adminSession'] = array(
 					"AdminID" => $id,
 					"UserLogin" => $login,
@@ -393,6 +479,7 @@ class user {
 					"Status" => $status,
 					"SessionSecret" => $salt->readSalt('SESSION_SECRET'),
 				);
+				baseclass::$adminid = $id;
 				return true;
 			} else {
 				return $status;
@@ -416,9 +503,9 @@ class user {
 	 */		
 	public static function validateUser(){
 		$salt = new salt();
-		if(isset($_SESSION['userSession'])){
+		if (isset($_SESSION['userSession'])){
 			$secret = $salt->readSalt('SESSION_SECRET');
-			if($_SESSION['userSession']['SessionSecret'] == $secret){
+			if ($_SESSION['userSession']['SessionSecret'] == $secret){
 				return true;
 			} else {
 				return false;
@@ -442,9 +529,9 @@ class user {
 	 */		
 	public static function validateAdmin(){
 		$salt = new salt();
-		if(isset($_SESSION['adminSession'])){
+		if (isset($_SESSION['adminSession'])){
 			$secret = $salt->readSalt('SESSION_SECRET');
-			if($_SESSION['adminSession']['SessionSecret'] == $secret){
+			if ($_SESSION['adminSession']['SessionSecret'] == $secret){
 				return true;
 			} else {
 				return false;
@@ -468,15 +555,15 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */			
 	public static function loginByCookie(){
-		$salt = new salt();
-		if(isset($_COOKIE['rememberlogin'])){
+		if (isset($_COOKIE['rememberlogin'])){
+			$salt = new salt();
 			$cookiesecret = $salt->readSalt('COOKIE_SECRET');
 			list($login,$password,$secret) = explode(':', $_COOKIE['rememberlogin']);
-			if($secret == $cookiesecret){
-				if($salt->login($login,$password)){
+			if ($secret == $cookiesecret){
+				if (self::userLogin($login,$password,1,1)){
 					//re-set the cookie for an additional year
-					$value = $login.":".$password.':'.$cookiesecret;
-					setcookie("rememberlogin", $value, (time()+3600*8760));
+					//$value = $login.":".$password.':'.$cookiesecret;
+					//setcookie("rememberlogin", $value, (time()+3600*8760));
 					return true;
 				} else {
 					return false;
@@ -499,8 +586,9 @@ class user {
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function getLastUser(){
-		$database = new database('user');
-		return $database->readLastEntry();
+		$dbobject = new dbobject('user');
+		$dbobject->count();
+		return $dbobject->fetchSingle();
 	}
 	
 	/**
@@ -514,14 +602,14 @@ class user {
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyUser($userid){
-		if(!$userid){
+		if (!$userid){
 			return false;
 		} 
-		$database = new database('user');
-		if(!$database->destroy("PK_UserID = ".$userid)){
-			return false;
-		}		
-		return true;
+
+		$dbobject = new dbobject('user');
+		$dbobject->destroy();
+		$dbobject->where("PK_UserID",$userid);
+		return $dbobject->commit();		
 	}	
 }
 ?>

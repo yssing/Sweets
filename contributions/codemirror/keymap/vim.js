@@ -723,7 +723,7 @@
         if (linewise && text.charAt(0) == '\n') {
           text = text.slice(1) + '\n';
         }
-        if(linewise && text.charAt(text.length - 1) !== '\n'){
+        if (linewise && text.charAt(text.length - 1) !== '\n'){
           text += '\n';
         }
         // Lowercase and uppercase registers refer to the same register.
@@ -811,7 +811,7 @@
             // Match commands that take <character> as an argument.
             if (command.keys[keys.length - 1] == 'character') {
               selectedCharacter = keys[keys.length - 1];
-              if(selectedCharacter.length>1){
+              if (selectedCharacter.length>1){
                 switch(selectedCharacter){
                   case '<CR>':
                     selectedCharacter='\n';
@@ -1368,7 +1368,7 @@
             (line > last && cur.line == last)) {
           return;
         }
-        if(motionArgs.toFirstChar){
+        if (motionArgs.toFirstChar){
           endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
           vim.lastHPos = endCh;
         }
@@ -1457,7 +1457,7 @@
             motionArgs.selectedCharacter);
         var increment = motionArgs.forward ? -1 : 1;
         recordLastCharacterSearch(increment, motionArgs);
-        if(!curEnd)return cm.getCursor();
+        if (!curEnd)return cm.getCursor();
         curEnd.ch += increment;
         return curEnd;
       },
@@ -1943,7 +1943,7 @@
         var curStart = cm.getCursor();
         var replaceTo;
         var curEnd;
-        if(vim.visualMode){
+        if (vim.visualMode){
           curStart=cm.getCursor('start');
           curEnd=cm.getCursor('end');
           // workaround to catch the character under the cursor
@@ -1957,8 +1957,8 @@
           }
           curEnd = { line: curStart.line, ch: replaceTo };
         }
-        if(replaceWith=='\n'){
-          if(!vim.visualMode) cm.replaceRange('', curStart, curEnd);
+        if (replaceWith=='\n'){
+          if (!vim.visualMode) cm.replaceRange('', curStart, curEnd);
           // special case, where vim help says to replace by just one line-break
           (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
         }else {
@@ -1966,7 +1966,7 @@
           //replace all characters in range by selected, but keep linebreaks
           replaceWithStr=replaceWithStr.replace(/[^\n]/g,replaceWith);
           cm.replaceRange(replaceWithStr, curStart, curEnd);
-          if(vim.visualMode){
+          if (vim.visualMode){
             cm.setCursor(curStart);
             exitVisualMode(cm);
           }else{
@@ -1987,9 +1987,9 @@
           token = match[0];
           start = match.index;
           end = start + token.length;
-          if(cur.ch < end)break;
+          if (cur.ch < end)break;
         }
-        if(!actionArgs.backtrack && (end <= cur.ch))return;
+        if (!actionArgs.backtrack && (end <= cur.ch))return;
         if (token) {
           var increment = actionArgs.increase ? 1 : -1;
           var number = parseInt(token) + (increment * actionArgs.repeat);
@@ -2251,7 +2251,7 @@
     }
 
     function recordJumpPosition(cm, oldCur, newCur) {
-      if(!cursorEqual(oldCur, newCur)) {
+      if (!cursorEqual(oldCur, newCur)) {
         vimGlobalState.jumpList.add(cm, oldCur, newCur);
       }
     }
@@ -2274,7 +2274,7 @@
         isComplete: function(state) {
           if (state.nextCh === state.symb) {
             state.depth++;
-            if(state.depth >= 1)return true;
+            if (state.depth >= 1)return true;
           } else if (state.nextCh === state.reverseSymb) {
             state.depth--;
           }
@@ -2306,7 +2306,7 @@
           state.reverseSymb = state.symb === '{' ? '}' : '{';
         },
         isComplete: function(state) {
-          if(state.nextCh === state.symb)return true;
+          if (state.nextCh === state.symb)return true;
           return false;
         }
       },
@@ -2328,7 +2328,7 @@
               }
               state.depth--;
             }
-            if(token === 'else' && state.depth === 0)return true;
+            if (token === 'else' && state.depth === 0)return true;
           }
           return false;
         }
@@ -2353,10 +2353,10 @@
         curMoveThrough: false
       };
       var mode = symbolToMode[symb];
-      if(!mode)return cur;
+      if (!mode)return cur;
       var init = findSymbolModes[mode].init;
       var isComplete = findSymbolModes[mode].isComplete;
-      if(init)init(state);
+      if (init)init(state);
       while (line !== endLine && repeat) {
         state.index += increment;
         state.nextCh = state.lineText.charAt(state.index);
@@ -3156,7 +3156,7 @@
       var keys = [];
       while (str) {
         match = (/<\w+-.+?>|<\w+>|./).exec(str);
-        if(match === null)break;
+        if (match === null)break;
         key = match[0];
         str = str.substring(match.index + key.length);
         keys.push(key);
@@ -3607,7 +3607,7 @@
       emptyMacroKeyBuffer(macroModeState);
       do {
         match = (/<\w+-.+?>|<\w+>|./).exec(text);
-        if(match === null)break;
+        if (match === null)break;
         key = match[0];
         text = text.substring(match.index + key.length);
         macroKeyBuffer.push(key);
@@ -3621,7 +3621,7 @@
     }
 
     function emptyMacroKeyBuffer(macroModeState) {
-      if(macroModeState.isMacroPlaying)return;
+      if (macroModeState.isMacroPlaying)return;
       var macroKeyBuffer = macroModeState.macroKeyBuffer;
       macroKeyBuffer.length = 0;
     }
@@ -3635,7 +3635,7 @@
     }
 
     function logKey(macroModeState, key) {
-      if(macroModeState.isMacroPlaying)return;
+      if (macroModeState.isMacroPlaying)return;
       var macroKeyBuffer = macroModeState.macroKeyBuffer;
       macroKeyBuffer.push(key);
     }

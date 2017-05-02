@@ -23,14 +23,14 @@
 <h1 style="text-align: center">Export Yahoo user address book</h1>
 <hr />
 <?php
-	if($success)
+	if ($success)
 	{
-		if(strlen($yahoo->logged_user))
+		if (strlen($yahoo->logged_user))
 		{
 ?>
 <h2 style="text-align: center">The user '<?php echo $yahoo->logged_user; ?>' has logged in Yahoo successfully.</h2>
 <?php
-			if(IsSet($parameters['Data']))
+			if (IsSet($parameters['Data']))
 			{
 ?>
 <h2 style="text-align: center">The address book was exported to CSV format.</h2>

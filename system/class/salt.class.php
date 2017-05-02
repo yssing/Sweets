@@ -25,7 +25,7 @@
  * @since      	File available since Release 1.0.0
  * @require		'database.class.php'
  */
-require_once('database.class.php'); 
+//require_once('database.class.php'); 
 class salt {
 
 	/**
@@ -39,12 +39,13 @@ class salt {
      * @access public
 	 */
 	public function createSalt($name,$value){
-		$database = new database('generic_salt');
-		$values = array("Salt_type" => "'".$name."'", "Salt" => "'".$value."'");
-		if(!$database->create($values)){
-			return false;
+		$dbobject = new dbobject('generic_salt');
+		$dbobject->create('Salt_type',$name);
+		$dbobject->create('Salt',$value);
+		if ($dbobject->commit()){
+			return $dbobject->readLastEntry();
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -56,8 +57,8 @@ class salt {
 	 * @since Method available since Release 1.0.0
 	 */	
 	public function listSalt(){
-		$database = new database('generic_salt');
-		return $database->read();	
+		$dbobject = new dbobject('generic_salt');
+		return $dbobject->fetch();
 	}
 
 	/**
@@ -73,22 +74,18 @@ class salt {
 	 * @since Method available since Release 1.0.0
 	 */
 	public function readSalt($id){
-		if(!$id){
+		if (!$id){
 			return false;
 		}
-		$database = new database('generic_salt');
-		if(is_string($id)){
-			$where = "Salt_type = '".$id."'";
+		$dbobject = new dbobject('generic_salt');
+		$dbobject->read("Salt");
+		if (is_numeric($id)){
+			$dbobject->where("PK_SaltID", $id);
 		} else {
-			$where = "PK_SaltID = ".$id;
+			$dbobject->where("Salt_type", $id);
 		}
-		$salt = $database->readSingle("Salt",$where); 
-		if(is_array($salt)){
-			list($salt) = $salt;
-			return $salt;
-		} else {
-			return false;
-		}
+		list($salt) = $dbobject->fetchSingle();
+		return $salt;
 	}		
 	
 	/**
@@ -105,18 +102,14 @@ class salt {
 	 * @since Method available since Release 1.0.0
 	 */		
 	public function updateSalt($id,$salt){
-		$database = new database('generic_salt');
-		$data = "Salt = '".$salt."'";
-		if(is_string($id)){
-			$where = " Salt_type = '".$id."'";
+		$dbobject = new dbobject('generic_salt');
+		$dbobject->update('Salt',$salt);
+		if (is_numeric($id)){
+			$dbobject->where("PK_SaltID", $id);
 		} else {
-			$where = " PK_SaltID = ".$id;
+			$dbobject->where("Salt_type", $id);
 		}
-
-		if(!$database->update($data,$where)){
-			return false;
-		}		
-		return true;
+		return $dbobject->commit();
 	}
 	
 	/**
@@ -128,17 +121,12 @@ class salt {
 	 *
      * @access public
 	 * @since Method available since Release 1.0.0
-	 */		
+	 */	
 	public static function destroySalt($saltid){
-		$database = new database('generic_salt');
-		if(!$saltid){
-			return false;
-		}
-		$where = "PK_SaltID = ".$saltid;
-		if(!$database->destroy($where)){
-			return false;
-		}
-		return true;
-	}		
+		$dbobject = new dbobject('generic_salt');
+		$dbobject->destroy();
+		$dbobject->where("PK_SaltID",$saltid);
+		return $dbobject->commit();
+	}	 	
 }
 ?>

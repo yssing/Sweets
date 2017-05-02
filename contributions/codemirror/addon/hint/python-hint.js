@@ -79,7 +79,7 @@
 
       if (obj.type == "variable")
           base = obj.string;
-      else if(obj.type == "variable-3")
+      else if (obj.type == "variable-3")
           base = ":" + obj.string;
 
       while (base != null && context.length)

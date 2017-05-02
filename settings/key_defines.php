@@ -26,33 +26,73 @@
 	 */
 	
 	require_once('system/class/load.class.php');
-	autoload::load();
+	autoload::load('system/class/','modules/');
 
 	// now we find various keys and use them
 	// template setup
-	$template = (key::readValue('[TEMPLATE]')) ? key::readValue('[TEMPLATE]') : "default";
-	if(is_dir('template/'.$template)){	
-		define("TEMPLATE",$template);
+
+	if ($value = key::readValue('TEMPLATE')){
+		if (is_dir('template/'.$value)){	
+			define("TEMPLATE",$value);
+		} else {
+			define("TEMPLATE","default");
+		}
 	} else {
 		define("TEMPLATE","default");
 	}
+
+	if ($value = text::readTextByKey('USERFOOTER')){
+		define("USERFOOTER",$value);
+	} else {
+		define("USERFOOTER","");
+	}
 	
-	$userfooter = (text::readTextByKey('[USERFOOTER]')) ? text::readTextByKey('[USERFOOTER]') : '';
-	define("USERFOOTER",$userfooter);	
-	$copyfooter = (text::readTextByKey('[COPYFOOTER]')) ? text::readTextByKey('[COPYFOOTER]') : '';
-	define("COPYFOOTER",$copyfooter);
-	$userheader = (text::readTextByKey('[USERHEADER]')) ? text::readTextByKey('[USERHEADER]') : '';
-	define("USERHEADER",$userheader);
-	$title = (key::readValue('[SITENAME]')) ? key::readValue('[SITENAME]') : '';
-	define("TITLE",$title);
-	$sitemail = (key::readValue('[SITEMAIL]')) ? key::readValue('[SITEMAIL]') : '';
-	define("SITEMAIL", $sitemail);
-	$paging = (key::readValue('[PAGING]')) ? key::readValue('[PAGING]') : '25';
-	define("PAGING", $paging);	
+	if ($value = text::readTextByKey('COPYFOOTER')){
+		define("COPYFOOTER",$value);
+	} else {
+		define("COPYFOOTER","");
+	}
 	
+	if ($value = text::readTextByKey('USERHEADER')){
+		define("USERHEADER",$value);
+	} else {
+		define("USERHEADER","");
+	}
+
+	if ($value = key::readValue('SITENAME')){
+		define("TITLE",$value);
+	} else {
+		define("TITLE","default");
+	}
+	
+	if ($value = key::readValue('SITEMAIL')){
+		define("SITEMAIL",$value);
+	} else {
+		define("SITEMAIL","");
+	}
+	
+	if ($value = key::readValue('PAGING')){
+		define("PAGING",$value);
+	} else {
+		define("PAGING","25");
+	}
+
 	// author and meta tag
-	$author = (key::readValue('[AUTHOR]')) ? key::readValue('[AUTHOR]') : '';
-	define("AUTHOR",$author);
-	$meta = (key::readValue('[META]')) ? key::readValue('[META]') : '';
-	define("META",$meta);
+	if ($value = key::readValue('AUTHOR')){
+		define("AUTHOR",$value);
+	} else {
+		define("AUTHOR","");
+	}
+	
+	if ($value = key::readValue('USE_HTTPS')){
+		define("USE_HTTPS",intval($value));
+	} else {
+		define("USE_HTTPS",0);
+	}
+	
+	if ($value = key::readValue('META')){
+		define("META",$value);
+	} else {
+		define("META","");
+	}
 ?>

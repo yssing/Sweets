@@ -25,8 +25,8 @@
  * @since		File available since Release 1.0.0
  * @todo		Finish the methods for form generation.
  */
-require_once('generic.IO.class.php');
-class form extends genericIO{
+include_once('baseclass.class.php');
+class form extends baseclass{
 
 	/**
 	 * the name of the form is stored in the variable.
@@ -53,10 +53,10 @@ class form extends genericIO{
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function validate($name = ''){
-		if($name){
+		if ($name){
 			self::$formName = $name;
 		}
-		if($_REQUEST['formsalt'.self::$formName] == $_SESSION['formsalt'.self::$formName] && $_SESSION['formsalt'.self::$formName]){
+		if ($_REQUEST['formsalt'.self::$formName] == $_SESSION['formsalt'.self::$formName] && $_SESSION['formsalt'.self::$formName]){
 			return true;
 		}else{
 			return false;
@@ -80,14 +80,14 @@ class form extends genericIO{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function beginForm($name,$action='',$method='post',$settings=''){
-		if($action){
+		if ($action){
 			$action = 'action="'.$action.'"';
 		} else {
 			$action = 'action="'.$_SERVER['PHP_SELF'].'"';
 		}
 		self::$formName = $name;
 		$input = '<form name="'.$name.'" id="'.$name.'" method="'.$method.'" '.$action.' ';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$input .=  key($settings).'="'.$rowData.'"';
 				next($settings);
@@ -123,7 +123,7 @@ class form extends genericIO{
 		$formsalt = self::generateRandStr(32);
 		$_SESSION['formsalt'.self::$formName] = $formsalt;
 		$ret = self::input($formsalt,'formsalt'.self::$formName,2);
-		if($submit){
+		if ($submit){
 			$ret .= self::submit($value,self::$formName,1);
 		}
 		return $ret.'</form>';
@@ -145,14 +145,14 @@ class form extends genericIO{
 	public static function beginField($name,$legend='',$settings=''){
 		$field = '<fieldset name="'.$name.'" id="'.$name.'" ';
 	
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$field .= key($settings).'="'.$rowData.'"';
 				next($settings);
 			}
 		}	
 		$field .= '>';
-		if($legend){
+		if ($legend){
 			$field .= '<legend>'.$legend.'</legend>';
 		}
 		return $field;
@@ -191,17 +191,17 @@ class form extends genericIO{
 	public static function fieldset($name,$legend='',$data='',$settings=''){
 		$field = '<fieldset name="'.$name.'" id="'.$name.'" ';
 	
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$field .= key($settings).'="'.$rowData.'"';
 				next($settings);
 			}
 		}	
 		$field .= '>';
-		if($legend){
+		if ($legend){
 			$field .= '<legend>'.$legend.'</legend>';
 		}
-		if($data){
+		if ($data){
 			$field .= $data;
 		}
 		$field .= '</fieldset>';
@@ -224,7 +224,7 @@ class form extends genericIO{
 	public static function image($name,$source,$settings=''){
 		$image = '<image name="'.$name.'" id="'.$name.'" ';
 		$image .= 'src="'.$source.'" ';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$image .= key($settings).'="'.$rowData.'"';
 				next($settings);
@@ -253,14 +253,14 @@ class form extends genericIO{
 	public static function label($name,$data,$settings=''){
 		$label = '<label name="'.$name.'" id="'.$name.'" ';
 	
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$label .= key($settings).'="'.$rowData.'"';
 				next($settings);
 			}
 		}	
 		$label .= '>';
-		if($data){
+		if ($data){
 			$label .= $data;
 		}
 		$label .= '</label>';
@@ -281,8 +281,8 @@ class form extends genericIO{
 	 * @static
 	 * @since Method available since Release 1.0.0
 	 */	
-	public static function input($data,$name,$type,$settings=''){
-		if(is_int($type)){
+	public static function input($data,$name,$type = 0,$settings=''){
+		if (is_int($type)){
 			switch($type){
 				case 0: $type = 'text'; break;		
 				case 1: $type = 'password'; break;
@@ -292,15 +292,61 @@ class form extends genericIO{
 		}
 		
 		$input = '<input type="'.$type.'" name="'.$name.'" id="'.$name.'" value="'.$data.'" ';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$input .=  key($settings).'="'.$rowData.'"';
 				next($settings);
 			}
 		}
+		$input .= 'class="form-control"';
 		$input .= ' />';
 		return $input;
 	}
+	
+	/**
+	 * Creates an input box wrapped in a bootstrap control element
+	 *
+	 * @param string $data the value of the input box.
+	 * @param string $name the name and id of the input box.
+	 * @param string $control an image or something else to be displayed.
+	 * @param array $inputsettings holds all kinds of formatting and listening
+	 * @param array $controlsettings holds all kinds of formatting and listening
+	 *
+	 * @return string $input Returns the input box formatted in html.
+	 *
+	 * @access public
+	 * @static
+	 * @since Method available since Release 1.0.0
+	 */		
+	public static function inputControl($data,$name,$control,$inputsettings = '',$controlsettings = ''){
+		$input = '<div class="input-group">';
+		$input .= self::input($data,$name,TEXT,$inputsettings);
+		$input .= '<span id="'.$name.'_icon" class="input-group-addon" ';
+		if (is_array($controlsettings)){
+			while ($rowData = current($controlsettings)) {
+				$input .=  key($controlsettings).'="'.$rowData.'"';
+				next($controlsettings);
+			}
+		}		
+		$input .= '>'.$control.'</span>';
+		$input .= '</div>';
+		return $input;
+	}
+	
+	public static function control($data,$name,$control,$controlsettings = ''){
+		$input = '<div class="input-group">';
+		$input .= $data;
+		$input .= '<span id="'.$name.'_icon" class="input-group-addon" ';
+		if (is_array($controlsettings)){
+			while ($rowData = current($controlsettings)) {
+				$input .=  key($controlsettings).'="'.$rowData.'"';
+				next($controlsettings);
+			}
+		}		
+		$input .= '>'.$control.'</span>';
+		$input .= '</div>';
+		return $input;
+	}	
 	
 	/**
 	 * Creates a file upload box
@@ -316,8 +362,8 @@ class form extends genericIO{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function file($data,$name,$settings=''){
-		$input = '<input type="file" name="'.$name.'" id="'.$name.'" value="'.$data.'" ';
-		if(is_array($settings)){
+		$input = '<input type="file" multiple name="'.$name.'" id="'.$name.'" value="'.$data.'" ';
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$input .=  key($settings).'="'.$rowData.'"';
 				next($settings);
@@ -342,12 +388,13 @@ class form extends genericIO{
 	 */		
 	public static function textarea($value,$name,$settings=''){
 		$textarea = '<textarea name="'.$name.'" id="'.$name.'" ';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$textarea .= key($settings).'="'.$rowData.'" ';
 				next($settings);
 			}
 		}
+		$textarea .= 'class="form-control"';
 		$textarea .= '>'.$value.'</textarea>';
 		return $textarea;
 	}	
@@ -367,16 +414,16 @@ class form extends genericIO{
 	 * @since Method available since Release 1.0.0
 	 */			
 	public static function submit($value,$name,$type,$settings=''){
-		if(is_int($type)){
-			if($type){
+		if (is_int($type)){
+			if ($type){
 				$type = 'submit';
 			} else {
 				$type = 'button';
 			}
 		}
 		
-		$input = '<input type="'.$type.'" name="'.$name.'" id="'.$name.'" value="'.$value.'"';
-		if(is_array($settings)){
+		$input = '<input class="btn btn-primary btn-md" type="'.$type.'" name="'.$name.'" id="'.$name.'" value="'.$value.'"';
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$input .=  key($settings).'="'.$rowData.'"';
 				next($settings);
@@ -400,7 +447,7 @@ class form extends genericIO{
 	 */		
 	public static function reset($name = 'reset', $settings = ''){
 		$input = '<input type="reset" name="'.$name.'" id="'.$name.'"';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$input .=  key($settings).'="'.$rowData.'"';
 				next($settings);
@@ -426,34 +473,99 @@ class form extends genericIO{
 	 */	
 	public static function check($checked = 0, $name = 'checkbox', $settings = ''){
 		$input = '<input type="checkbox" name="'.$name.'" id="'.$name.'"';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$input .=  key($settings).'="'.$rowData.'"';
 				next($settings);
 			}
 		}
-		$input .= self::retCheck($checked);
+		$input .= self::returnChecked($checked);
 		$input .= ' />';	
 	
 		return $input;
 	}
 	
 	/**
-	 * Creates a link that opens a new dialog
+	 * Creates a link as a button
 	 *
-	 * @param string $args Does the button need any particular argument.	 
-	 * @param string $icon This holds the icon of the link.	 
+	 * @param string $args Does the button need any particular argument.
 	 *
 	 * @return string $input Returns the link formatted in html.
 	 *
 	 * @access public
 	 * @static
 	 * @since Method available since Release 1.0.0
-	 */		
-	public static function newButton($args = 'edit/', $icon = '/template/icon/add.png'){
-		return '<a href='.$args.'>'.language::readType('CREATE').'</a>';		
-	} 	
+	 */
+	public static function newButton($args = 'edit/', $value = '', $settings = ''){
+		if (!$value){
+			$value = language::readType('CREATE');
+		}
+		$string = '<a class="btn btn-primary btn-md" href='.$args.' ';
+		
+		if (is_array($settings)){
+			while ($rowData = current($settings)) {
+				$string .= key($settings).'="'.$rowData.'" ';
+				next($settings);
+			}
+		}
 
+		$string .= '>'.$value.'</a>';
+		return $string;
+	}
+	
+	/**
+	 * Creates a link as a danger/red button
+	 *
+	 * @param string $args Does the button need any particular argument.
+	 *
+	 * @return string $input Returns the link formatted in html.
+	 *
+	 * @access public
+	 * @static
+	 * @since Method available since Release 23-01-2017
+	 */
+	public static function warnButton($args = 'edit/', $value = '', $settings = ''){
+		if (!$value){
+			$value = language::readType('CREATE');
+		}
+		$string = '<a class="btn btn-danger btn-md" href='.$args.' ';
+		
+		if (is_array($settings)){
+			while ($rowData = current($settings)) {
+				$string .= key($settings).'="'.$rowData.'" ';
+				next($settings);
+			}
+		}
+
+		$string .= '>'.$value.'</a>';
+		return $string;
+	}	
+	
+	/**
+	 * This method renders form that can be used to call a find action in the controller
+	 *
+	 * @param string $legend The legend text
+	 *
+	 * @return string $form The rendered form
+	 *
+	 * @access public
+	 * @static
+	 * @since Method available since Release 1.0.0
+	 */	 
+	public static function findForm($data = '', $legend = ''){
+		$arg = '';
+		$form = self::beginField('findfield',$legend);
+		$form .= self::beginForm('find','list');
+		if ($data){
+			$form .= self::input($data,'searchfield');
+		} else {
+			$form .= self::input('','searchfield');
+		}
+		$form .= self::endForm('find');
+		$form .= self::endField();
+		return $form;
+	}
+	
 	/**
 	 * Displays a 2D array as a range of radio buttons.
 	 *
@@ -473,7 +585,7 @@ class form extends genericIO{
 	 */	
 	public static function radio($data,$select,$name,$settings = ''){
 		$localSettings = '';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$localSettings .=  key($settings).'="'.$rowData.'"';
 				next($settings);
@@ -482,8 +594,8 @@ class form extends genericIO{
 		
 		$radiobutton = '';
 		foreach($data as $value){
-			if($value[0] == $select){
-				$checked = self::returnCheck(1);
+			if ($value[0] == $select){
+				$checked = self::returnChecked(1);
 			} else {
 				$checked = '';
 			}	
@@ -514,26 +626,28 @@ class form extends genericIO{
 	public static function select($data,$select,$name,$showzero = 1, $settings = ''){
 		$dropdown = '<select name="'.$name.'" id="'.$name.'"';
 		
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$dropdown .=  key($settings).'="'.$rowData.'"';
 				next($settings);
 			}
 		}
+		$dropdown .= 'class="form-control"';
 		$dropdown .= ' >';
 		
-		if($showzero){
+		if ($showzero){
 			$dropdown .= '<option value="0">---</option>';
 		}
-		
-		foreach($data as $value){
-			if($value[0] == $select){
-				$selected = 'selected';
-			} else {
-				$selected = '';
+		if(is_array($data)){			
+			foreach($data as $value){
+				if ($value[0] == $select){
+					$selected = 'selected';
+				} else {
+					$selected = '';
+				}
+				$val = isset($value[2]) ? $value[2] : '';
+				$dropdown .= '<option '.$val.' value="'.$value[0].'" '.$selected.'>'.$value[1].'</option>';
 			}
-			$val = isset($value[2]) ? $value[2] : '';
-			$dropdown .= '<option '.$val.' value="'.$value[0].'" '.$selected.'>'.$value[1].'</option>';
 		}
 		$dropdown .= "</select>";
 		return $dropdown;
@@ -559,7 +673,7 @@ class form extends genericIO{
 	public static function timeInDropDown($select,$name,$onlyhalves = 0, $settings = ''){
 		$dropdown = '<select name="'.$name.'" id="'.$name.'"';
 		
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$dropdown .=  key($settings).'="'.$rowData.'"';
 				next($settings);
@@ -570,20 +684,20 @@ class form extends genericIO{
 		for($i=0; $i<=23; $i++){
 			$tmpi = '';
 			$tmpj = '';
-			if($i < 10){
+			if ($i < 10){
 				$tmpi = '0'.$i;
 			} else {
 				$tmpi = $i;
 			}
-			if($onlyhalves){
+			if ($onlyhalves){
 				for($j=0; $j<=30; $j+=30){
-					if(!$j){
+					if (!$j){
 						$tmpj = '00';
 					} else {
 						$tmpj = $j;
 					}
 					$time_num = $tmpi.':'.$tmpj;
-					if($time_num == $select){
+					if ($time_num == $select){
 						$selected = 'selected';
 					} else {
 						$selected = '';
@@ -592,13 +706,13 @@ class form extends genericIO{
 				}		
 			} else {
 				for($j=0; $j<=45; $j+=15){
-					if(!$j){
+					if (!$j){
 						$tmpj = '00';
 					} else {
 						$tmpj = $j;
 					}
 					$time_num = $tmpi.':'.$tmpj;
-					if($time_num == $select){
+					if ($time_num == $select){
 						$selected = 'selected';
 					} else {
 						$selected = '';
@@ -630,7 +744,7 @@ class form extends genericIO{
 	public static function displayCheck($data,$selectValue,$settings = ''){
 		$selectbox = '';
 		$localSettings = '';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$localSettings .=  key($settings).'="'.$rowData.'"';
 				next($settings);
@@ -639,11 +753,13 @@ class form extends genericIO{
 		foreach($data as $value){
 			$select = '';
 			foreach($selectValue as $Singlevalue){
-				if($Singlevalue == $value[0]){
-					$select = self::retCheck(1);
+				if ($Singlevalue == $value[0]){
+					$select = self::returnChecked(1);
 				}
 			}			
 			$selectbox .= '<input type="checkbox" id="select'.$value[0].'" name="select'.$value[0].'" value="'.$value[0].'" '.$select.' '.$localSettings.' /> '.$value[1];
+			
+			//$selectbox .=check($select, 'select'.$value[0], $localSettings);
 		}
 		return $selectbox;		
 	}	
@@ -659,8 +775,8 @@ class form extends genericIO{
 	 * @static
 	 * @since Method available since Release 1.0.0
 	 */			
-	public static function retCheck($bool){
-		if($bool){
+	public static function returnChecked($bool){
+		if ($bool){
 			return ' checked="checked" ';
 		} else {
 			return '';
@@ -687,19 +803,19 @@ class form extends genericIO{
 	public static function displayRadio($data,$selectValue,$name,$settings = ''){
 		$radiobutton = '';
 		$localSettings = '';
-		if(is_array($settings)){
+		if (is_array($settings)){
 			while ($rowData = current($settings)) {
 				$localSettings .=  key($settings).'="'.$rowData.'"';
 				next($settings);
 			}
 		}			
 		foreach($data as $value){
-			if($value[0] == $selectValue){
-				$selected = self::retSelected(1);
+			if ($value[0] == $selectValue){
+				$selected = self::returnChecked(1);
 			} else {
 				$selected = '';
 			}	
-			$radiobutton .= '<input type="radio" id="'.$name.'" name="'.$name.'" value="'.$value[0].'" '.$selected.' '.$localSettings.' /> '.$value[1];	
+			$radiobutton .= '<input type="radio" id="'.$name.'_'.$value[0].'" name="'.$name.'" value="'.$value[0].'" '.$selected.' '.$localSettings.' /> '.$value[1];	
 		}
 		return $radiobutton;
 	}	
@@ -715,8 +831,8 @@ class form extends genericIO{
 	 * @static
 	 * @since Method available since Release 1.0.0
 	 */			
-	public static function retSelected($bool){
-		if($bool){
+	public static function returnSelected($bool){
+		if ($bool){
 			return ' selected="selected" ';
 		} else {
 			return '';

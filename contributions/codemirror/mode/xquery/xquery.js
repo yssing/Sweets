@@ -77,15 +77,15 @@ CodeMirror.defineMode("xquery", function() {
 
     // an XML tag (if not in some sub, chained tokenizer)
     if (ch == "<") {
-      if(stream.match("!--", true))
+      if (stream.match("!--", true))
         return chain(stream, state, tokenXMLComment);
 
-      if(stream.match("![CDATA", false)) {
+      if (stream.match("![CDATA", false)) {
         state.tokenize = tokenCDATA;
         return ret("tag", "tag");
       }
 
-      if(stream.match("?", false)) {
+      if (stream.match("?", false)) {
         return chain(stream, state, tokenPreProcessing);
       }
 
@@ -97,20 +97,20 @@ CodeMirror.defineMode("xquery", function() {
       return chain(stream, state, tokenTag(tagName, isclose));
     }
     // start code block
-    else if(ch == "{") {
+    else if (ch == "{") {
       pushStateStack(state,{ type: "codeblock"});
       return ret("", null);
     }
     // end code block
-    else if(ch == "}") {
+    else if (ch == "}") {
       popStateStack(state);
       return ret("", null);
     }
     // if we're in an XML block
-    else if(isInXmlBlock(state)) {
-      if(ch == ">")
+    else if (isInXmlBlock(state)) {
+      if (ch == ">")
         return ret("tag", "tag");
-      else if(ch == "/" && stream.eat(">")) {
+      else if (ch == "/" && stream.eat(">")) {
         popStateStack(state);
         return ret("tag", "tag");
       }
@@ -131,30 +131,30 @@ CodeMirror.defineMode("xquery", function() {
     else if (  !isEQName && (ch === '"' || ch === "'"))
       return chain(stream, state, tokenString(ch));
     // variable
-    else if(ch === "$") {
+    else if (ch === "$") {
       return chain(stream, state, tokenVariable);
     }
     // assignment
-    else if(ch ===":" && stream.eat("=")) {
+    else if (ch ===":" && stream.eat("=")) {
       return ret("operator", "keyword");
     }
     // open paren
-    else if(ch === "(") {
+    else if (ch === "(") {
       pushStateStack(state, { type: "paren"});
       return ret("", null);
     }
     // close paren
-    else if(ch === ")") {
+    else if (ch === ")") {
       popStateStack(state);
       return ret("", null);
     }
     // open paren
-    else if(ch === "[") {
+    else if (ch === "[") {
       pushStateStack(state, { type: "bracket"});
       return ret("", null);
     }
     // close paren
-    else if(ch === "]") {
+    else if (ch === "]") {
       popStateStack(state);
       return ret("", null);
     }
@@ -162,22 +162,22 @@ CodeMirror.defineMode("xquery", function() {
       var known = keywords.propertyIsEnumerable(ch) && keywords[ch];
 
       // if there's a EQName ahead, consume the rest of the string portion, it's likely a function
-      if(isEQName && ch === '\"') while(stream.next() !== '"'){}
-      if(isEQName && ch === '\'') while(stream.next() !== '\''){}
+      if (isEQName && ch === '\"') while(stream.next() !== '"'){}
+      if (isEQName && ch === '\'') while(stream.next() !== '\''){}
 
       // gobble up a word if the character is not known
-      if(!known) stream.eatWhile(/[\w\$_-]/);
+      if (!known) stream.eatWhile(/[\w\$_-]/);
 
       // gobble a colon in the case that is a lib func type call fn:doc
       var foundColon = stream.eat(":");
 
       // if there's not a second colon, gobble another word. Otherwise, it's probably an axis specifier
       // which should get matched as a keyword
-      if(!stream.eat(":") && foundColon) {
+      if (!stream.eat(":") && foundColon) {
         stream.eatWhile(/[\w\$_-]/);
       }
       // if the next non whitespace character is an open paren, this is probably a function (if not a keyword of other sort)
-      if(stream.match(/^[ \t]*\(/, false)) {
+      if (stream.match(/^[ \t]*\(/, false)) {
         mightBeFunction = true;
       }
       // is the word a keyword?
@@ -186,16 +186,16 @@ CodeMirror.defineMode("xquery", function() {
 
       // if we think it's a function call but not yet known,
       // set style to variable for now for lack of something better
-      if(mightBeFunction && !known) known = {type: "function_call", style: "variable def"};
+      if (mightBeFunction && !known) known = {type: "function_call", style: "variable def"};
 
       // if the previous word was element, attribute, axis specifier, this word should be the name of that
-      if(isInXmlConstructor(state)) {
+      if (isInXmlConstructor(state)) {
         popStateStack(state);
         return ret("word", "variable", word);
       }
       // as previously checked, if the word is element,attribute, axis specifier, call it an "xmlconstructor" and
       // push the stack so we know to look for it on the next word
-      if(word == "element" || word == "attribute" || known.type == "axis_specifier") pushStateStack(state, {type: "xmlconstructor"});
+      if (word == "element" || word == "attribute" || known.type == "axis_specifier") pushStateStack(state, {type: "xmlconstructor"});
 
       // if the word is known, return the details of that else just call this a generic 'word'
       return known ? ret(known.type, known.style, word) :
@@ -208,14 +208,14 @@ CodeMirror.defineMode("xquery", function() {
     var maybeEnd = false, maybeNested = false, nestedCount = 0, ch;
     while (ch = stream.next()) {
       if (ch == ")" && maybeEnd) {
-        if(nestedCount > 0)
+        if (nestedCount > 0)
           nestedCount--;
         else {
           popStateStack(state);
           break;
         }
       }
-      else if(ch == ":" && maybeNested) {
+      else if (ch == ":" && maybeNested) {
         nestedCount++;
       }
       maybeEnd = (ch == ":");
@@ -231,16 +231,16 @@ CodeMirror.defineMode("xquery", function() {
     return function(stream, state) {
       var ch;
 
-      if(isInString(state) && stream.current() == quote) {
+      if (isInString(state) && stream.current() == quote) {
         popStateStack(state);
-        if(f) state.tokenize = f;
+        if (f) state.tokenize = f;
         return ret("string", "string");
       }
 
       pushStateStack(state, { type: "string", name: quote, tokenize: tokenString(quote, f) });
 
       // if we're in a string and in an XML block, allow an embedded code block
-      if(stream.match("{", false) && isInXmlAttributeBlock(state)) {
+      if (stream.match("{", false) && isInXmlAttributeBlock(state)) {
         state.tokenize = tokenBase;
         return ret("string", "string");
       }
@@ -249,12 +249,12 @@ CodeMirror.defineMode("xquery", function() {
       while (ch = stream.next()) {
         if (ch ==  quote) {
           popStateStack(state);
-          if(f) state.tokenize = f;
+          if (f) state.tokenize = f;
           break;
         }
         else {
           // if we're in a string and in an XML block, allow an embedded code block in an attribute
-          if(stream.match("{", false) && isInXmlAttributeBlock(state)) {
+          if (stream.match("{", false) && isInXmlAttributeBlock(state)) {
             state.tokenize = tokenBase;
             return ret("string", "string");
           }
@@ -271,12 +271,12 @@ CodeMirror.defineMode("xquery", function() {
     var isVariableChar = /[\w\$_-]/;
 
     // a variable may start with a quoted EQName so if the next character is quote, consume to the next quote
-    if(stream.eat("\"")) {
+    if (stream.eat("\"")) {
       while(stream.next() !== '\"'){};
       stream.eat(":");
     } else {
       stream.eatWhile(isVariableChar);
-      if(!stream.match(":=", false)) stream.eat(":");
+      if (!stream.match(":=", false)) stream.eat(":");
     }
     stream.eatWhile(isVariableChar);
     state.tokenize = tokenBase;
@@ -287,15 +287,15 @@ CodeMirror.defineMode("xquery", function() {
   function tokenTag(name, isclose) {
     return function(stream, state) {
       stream.eatSpace();
-      if(isclose && stream.eat(">")) {
+      if (isclose && stream.eat(">")) {
         popStateStack(state);
         state.tokenize = tokenBase;
         return ret("tag", "tag");
       }
       // self closing tag without attributes?
-      if(!stream.eat("/"))
+      if (!stream.eat("/"))
         pushStateStack(state, { type: "tag", name: name, tokenize: tokenBase});
-      if(!stream.eat(">")) {
+      if (!stream.eat(">")) {
         state.tokenize = tokenAttribute;
         return ret("tag", "tag");
       }
@@ -310,22 +310,22 @@ CodeMirror.defineMode("xquery", function() {
   function tokenAttribute(stream, state) {
     var ch = stream.next();
 
-    if(ch == "/" && stream.eat(">")) {
-      if(isInXmlAttributeBlock(state)) popStateStack(state);
-      if(isInXmlBlock(state)) popStateStack(state);
+    if (ch == "/" && stream.eat(">")) {
+      if (isInXmlAttributeBlock(state)) popStateStack(state);
+      if (isInXmlBlock(state)) popStateStack(state);
       return ret("tag", "tag");
     }
-    if(ch == ">") {
-      if(isInXmlAttributeBlock(state)) popStateStack(state);
+    if (ch == ">") {
+      if (isInXmlAttributeBlock(state)) popStateStack(state);
       return ret("tag", "tag");
     }
-    if(ch == "=")
+    if (ch == "=")
       return ret("", null);
     // quoted string
     if (ch == '"' || ch == "'")
       return chain(stream, state, tokenString(ch, tokenAttribute));
 
-    if(!isInXmlAttributeBlock(state))
+    if (!isInXmlAttributeBlock(state))
       pushStateStack(state, { type: "attribute", tokenize: tokenAttribute});
 
     stream.eat(/[a-zA-Z_:]/);
@@ -333,7 +333,7 @@ CodeMirror.defineMode("xquery", function() {
     stream.eatSpace();
 
     // the case where the attribute has not value and the tag was closed
-    if(stream.match(">", false) || stream.match("/", false)) {
+    if (stream.match(">", false) || stream.match("/", false)) {
       popStateStack(state);
       state.tokenize = tokenBase;
     }
@@ -384,9 +384,9 @@ CodeMirror.defineMode("xquery", function() {
 
   function isEQNameAhead(stream) {
     // assume we've already eaten a quote (")
-    if(stream.current() === '"')
+    if (stream.current() === '"')
       return stream.match(/^[^\"]+\"\:/, false);
-    else if(stream.current() === '\'')
+    else if (stream.current() === '\'')
       return stream.match(/^[^\"]+\'\:/, false);
     else
       return false;

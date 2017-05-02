@@ -37,10 +37,10 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
     var py3 = {'builtins': ['ascii', 'bytes', 'exec', 'print'],
                'keywords': ['nonlocal', 'False', 'True', 'None']};
 
-    if(parserConf.extra_keywords != undefined){
+    if (parserConf.extra_keywords != undefined){
         commonkeywords = commonkeywords.concat(parserConf.extra_keywords);
     }
-    if(parserConf.extra_builtins != undefined){
+    if (parserConf.extra_builtins != undefined){
         commonBuiltins = commonBuiltins.concat(parserConf.extra_builtins);
     }
     if (!!parserConf.version && parseInt(parserConf.version, 10) === 3) {

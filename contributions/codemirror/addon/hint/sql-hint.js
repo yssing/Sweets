@@ -10,7 +10,7 @@
 
   function getKeywords(editor) {
     var mode = editor.doc.modeOption;
-    if(mode === "sql") mode = "text/x-sql";
+    if (mode === "sql") mode = "text/x-sql";
     return CodeMirror.resolveMode(mode).keywords;
   }
 
@@ -22,11 +22,11 @@
 
   function addMatches(result, search, wordlist, formatter) {
     for(var word in wordlist) {
-      if(!wordlist.hasOwnProperty(word)) continue;
-      if(Array.isArray(wordlist)) {
+      if (!wordlist.hasOwnProperty(word)) continue;
+      if (Array.isArray(wordlist)) {
         word = wordlist[word];
       }
-      if(match(search, word)) {
+      if (match(search, word)) {
         result.push(formatter(word));
       }
     }
@@ -38,11 +38,11 @@
     var string = token.string.substr(1);
     var prevCur = CodeMirror.Pos(cur.line, token.start);
     var table = editor.getTokenAt(prevCur).string;
-    if( !tables.hasOwnProperty( table ) ){
+    if ( !tables.hasOwnProperty( table ) ){
       table = findTableByAlias(table, editor);
     }
     var columns = tables[table];
-    if(!columns) {
+    if (!columns) {
       return;
     }
     addMatches(result, string, columns,
@@ -50,7 +50,7 @@
   }
 
   function eachWord(lineText, f) {
-    if( !lineText ){return;}
+    if ( !lineText ){return;}
     var excepted = /[,;]/g;
     var words = lineText.split( " " );
     for( var i = 0; i < words.length; i++ ){
@@ -93,7 +93,7 @@
     var current = convertCurToNumber( editor.getCursor() );
     for( var i=0; i< separator.length; i++){
       var _v = convertCurToNumber( separator[i] );
-      if( current > prevItem && current <= _v ){
+      if ( current > prevItem && current <= _v ){
         validRange = { start: convertNumberToCur( prevItem ), end: convertNumberToCur( _v ) };
         break;
       }
@@ -106,14 +106,14 @@
       var lineText = query[i];
       eachWord( lineText, function( word ){
         var wordUpperCase = word.toUpperCase();
-        if( wordUpperCase === aliasUpperCase && tables.hasOwnProperty( previousWord ) ){
+        if ( wordUpperCase === aliasUpperCase && tables.hasOwnProperty( previousWord ) ){
             table = previousWord;
         }
-        if( wordUpperCase !== CONS.ALIAS_KEYWORD ){
+        if ( wordUpperCase !== CONS.ALIAS_KEYWORD ){
           previousWord = word;
         }
       });
-      if( table ){ break; }
+      if ( table ){ break; }
     }
     return table;
   }
@@ -132,7 +132,7 @@
     addMatches(result, search, tables,
         function(w) {return w;});
 
-    if(search.lastIndexOf('.') === 0) {
+    if (search.lastIndexOf('.') === 0) {
       columnCompletion(result, editor);
     }
 

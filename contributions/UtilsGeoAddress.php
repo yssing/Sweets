@@ -29,7 +29,7 @@ $UtilsGeoAddress = new UtilsGeoAddress;
 $result =$UtilsGeoAddress->lookup('my house, my town, my postcode');
 
 
-if(is_array($result)){
+if (is_array($result)){
 	print_r($result);
 }else{
 	echo "No Geo location address found;
@@ -80,24 +80,24 @@ class UtilsGeoAddress implements iUtilsGeoAddress{
 			$set3 = false;
 		   foreach($response as $key => $value){
 			   foreach($value[0]['address_components'] as $key1 => $value1){
-					if($value1['types'][0] == 'administrative_area_level_2' || $value1['types'][0] == 'administrative_area_level_1'){
+					if ($value1['types'][0] == 'administrative_area_level_2' || $value1['types'][0] == 'administrative_area_level_1'){
 						$currCounty = $value1['short_name'];
 						$set1 = true;
 					}
 					
-					if($value1['types'][0] == 'country'){
+					if ($value1['types'][0] == 'country'){
 						$currCountry = $value1['short_name'];
 						$set2 = true;
 					}
-					if($value1['types'][0] == 'postal_town'){
+					if ($value1['types'][0] == 'postal_town'){
 						$currTown = $value1['long_name'];
 						$set3 = true;
 					}
-					if($value1['types'][0] == 'locality'){
+					if ($value1['types'][0] == 'locality'){
 						$currTown = $value1['long_name'];
 						$set3 = true;
 					}
-					if($set1 && $set2 && $set3){
+					if ($set1 && $set2 && $set3){
 						break(2);
 					}
 				}	
@@ -128,7 +128,7 @@ class UtilsGeoAddress implements iUtilsGeoAddress{
 	public function getResponse(){
 		
 		try {
-			if(!is_array($this->response)){  throw new Exception( 'No response yet recieved for: '.$this->address);	}
+			if (!is_array($this->response)){  throw new Exception( 'No response yet recieved for: '.$this->address);	}
 			return $this->response;
 		}
 		catch (Exception $e){

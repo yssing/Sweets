@@ -65,7 +65,7 @@
 	$client->scope = '';
 	
 	/* Process the OAuth server interactions */
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
 		/*
 		 * Call the Process function to make the class dialog with the OAuth
@@ -77,7 +77,7 @@
 		// Make sure the access token was successfully obtained before making
 		// API calls
 		/*
-		 * if(strlen($client->access_token))
+		 * if (strlen($client->access_token))
 		 * {
 		 *   $success = $client->CallAPI();
 		 * }
@@ -91,10 +91,10 @@
 	 * If the exit variable is true, the script must not output anything
 	 * else and exit immediately
 	 */
-	if($client->exit)
+	if ($client->exit)
 		exit;
 	
-	if($success)
+	if ($success)
 	{
 		/*
 		 * The Output function call is here just for debugging purposes

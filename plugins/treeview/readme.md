@@ -1,0 +1,1 @@
+This plugin was found here: http://jsfiddle.net/mehmetatas/fXzHS/2/

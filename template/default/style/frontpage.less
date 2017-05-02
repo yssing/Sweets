@@ -1,4 +1,5 @@
 @import "base.less";
+@import "input.less";
 
 html{
 	height: @height;
@@ -9,16 +10,20 @@ html{
 		padding: 0px;
 		font-family: arial;
 		height: 100%;
-		background-image: url('brushed.png');
+		background-image: url('img/brushed.png');
 		background-attachment: fixed;
 		p{
 			margin-top: 15px;
-			font-size: 12px;
+			//font-size: 12px;
 		}
 
 		label{
 			font-weight: normal;
 		}
+		
+		.form-control{
+			width: 100%;
+		}		
 	}	
 }
 
@@ -80,7 +85,7 @@ ul, ol{
 }
 
 .stickyheader { 
-	background-image: url('dark.png');
+	background-image: url('img/dark.png');
 	background-color: @dark-background;
 	height: 51px; 
 	left: 0px; 
@@ -107,7 +112,7 @@ ul, ol{
 	position: relative;
 	left: 0px;
 	width: 100%;
-	background-image: url('dark.png');
+	background-image: url('img/dark.png');
 	background-color: @dark-background;
 	height: 52px;		
 }
@@ -127,7 +132,7 @@ ul, ol{
 }
 
 .menushader{
-	background-image: url('grad.png');
+	background-image: url('img/grad.png');
 	background-size: 100% 100%;
 	
 }
@@ -135,16 +140,16 @@ ul, ol{
 .navbar-inverse{
 	border: 0px !important;
 	background-color: transparent;
-	background-image: url('dark.png');
+	background-image: url('img/dark.png');
 }
 
 .footer1{
-	/*background-image: url('metal.png');
+	/*background-image: url('img/metal.png');
 	background-repeat:repeat-x;*/
 	height: 280px;
 	position:relative;
 	left: 0px;
-	padding: 0px !important;	
+	padding: 0px !important;
 }
 
 .footer1block  {
@@ -165,7 +170,7 @@ ul, ol{
 }
 
 .footer2{
-	background-image: url('dark.png');
+	background-image: url('img/dark.png');
 	background-color: @dark-background;
 	height: 40px;
 }

@@ -19,7 +19,7 @@
 	$client->client_id = ''; $application_line = __LINE__;
 	$client->client_secret = '';
 
-	if(strlen($client->client_id) == 0
+	if (strlen($client->client_id) == 0
 	|| strlen($client->client_secret) == 0)
 		die('Please go to Bitbucket page to Manage Account '.
 			'https://bitbucket.org/account/ , click on Integrated Applications, '.
@@ -27,11 +27,11 @@
 			' set the client_id with Key and client_secret with Secret. '.
 			'The URL must be '.$client->redirect_uri);
 
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
-		if(($success = $client->Process()))
+		if (($success = $client->Process()))
 		{
-			if(strlen($client->access_token))
+			if (strlen($client->access_token))
 			{
 				$success = $client->CallAPI(
 					'https://api.bitbucket.org/1.0/user', 
@@ -40,9 +40,9 @@
 		}
 		$success = $client->Finalize($success);
 	}
-	if($client->exit)
+	if ($client->exit)
 		exit;
-	if($success)
+	if ($success)
 	{
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

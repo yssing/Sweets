@@ -1,15 +1,15 @@
 <?php
-include_once('contributions/resize.class.php');	
+require_once(PATH_SYS.'utils/imageresize.class.php');
 
 class imagecontrol{
 	public static function indexAction(){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
 
-		$body = views::displayEditListview(files::fileLister('uploads/small',6)).'<br />';		
+		$body = views::displayEditListview(files::fileLister('uploads/images/small',6),'listview',0).'<br />';		
 		$body .= form::beginForm('upload',PATH_WEB.'/system/image/upload');	
-		$body .= form::file('','file').'<br />';
+			$body .= form::file('','file[]');
 		$body .= form::endForm('upload');
 		
 		template::initiate('admin');
@@ -20,17 +20,18 @@ class imagecontrol{
 	}	
 	
 	public static function editAction($args){
-		if(!user::validateAdmin()){
-			route::error('403');
+		if (!user::validateAdmin()){
+			route::error(403);
 		}
+		
 		$file = urldecode($args['path']);
 		$filetype = form::getFileExtension($file);
-		if($filetype == 'jpg' || $filetype == 'gif' || $filetype == 'jpeg' || $filetype == 'png'){
+		if ($filetype == 'jpg' || $filetype == 'gif' || $filetype == 'jpeg' || $filetype == 'png'){
 			$path = str_replace('www/','',$file);
-			$path = str_replace('small','images',$path);
-			$body = '<img src="'.PATH_WEB.'/'.$path.'" />';
+			$path = str_replace('small','full',$path);
+			$body = '<img src="/'.$path.'" />';
 		} else {
-			route::error('404');
+			route::error(404);
 		}
 			
 		template::initiate('form');
@@ -39,68 +40,66 @@ class imagecontrol{
 		template::end();
 	}	
 	
-	public static function uploadAction($args){
-		if(!user::validateAdmin()){
+	public static function uploadAction(){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}	
 
-		if(form::validate('upload')){
-			$filename = $_FILES["file"]["name"];				
-			$filetype = form::getFileExtension($_FILES["file"]["name"]);
-			if($filetype){
-				if (($filetype == "gif")
-				|| ($filetype == "png")
-				|| ($filetype == "jpeg")
-				|| ($filetype == "jpg")){
-					if ($_FILES["file"]["error"] > 0){
-						if($_FILES["file"]["error"] == 1){
-							form::errMsg(language::readType('IMAGETOBIG'));
+		if (form::validate('upload')){
+			for($i = 0; $i < count($_FILES["file"]["name"]); $i++){					
+				$filename = str_replace(' ','_',$_FILES["file"]["name"][$i]);
+				$filetype = form::getFileExtension($_FILES["file"]["name"][$i]);
+				if ($filetype){
+					if (($filetype == "gif")
+					|| ($filetype == "png")
+					|| ($filetype == "jpeg")
+					|| ($filetype == "jpg")){
+						if ($_FILES["file"]["error"][$i] > 0){
+							if ($_FILES["file"]["error"][$i] == 1){
+								baseclass::errMsg(language::readType('IMAGE_TO_BIG'));
+							} else {
+								form::errMsg("Return Code: ".$_FILES["file"]["error"][$i]);
+							}
 						} else {
-							form::errMsg("Return Code: ".$_FILES["file"]["error"]);
+							$path = "uploads/images";
+							baseclass::checkfolder("uploads");
+							baseclass::checkfolder("uploads/","images");
+							baseclass::checkfolder("uploads/images/","small");
+							baseclass::checkfolder("uploads/images/","medium");
+							baseclass::checkfolder("uploads/images/","full");
+
+							try {
+								move_uploaded_file($_FILES["file"]["tmp_name"][$i],$path."/full/".$filename);
+								$image = new imageresize($path."/full/".$filename);
+								$image->setNewSize(120,90);
+								$image->resizeImage('H');
+								$image->saveImage($path."/small/".$filename);
+
+								$image = new imageresize($path."/full/".$filename);
+								$image->setNewSize(800,600);
+								$image->resizeImage('H');
+								$image->saveImage($path."/medium/".$filename);
+							}
+							catch (Exception $e) {
+								baseclass::DBug($e);
+							}
 						}
 					} else {
-						$path = "uploads";
-						form::checkfolder("","uploads");
-						form::checkfolder("uploads/","small");
-						form::checkfolder("uploads/","medium");
-						form::checkfolder("uploads/","images");
-
-						move_uploaded_file($_FILES["file"]["tmp_name"],$path."/images/".$filename);
-						try {
-							$obj = new Resize($path."/images/".$filename);
-							$obj->setNewImage($path."/small/".$filename);
-							$obj->setProportional(1);
-							$obj->setDegrees(0);
-							$obj->setNewSize(120,100);
-							$obj->make();
-
-							$obj = new Resize($path."/images/".$filename);
-							$obj->setNewImage($path."/medium/".$filename);
-							$obj->setProportionalFlag('H');
-							$obj->setProportional(1);
-							$obj->setDegrees(0);
-							$obj->setNewSize(800,600);
-							$obj->make();
-						}
-						catch (Exception $e) {
-							die($e);
-						}
-					}
-					route::redirect('system/image/list');
-				} else {
-					form::errMsg(language::readType('WRONGIMAGETYPE'));
-				}	
+						baseclass::errMsg(language::readType('WRONG_IMAGE_TYPE'));
+					}	
+				}
 			}
-		}			
-	}		
-	
+		}
+		route::redirect('system/image/list');			
+	}	
+		
 	public static function deleteAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}		
-		form::rrmdir('uploads/images/'.$args[0]);
-		form::rrmdir('uploads/medium/'.$args[0]);
-		form::rrmdir('uploads/small/'.$args[0]);		
+		baseclass::rrmdir('uploads/images/full/'.$args[0]);
+		baseclass::rrmdir('uploads/images/medium/'.$args[0]);
+		baseclass::rrmdir('uploads/images/small/'.$args[0]);		
 		route::redirect('system/image/list');	
 	}	
 }

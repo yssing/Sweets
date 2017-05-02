@@ -32,20 +32,20 @@
 	flush();
 	$error=$http->Open($arguments);
 
-	if($error=="")
+	if ($error=="")
 	{
 		echo "<H2><LI>Sending request for page:</H2>\n";
 		echo "<PRE>",HtmlSpecialChars($arguments["RequestURI"]),"</PRE>\n";
 		flush();
 		$error=$http->SendRequest($arguments);
 
-		if($error=="")
+		if ($error=="")
 		{
 			echo "<H2><LI>Getting response headers ...</H2>\n";
 			flush();
 			$headers=array();
 			$error=$http->ReadReplyHeaders($headers);
-			if($error=="")
+			if ($error=="")
 			{
 				echo "<H2><LI>Response status code:</LI</H2>\n<PRE>".$http->response_status."</PRE>\n";
 				flush();
@@ -54,7 +54,7 @@
 				for(;;)
 				{
 					$error=$http->ReadReplyBody($body,1000);
-					if($error!=""
+					if ($error!=""
 					|| strlen($body)==0)
 						break;
 				}
@@ -63,15 +63,15 @@
 		}
 		$http->Close();
 	}
-	if(strlen($error)==0)
+	if (strlen($error)==0)
 	{
 		echo "<H2><LI>Test saving and restoring cookies...</LI</H2>\n";
 		flush();
 		$http->SaveCookies($site_cookies);
-		if(strlen($error=$http->RestoreCookies($site_cookies, 1))==0)
+		if (strlen($error=$http->RestoreCookies($site_cookies, 1))==0)
 		{
 			$http->SaveCookies($saved_cookies);
-			if(strcmp(serialize($saved_cookies), serialize($site_cookies)))
+			if (strcmp(serialize($saved_cookies), serialize($site_cookies)))
 			{
 				echo "<H2>FAILED: the saved cookies do not match the restored cookies.</H2>\n";
 			}
@@ -79,7 +79,7 @@
 				echo "<H2>OK: the saved cookies match the restored cookies.</H2>\n";
 		}
 	}
-	if(strlen($error))
+	if (strlen($error))
 		echo "<CENTER><H2>Error: ",$error,"</H2><CENTER>\n";
 ?>
 </UL>

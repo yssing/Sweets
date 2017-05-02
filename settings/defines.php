@@ -24,9 +24,15 @@
 	 * @link		http://www.yssing.org
 	 * @since		File available since Release 1.0.0
 	 */
-	 	
-	include_once('user_defines.php');
-	include_once('key_defines.php');
+	 
+	if (file_exists ('settings/user_defines.php')){		
+		include_once('user_defines.php');
+		include_once('key_defines.php');		
+	} else {
+		// If no user_defines.php is found, it is presumed, that the system
+		// needs to be installed first.
+		header('location: /common/install/first.php');
+	}	 
 	
 	/**
      * Defines for the various paths used in the portal
@@ -41,7 +47,7 @@
 	
 	define("HIDDEN",2);
 	define("PASSWORD",1);
-	define("TEXT",0);
+	define("TEXT",0);	
 	
 	/**
      * How long is a cookie active

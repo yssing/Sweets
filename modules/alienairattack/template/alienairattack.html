@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="da">
+	<head>
+		<meta charset="utf-8">
+		<meta name="author" content="Frederik Yssing" />
+		<meta name="generator" content="notepad++" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Alien Air Attack</title>
+		<script type="text/javascript">		
+			var star = new Array(0);						
+			var keys = new Array(0);	
+			var enemy = new Array(0);					
+			var enemyshot = new Array(0);			
+			var shot = new Array(0);	
+			var bonus = new Array(0);
+			var backgroundmusic = new Audio("dreamofpenguins.ogg");	
+
+			var basicObject = function() {			
+				this.posx = 0;
+				this.posy = 0;
+				
+				this.randomFromTo = function(from, to){
+					return Math.floor(Math.random() * (to - from + 1) + from);
+				}
+			};			
+			
+			var starObject = function(){
+				this.Size = 0;
+				this.Color = 0;
+				this.Speed = 0;
+				
+				this.moveStar = function(view){
+					if (this.posy >= functions.playheight){
+						this.renewStar(functions.playheight);
+					}										
+					view.fillStyle = this.Color;
+					view.beginPath();
+					view.arc(this.posx,this.posy,this.Size,0,Math.PI*2,true);
+					view.fill();
+					this.posy += this.Speed;
+				}
+				
+				this.setupStar = function(width,height){
+					this.posy = this.randomFromTo(-height,height);
+					this.posx = this.randomFromTo(102,width);
+					this.Size = this.randomFromTo(1,2);					
+					this.Speed = this.randomFromTo(1,10);
+					tmpcolor = Math.floor(this.Speed*(255/10));
+					this.Color = 'rgb('+tmpcolor+','+tmpcolor+','+tmpcolor+')';					
+				}
+				
+				this.renewStar = function(height){
+					this.posy = this.randomFromTo(-height,0);
+				}
+			};
+			
+			var numberObject = function(){
+				this.image = new Image(); 
+				this.image.src = "scorebar_numbers.png";
+				
+				this.showNumber = function(posx,posy,number,view){
+					clipx = 0;
+					number += ''; // tostring
+					for(i=0;i<number.length;i++){
+						clipx = number.substr(i,1)*13;
+						if (i<number.length){
+							view.drawImage(this.image,clipx,0,13,20,posx+(i*13),posy,13,20);
+						}
+					}			
+				}
+			};
+			
+			var playerObject = function(){
+				this.active = 1;
+				this.shotsfired = 0;
+				this.lives = 3;
+				this.shield = 30;
+				this.points = 0;
+				this.shotdamage = 25;
+				this.image = new Image(); 
+				this.image.src = "ship.png";
+				this.playermove = 0;
+				this.clipx = 0;
+				
+				this.setupPlayer = function(){
+					this.posx = Math.floor((functions.playwidth-this.image.width)/2);
+					this.posy = functions.playheight-40;
+				}
+				
+				this.movePlayer = function(left,right){
+					if (this.lives >= 1 && this.active){
+						if (this.posx <= functions.playwidth-45){
+							this.posx += right;
+						}
+						if (this.posx >= 98 ){
+							this.posx -= left;
+						}					
+					}
+				}
+				
+				this.fireshot = function (){	
+					if (this.lives >= 1 && this.active){
+						this.shotsfired++;													
+						shotx = this.posx + Math.floor((45/2));
+						shot[this.shotsfired] = new shotObject(shotx,this.posy,this.shotdamage);					
+						if (this.shotsfired >= functions.NUMBEROFSHOTS && shot[functions.NUMBEROFSHOTS-10].posy <= 0){
+							this.shotsfired = 0;
+						}
+					}
+				}
+				
+				this.drawPlayer = function(view){
+					if (this.lives >= 1 && this.active){
+						switch(this.playermove){
+							case 0:
+								this.clipx = 0;
+								break;
+							case 2:
+								this.clipx = 45;
+								break;
+							case 4:
+								this.clipx = 90;
+								this.playermove = 0;
+								break;
+						}
+						view.drawImage(this.image,this.clipx,0,45,24,this.posx,this.posy,45,24);
+						this.playermove++;
+					}
+				}
+				
+				this.Die = function(){
+					this.active = 0;					
+					this.lives --;
+					//if shotdamage has been upgraded, its down graded
+					if (this.shotdamage > 25){
+						this.shotdamage -= 25;
+					}
+					dieobject[functions.NUMBEROFENEMIES+1] = new dieobject(this.posx,this.posy,16);
+					this.shield = 60;
+				}
+			};
+			
+			var shotObject = function(posx,posy,damage){
+				this.image = new Image();	
+				this.image.src = "bullets.png";					
+				this.posx = posx-(this.image.width/2);
+				this.posy = posy;
+				this.damage = damage;
+				this.playsound = 1;			
+				this.shotsound = new Audio("playershot1.wav");				
+				
+				this.moveShot = function(view){					
+					this.posy -= 30;
+					if (this.posy > this.image.height*-1){
+						if (this.posy && this.posx){
+							view.drawImage(this.image,this.posx,this.posy);
+							this.checkCollision();
+						}
+					} 
+					//only play sound if the shot is visible ie not setup
+					if (this.playsound && this.posy >= 1){
+						if (functions.toggle){
+							this.playsound = 0;
+							this.shotsound.play();
+						}
+					}
+				}
+
+				this.checkCollision = function(){
+					for(j=0;j<=functions.NUMBEROFENEMIES;j++){
+						if (enemy[j].setup <= 0){
+							if ((enemy[j].posx <= this.posx && enemy[j].posx+48 >= this.posx) && (this.posy >= enemy[j].posy && this.posy <= enemy[j].posy+48) && enemy[j].energy > 0){
+								player.points++;
+								this.posx = 0;
+								this.posy = 0;
+								if (enemy[j].energy >= 1){
+									enemy[j].energy -= this.damage;
+									enemy[j].showenergy = 24;
+								} 
+								if (enemy[j].energy <= 0) {
+									enemy[j].enemyDie();
+									player.points += 25;
+								}	
+							}
+						}
+					}								
+				}
+			};
+			
+			var enemyshotObject = function(posx,posy){
+				this.image = new Image();	
+				this.image.src = "enemyshot.png";					
+				this.posx = posx - (this.image.width/2);
+				this.posy = posy;
+				this.playsound = 1;	
+				this.shotsound = new Audio("playershot3.wav");
+				this.shotmove = 0;			
+
+				this.moveShot = function(view){
+					this.posy += 20;
+					if (this.posy < functions.playheight){					
+						view.drawImage(this.image,(this.shotmove*7),0,7,16,this.posx,this.posy,7,16);
+						this.shotmove++;					
+						this.checkCollision();
+						if (this.shotmove >= 5){
+							this.shotmove = 0;
+						}
+					} 
+					if (this.playsound){
+						if (functions.toggle){
+							this.playsound = 0;
+							this.shotsound.play();
+						}
+					}					
+				}
+
+				this.checkCollision = function(){
+					if (this.posy >= player.posy && this.posy <= player.posy + player.image.height){
+						if (this.posx >= player.posx && this.posx <= (45+player.posx)){
+							//make sure player can only die once per shot
+							//and shield not active
+							if (player.active && !player.shield){
+								player.Die();
+							}
+						}
+					}		
+				}				
+			};			
+			
+			var dieobject = function(posx,posy,countdown){
+				this.countdown = countdown;
+				this.image = new Image();
+				this.image.src = "explode.png";
+				this.explodesound = new Audio("explode.wav");	
+				this.clipx = 0;
+				
+				this.play = function(view){
+					this.posx = posx;
+					this.posy = posy;
+					if (this.countdown > 0){
+						switch(Math.ceil(this.countdown/2)){
+							case 1:
+								this.clipx = 336;
+								break;
+							case 2:
+								this.clipx = 288;
+								break;
+							case 3:
+								this.clipx = 240;
+								break
+							case 4:
+								this.clipx = 192;
+								break;
+							case 5:
+								this.clipx = 144;
+								break;
+							case 6:
+								this.clipx = 96;
+								break;
+							case 7:
+								this.clipx = 48;
+								break;
+							case 8:
+								this.clipx = 0;
+								break;
+						}
+					}
+
+					if (this.countdown >= 1){
+						view.drawImage(this.image,this.clipx,0,48,48,this.posx,this.posy,48,48);
+					}
+					if (this.countdown == 16){           
+						if (functions.toggle){
+							this.explodesound.play();
+						}												
+					}					
+					this.countdown--;
+				}
+			}
+			
+			var enemyObject = function(energy,src,position,posx,move,setup){
+				this.posx = posx;								
+				this.posy = 50;
+				this.move = this.randomFromTo(1,3);
+				this.energy = energy;
+				this.maxenergy = energy;
+				this.steps = 0;
+				this.startposition = this.posx;
+				this.position = position;
+				this.a = 0;
+				this.direction = this.randomFromTo(1,3);
+				this.image = new Image(); 
+				this.image.src = src;
+				this.enemymovesound = new Audio("tone.wav");
+				this.enemymove = move;	
+				this.setup = setup;
+				this.showenergy = 0;
+				
+				this.setupEnemy = function(view){
+					this.posy = (50 - this.setup);	
+					this.enemymove++;
+					if (this.enemymove >= 16){
+						this.enemymove = 0;
+					}						
+					view.drawImage(this.image,(this.enemymove*48),0,48,48,this.posx,this.posy,48,48);
+					this.setup -= 2;
+				}
+				
+				this.moveEnemy = function(view){
+					//only draw if enemy has energy
+					if (this.energy){
+						view.drawImage(this.image,(this.enemymove*48),0,48,48,this.posx,this.posy,48,48);
+						this.enemymove++;
+						if (this.enemymove >= 16){
+							this.enemymove = 0;
+						}						
+					}
+					if (this.move == 1){
+						switch(this.direction){
+							case 1:
+								this.posy += 5;
+								break;
+							case 2:
+								this.posy += 2;
+								this.posx += 5;
+								break;
+							case 3:
+								this.posy += 2;
+								this.posx -= 5;
+								break;
+							case 4:
+								if (this.a < 0){
+									Math.floor(this.posy -= this.a);
+								} else {
+									Math.floor(this.posy += this.a);
+								}								
+								this.posx -= 1;
+								if (this.posy >= 50){
+									this.direction = this.randomFromTo(1,3);
+								}
+								break;
+						}
+					}		
+					// 50% chance of start moving when ever steps reach 30
+					if (this.steps >= 30){
+						this.direction = this.randomFromTo(1,3);
+						if (this.move != 1){
+							this.move = this.randomFromTo(1,2);
+							if (functions.toggle){
+								this.enemymovesound.play();
+							}														
+						}
+						this.steps = 0;
+					}
+					//if the enemy moves under the playfield, there is a 50% chance that it resets to start position
+					if (this.posy > functions.playheight){
+						this.posy = (this.image.height*-1); 						
+						if (this.randomFromTo(1,2) == 1){
+							this.resetPosition();
+							if (functions.toggle){
+								this.enemymovesound.play();
+							}								
+						}						
+					}
+					//if the enemy moves right out of the playfield
+					if (this.posx >= functions.playwidth){
+						this.posx = 54;
+					}
+					//if the enemy moves left out of the playfield
+					if (this.posx <= 54){
+						this.posx = functions.playwidth;
+					}
+					// a 1% chance of shooting for everytime it loops
+					if (this.randomFromTo(1,100) == 1 && this.energy){
+						this.enemyShot();
+					}
+					this.updateenergy(view);
+					this.steps++;
+					this.showenergy--;
+					this.checkCollision();
+				}
+				
+				this.checkCollision = function(){
+					if (this.posy + this.image.height >= player.posy && this.posy <= player.posy + player.image.height){
+						if (this.posx >= player.posx && this.posx <= (45+player.posx)){
+							//make sure player can only die once per shot
+							//and shield not active
+							//enemy also die							
+							this.enemyDie();
+							if (player.active && !player.shield){
+								player.Die();
+							}
+						}
+					}				
+				}					
+				
+				this.resetPosition = function(){
+					var deltax = (this.posy - this.startposition);
+					var deltay = 50;
+					this.a = deltay/deltax;
+					this.direction = 4;					
+				}
+				
+				this.updateenergy = function(view){
+					if (this.energy){	
+						view.fillStyle="#00ff00";
+						tmpenergy = Math.floor(((100/this.maxenergy)*this.energy));
+						barwidth = (tmpenergy/100)*48;
+						//draws the energybar
+						if (this.showenergy > 0){
+							if (this.showenergy%2 == 1){
+								view.fillRect(this.posx,this.posy-5,barwidth,3);
+							}
+						}	
+					}				
+				}
+				
+				this.enemyShot = function(){
+					functions.enemyshotsfired++;
+					shoty = this.posy;
+					shotx = this.posx + 24;
+					enemyshot[functions.enemyshotsfired] = new enemyshotObject(shotx,shoty);																		
+					if (functions.enemyshotsfired >= functions.NUMBEROFENEMYSHOTS && enemyshot[functions.NUMBEROFENEMYSHOTS].posy >= functions.playheight){
+						functions.enemyshotsfired = 0;
+					}						
+				}
+				
+				this.enemyDie = function(){
+					this.energy = 0;
+					if (this.randomFromTo(1,4) == 1){
+						bonus[this.position].setupBonus(this.posx,this.posy,this.randomFromTo(1,11));
+					}	
+					dieobject[this.position] = new dieobject(this.posx,this.posy,16);
+				}
+			};
+			
+			var bonusObject = function(){
+				this.bonus = 0;
+				this.image = new Image();
+				this.move = 0;
+				
+				this.moveBonus = function(view){
+					if (this.posy < functions.playheight && this.bonus >= 1){						
+						//der er en fejl her? hvad er den mon?
+						view.drawImage(this.image,(this.move*32),0,32,32,this.posx,this.posy,32,32);
+						this.move++;
+						if (this.move >= 7){
+							this.move = 0;
+						}						
+						this.posy += 15;
+						if (this.posy >= player.posy && this.posy <= player.posy + this.image.height){
+							if (this.posx >= player.posx && this.posx <= (player.image.width+player.posx)){
+								if (player.active){
+									this.giveBonus();
+									this.bonus = 0;
+								}
+							}
+						}
+					}
+				};	
+				
+				this.setupBonus = function(posx,posy,bonus){
+					this.posx = posx;
+					this.posy = posy;
+					this.bonus = bonus;
+					
+					switch(bonus){
+						case 1:
+							this.image.src = "life.png";
+							break;
+						case 2:
+							this.image.src = "bonusfood1.png";
+							break;		
+						case 3:
+							this.image.src = "bonusfood2.png";
+							break;		
+						case 4:
+							this.image.src = "bonusfood3.png";
+							break;	
+						case 5:
+							this.image.src = "bonusfood4.png";
+							break;	
+						case 6:
+							this.image.src = "bonusfood5.png";
+							break;	
+						case 7:
+							this.image.src = "bonusfood6.png";
+							break;	
+						case 8:
+							this.image.src = "smallshield.png";							
+							break;	
+						case 9:
+							this.image.src = "mediumshield.png";
+							break;	
+						case 10:
+							this.image.src = "largeshield.png";
+							break;	
+						case 11:
+							this.image.src = "powerup.png";							
+							break;								
+					}						
+				}
+				
+				this.giveBonus = function(){
+					functions.bonustextCountdown = 40;
+					switch(this.bonus){
+						case 1:
+							player.lives ++;
+							functions.bonustext = "EXTRA LIFE!";							
+							break;
+						case 2:
+							player.points += 10;
+							functions.bonustext = "10 EXTRA POINTS!";
+							break;		
+						case 3:
+							player.points += 20;
+							functions.bonustext = "20 EXTRA POINTS!";
+							break;		
+						case 4:
+							player.points += 50;
+							functions.bonustext = "50 EXTRA POINTS!";
+							break;	
+						case 5:
+							player.points += 100;
+							functions.bonustext = "100 EXTRA POINTS!";
+							break;	
+						case 6:
+							player.points += 200;
+							functions.bonustext = "200 EXTRA POINTS!";
+							break;	
+						case 7:
+							player.points += 500;
+							functions.bonustext = "500 EXTRA POINTS!";
+							break;	
+						case 8:
+							player.shield += 60;
+							functions.bonustext = "SMALL SHIELD!";
+							break;	
+						case 9:
+							player.shield += 120;
+							functions.bonustext = "MEDIUM SHIELD!";
+							break;	
+						case 10:
+							player.shield += 240;
+							functions.bonustext = "LARGE SHIELD!";
+							break;		
+						case 11:
+							player.shotdamage += 25;
+							functions.bonustext = "EXTRA DAMAGE!";
+							break;							
+					}				
+				}				
+			};
+			
+			function myFunctions(){
+				this.NUMBEROFSTARS = 400;
+				this.NUMBEROFSHOTS = 25;
+				this.NUMBEROFENEMIES = 9;//This will in reality be 10 because an array starts in position 0 and not 1!
+				this.NUMBEROFENEMYSHOTS = 100;
+				this.NUMBEROFBONUS = this.NUMBEROFENEMIES;
+				this.activebonus = 0;
+				this.toggle = 0;
+				this.enemyshotsfired = 0;
+				this.playwidth = 0;	
+				this.playheight = 0;	
+				this.activeenemies = 1;	
+				this.bonustext = "";
+				this.bonustextCountdown = 0;	
+				this.level = 1;
+				this.wave = 1;
+				this.mainbackground = new Image();
+				this.menubackground = new Image();
+				this.mainbackground.src = "mainbackground.png"
+				this.menubackground.src = "menubackground.png"
+
+				this.setup = function(playwidth,playheight,energy){	
+					this.playwidth = playwidth;
+					this.playheight = playheight;
+					player.setupPlayer();	
+					
+					numberObject.prototype = new basicObject();						
+					numbers = new numberObject();		
+
+					for(i=0;i<=this.NUMBEROFSTARS;i++){	
+						starObject.prototype = new basicObject();						
+						star[i] = new starObject();
+						star[i].setupStar(this.playwidth,this.playheight);
+					}	
+					for(i=0;i<=this.NUMBEROFSHOTS;i++){
+						shotObject.prototype = new basicObject();
+						shot[i] = new shotObject(0,0,0);	
+					}	
+					for(i=0;i<=this.NUMBEROFENEMYSHOTS;i++){
+						enemyshotObject.prototype = new basicObject();
+						enemyshot[i] = new enemyshotObject(0,0);	
+					}		
+					for(i=0;i<=this.NUMBEROFBONUS;i++){
+						bonusObject.prototype = new basicObject();
+						bonus[i] = new bonusObject();	
+					}						
+					for(i=0;i<=this.NUMBEROFENEMIES+1;i++){
+						dieobject.prototype = new basicObject();
+						dieobject[i] = new dieobject(0,0,0);	
+					}		
+					this.setupenemies(energy);
+				}
+				
+				this.setupenemies = function(energy){
+					energy += 25;
+					for(i=0;i<=this.NUMBEROFENEMIES;i++){
+						posx = this.playwidth/2+25-((this.NUMBEROFENEMIES*60)/2)+(i*60);
+						enemyObject.prototype = new basicObject();						
+						move = this.randomFromTo(1,15);
+						enemy[i] = new enemyObject(energy,"flyingsaucer"+this.level+".png",i,posx,move,200);					
+					}	
+				}
+				
+				this.drawObjects = function(){					
+					this.activeenemies = 0;
+					var ctx=document.getElementById("playfield").getContext("2d");					
+					ctx.drawImage(this.mainbackground,97,0);
+					
+					ctx.lineWidth = 2;
+					ctx.strokeStyle = '#ffffff';
+					ctx.textBaseline = 'top';	
+					ctx.font = 'bold 20px sans-serif';					
+					for(i=0;i<=this.NUMBEROFSTARS;i++){
+						star[i].moveStar(ctx);
+					}				
+					for(i=0;i<=this.NUMBEROFSHOTS;i++){
+						shot[i].moveShot(ctx);
+					}	
+					for(i=0;i<=this.NUMBEROFENEMYSHOTS;i++){
+						enemyshot[i].moveShot(ctx);	
+					}		
+					for(i=0;i<=this.NUMBEROFBONUS;i++){
+						bonus[i].moveBonus(ctx);	
+					}						
+					for(i=0;i<=this.NUMBEROFENEMIES;i++){
+						if (enemy[i].energy > 0){
+							if (enemy[i].setup){
+								enemy[i].setupEnemy(ctx);
+							} else {							
+								enemy[i].moveEnemy(ctx);
+								
+							}
+							this.activeenemies++;
+						}
+					}	
+					for(i=0;i<=this.NUMBEROFENEMIES+1;i++){
+						dieobject[i].play(ctx);						
+					}	
+					
+					if (dieobject[this.NUMBEROFENEMIES+1].countdown == 0){
+						player.active = 1;						
+						if (player.lives >= 1){
+							player.setupPlayer();
+						}
+					}	
+					//if shield is active, blink.
+					if (player.shield%2 == 0){
+						player.drawPlayer(ctx);
+					}
+					//countdown from 30
+					if (player.shield != 0){
+						player.shield--;
+					}
+					
+					//if no enemies, we reset them with more energy
+					if (!this.activeenemies){
+						this.level++;
+						this.wave++;
+						if (this.level > 12){
+							this.level = 1;
+							//extra life after the 12 waves
+							player.lives ++;
+						}						
+						this.setupenemies(enemy[0].maxenergy);						
+					}
+					//blink until coundown == 0, then dont show
+					if (this.bonustextCountdown%2){
+						ctx.strokeText(this.bonustext,Math.floor((this.playwidth/2-49)-((this.bonustext.length*8)/2))+98,Math.floor(this.playheight/2));
+						//8 is an estimated average width of the letters
+					}	
+					if (this.bonustextCountdown != 0){
+						this.bonustextCountdown--;
+					}	
+					ctx.drawImage(this.menubackground,0,0);
+					numbers.showNumber(10,160,player.points,ctx);
+					numbers.showNumber(10,390,player.lives,ctx);
+					numbers.showNumber(10,510,this.wave,ctx);
+					
+					if (dieobject[functions.NUMBEROFENEMIES+1].countdown == 0 && player.lives <= 0){	
+						functions.gameover(player.points);
+					}
+				}	
+
+				this.togglemusic = function(){
+					if (this.toggle){
+						backgroundmusic.play();					
+						this.toggle = 0;
+					} else {
+						backgroundmusic.pause();
+						this.toggle = 1;				
+					}
+				}	
+
+				this.movekeys = function() {
+					for (var i in keys) {										
+						if (i == 32){ // space	
+							player.fireshot(); 						
+						}					
+						if (i == 37){ // left
+							player.movePlayer(8,0); 
+						}
+						if (i == 39){ // right
+							player.movePlayer(0,8); 
+						}	
+						if (i == 77){ // right
+							this.togglemusic(); 
+						}							
+					}
+				}	
+
+				this.gameover = function(points){
+					var ask = confirm("Save your score? Press ok/yes");
+					if (ask){
+						var person=prompt("Please enter your name");
+						if(person){
+							document.getElementById('playername').value = person;
+							document.getElementById('score').value = points;
+							document.scoreform.submit();
+						}
+					} else {
+						location.href="alienairattack.html";
+					}				
+				}	
+			};
+			
+			//the only global stuff we need				
+			//a fix for older FF
+			if (typeof backgroundmusic.loop == 'boolean'){
+				backgroundmusic.loop = true;
+			}else{
+				backgroundmusic.addEventListener('ended', function() {
+					this.currentTime = 0;
+					this.play();
+				}, false);
+			}
+			backgroundmusic.play();
+
+			function setup(){
+				setTimeout("preLoad()", 1000);
+				playerObject.prototype = new basicObject();						
+				player = new playerObject();
+				
+				myFunctions.prototype = new basicObject();						
+				functions = new myFunctions();	
+
+				document.getElementById('playfield').width = 800;
+				document.getElementById('playfield').height = 600;
+				functions.setup(document.getElementById('playfield').width,document.getElementById('playfield').height,200);
+				enemy[9].image.onload = function() {				
+					drawloop();
+				}
+			}
+			
+			function preLoad(){
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', 'dreamofpenguins.ogg');
+				xhr.send('');
+				new Image().src = "flyingsaucer1.png";
+				new Image().src = "flyingsaucer2.png";
+				new Image().src = "flyingsaucer3.png";
+				new Image().src = "flyingsaucer4.png";
+				new Image().src = "flyingsaucer5.png";
+				new Image().src = "flyingsaucer6.png";
+				new Image().src = "flyingsaucer7.png";
+				new Image().src = "flyingsaucer8.png";
+				new Image().src = "flyingsaucer9.png";
+				new Image().src = "flyingsaucer10.png";
+				new Image().src = "flyingsaucer11.png";
+				new Image().src = "flyingsaucer12.png";
+				new Image().src = "mainbackground.png";
+				new Image().src = "menubackground.png";		
+				new Image().src = "life.png";
+				new Image().src = "bonusfood1.png";
+				new Image().src = "bonusfood2.png";
+				new Image().src = "bonusfood3.png";
+				new Image().src = "bonusfood4.png";
+				new Image().src = "bonusfood5.png";
+				new Image().src = "bonusfood6.png";
+				new Image().src = "smallshield.png";							
+				new Image().src = "mediumshield.png";
+				new Image().src = "largeshield.png";
+				new Image().src = "powerup.png";	
+			}			
+			
+			
+			function drawloop(){
+				functions.drawObjects();
+				setTimeout("drawloop()", 40);
+			}
+			
+			/** mouse actions **/
+			function playermove(e){
+				if (e.clientX-31 >= 98-24){
+					player.posx = e.clientX-31;
+				}
+			}
+				
+			/** keyboard actions **/	
+			window.onkeydown = function(event){
+				keys[event.which] = true;
+				functions.movekeys();
+			}	
+
+			window.onkeyup = function(event){
+				delete keys[event.which];
+				functions.movekeys();
+			}								
+		</script>	
+	</head>	
+	<body onload="setup()" bgcolor="#000000">
+		<table>
+			<tr>
+				<td width="800">
+					<canvas id="playfield" width="800" height="600" style="border:1px solid #c3c3c3;cursor:crosshair;margin-left:auto;margin-right:auto;" onmousemove="playermove(event)" onmousedown="player.fireshot()";>
+						Your browser does not support the canvas element.
+					</canvas>
+				</td>
+				<td width="300" valign="top">
+					<span style="color:#fff">
+					Coming to an<br />
+					<img src="amilogo.png" /><br /> near you!
+					<br />
+					The full game will feature more enemies, upgradeable player weapons, special weapons and more!	
+					<br /><br />
+					Will require a 800*600 24 or 8 bit and will use ahi.
+					<br />
+					<b>Programming by:</b> Frederik Yssing
+					<br />
+					<b>Graphics by:</b> Kevin Saunders aka Invent
+					<br />
+					<b>Music:</b> Dream Of Penguins by Krister Skrtic www.psykicko.com
+					<br />
+					<br /><br />
+					M to toggle music/sfx<br />
+					Use the arrows to move, or use the mouse<br />
+					Use space of LMB to shoot<br /><br />
+					</span>
+				</td>
+			</tr>
+		</table>
+		<form action="/modules/alienairattack/game/save" method="post" id="scoreform" name="scoreform" style="display:none;">
+			<input type="text" name="playername" id="playername">
+			<input type="text" name="score" id="score">
+		</form>
+	</body>
+</html>

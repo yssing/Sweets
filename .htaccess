@@ -1,5 +1,9 @@
 #=========[ start of .htaccess ]==========
 #	php_value upload_max_filesize 32M
+	
+#SetEnvIf Origin "^http(s)?://(.+\.)?(\.org|\.com|\.net)$" origin_is=$0 
+#Header always set Access-Control-Allow-Origin %{origin_is}e env=origin_is	
+	
 	#Options +FollowSymLinks
 	RewriteEngine On
 	RewriteBase /
@@ -8,18 +12,23 @@
 	RewriteRule ^/?cms/(.*)$ /modules/cms/$1 [L,R=301]
 	RewriteRule ^/?geography/(.*)$ /modules/geography/$1 [L,R=301]
 	RewriteRule ^/?photo/(.*)$ /modules/photo/$1 [L,R=301]
-	RewriteRule ^/?jobspecialisten/(.*)$ /modules/jobspecialisten/$1 [L,R=301]
+	RewriteRule ^/?shop/(.*)$ /modules/shop/$1 [L,R=301]
 	
 	RewriteCond %{REQUEST_FILENAME} !-f
 	#RewriteCond %{REQUEST_FILENAME} !-d 
 	RewriteRule ^(.*)$ index.php [L]
+	
+	#Header add "disablevcache" "true"
+	
+	#ErrorDocument 403 /common/error/403
+	#ErrorDocument 404 /common/error/404
 	
 	# Prevent viewing of .htaccess file
 	<Files .htaccess>
 	order allow,deny
 	deny from all
 	</Files>
-	
+		
 	# Prevent directory listings
 #	Options All -Indexes	
 	

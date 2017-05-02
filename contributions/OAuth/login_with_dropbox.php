@@ -19,7 +19,7 @@
 	$client->client_id = ''; $application_line = __LINE__;
 	$client->client_secret = '';
 
-	if(strlen($client->client_id) == 0
+	if (strlen($client->client_id) == 0
 	|| strlen($client->client_secret) == 0)
 		die('Please go to Dropbox Apps page https://www.dropbox.com/developers/apps , '.
 			'create an application, and in the line '.$application_line.
@@ -27,11 +27,11 @@
 			'The Callback URL must be '.$client->redirect_uri).' Make sure this URL is '.
 			'not in a private network and accessible to the Dropbox site.';
 
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
-		if(($success = $client->Process()))
+		if (($success = $client->Process()))
 		{
-			if(strlen($client->access_token))
+			if (strlen($client->access_token))
 			{
 				$success = $client->CallAPI(
 					'https://api.dropbox.com/1/account/info', 
@@ -40,9 +40,9 @@
 		}
 		$success = $client->Finalize($success);
 	}
-	if($client->exit)
+	if ($client->exit)
 		exit;
-	if($success)
+	if ($success)
 	{
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

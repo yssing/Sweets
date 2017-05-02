@@ -1,8 +1,5 @@
 <?php
 class installcontrol{
-	
-	private static $rootuser = '';
-	private static $rootpassword = '';
 
 	public static function indexAction(){
 		route::redirect('common/install/');

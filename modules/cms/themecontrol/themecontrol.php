@@ -5,7 +5,7 @@ class themecontrol{
 	}
 	
 	public static function listAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
 		
@@ -25,13 +25,13 @@ class themecontrol{
 	}
 
 	public static function uploadAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}	
 
-		if(form::validate('upload')){
+		if (form::validate('upload')){
 			$filename = $_FILES["file"]["name"];
-			if(form::getFileExtension($_FILES["file"]["name"])){
+			if (form::getFileExtension($_FILES["file"]["name"])){
 				if ($_FILES["file"]["error"] == 0){
 					move_uploaded_file($_FILES["file"]["tmp_name"],'template/'.$filename);
 					$zip = new ZipArchive;
@@ -43,27 +43,27 @@ class themecontrol{
 				}
 			}			
 		}
-		route::redirect('cms/theme/list');		
+		route::redirect('modules/cms/theme/list');		
 	}
 	
 	public static function activateAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}	
 
 		theme::enableTheme($args[0]);
-		route::redirect('cms/theme/list');
+		route::redirect('modules/cms/theme/list');
 	}	
 
 	public static function deleteAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
 
-		if(form::rrmdir('template/'.$args[0])){
+		if (form::rrmdir('template/'.$args[0])){
 			theme::enableTheme('default');
 		}
-		route::redirect('cms/theme/list');
+		route::redirect('modules/cms/theme/list');
 	}	
 }
 ?>

@@ -534,7 +534,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function linkHref(stream, state) {
     // Check if space, and return NULL if so (to avoid marking the space)
-    if(stream.eatSpace()){
+    if (stream.eatSpace()){
       return null;
     }
     var ch = stream.next();
@@ -595,7 +595,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function footnoteUrl(stream, state) {
     // Check if space, and return NULL if so (to avoid marking the space)
-    if(stream.eatSpace()){
+    if (stream.eatSpace()){
       return null;
     }
     // Match URL

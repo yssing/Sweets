@@ -234,7 +234,7 @@ function testJumplist(name, keys, endPos, startPos, dialog) {
   startPos = makeCursor(startPos[0], startPos[1]);
   testVim(name, function(cm, vim, helpers) {
     CodeMirror.Vim.resetVimGlobalState_();
-    if(dialog)cm.openDialog = helpers.fakeOpenDialog('word');
+    if (dialog)cm.openDialog = helpers.fakeOpenDialog('word');
     cm.setCursor(startPos);
     helpers.doKeys.apply(null, keys);
     helpers.assertCursorAt(endPos);
@@ -2426,7 +2426,7 @@ testVim('ex_api_test', function(cm, vim, helpers) {
   var res=false;
   var val='from';
   CodeMirror.Vim.defineEx('extest','ext',function(cm,params){
-    if(params.args)val=params.args[0];
+    if (params.args)val=params.args[0];
     else res=true;
   });
   helpers.doEx(':ext to');

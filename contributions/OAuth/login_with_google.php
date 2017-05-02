@@ -24,7 +24,7 @@
 	$client->client_id = ''; $application_line = __LINE__;
 	$client->client_secret = '';
 
-	if(strlen($client->client_id) == 0
+	if (strlen($client->client_id) == 0
 	|| strlen($client->client_secret) == 0)
 		die('Please go to Google APIs console page '.
 			'http://code.google.com/apis/console in the API access tab, '.
@@ -37,16 +37,16 @@
 	 */
 	$client->scope = 'https://www.googleapis.com/auth/userinfo.email '.
 		'https://www.googleapis.com/auth/userinfo.profile';
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
-		if(($success = $client->Process()))
+		if (($success = $client->Process()))
 		{
-			if(strlen($client->authorization_error))
+			if (strlen($client->authorization_error))
 			{
 				$client->error = $client->authorization_error;
 				$success = false;
 			}
-			elseif(strlen($client->access_token))
+			elseif (strlen($client->access_token))
 			{
 				$success = $client->CallAPI(
 					'https://www.googleapis.com/oauth2/v1/userinfo',
@@ -55,9 +55,9 @@
 		}
 		$success = $client->Finalize($success);
 	}
-	if($client->exit)
+	if ($client->exit)
 		exit;
-	if($success)
+	if ($success)
 	{
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

@@ -38,9 +38,11 @@ class zipcode{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function readSingleZipcode($zipcode){
-		$database = new database("geography_zipcode");
-		list($cityname) = $database->readSingle("City","Zipcode = ".$zipcode);
-		return $cityname;	
+		$dbobject = new dbobject('geography_zipcode');
+		$dbobject->read("City");
+		$dbobject->where("Zipcode",$zipcode);
+		list($city) = $dbobject->fetchSingle();
+		return $city;
 	}
 
 	/**
@@ -48,14 +50,39 @@ class zipcode{
 	 *
 	 * @param int $id 
 	 *
-	 * @return string $cityname on success or false on failure.
+	 * @return array on success or false on failure.
 	 *
      * @access public	 
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function readZipcode($id){
-		$database = new database("geography_zipcode");
-		return $database->readSingle("FK_AreaID,FK_MunicipalityID,Zipcode,City","PK_ZipcodeID = ".$id);
+		$dbobject = new dbobject('geography_zipcode');
+		$dbobject->read("FK_AreaID");
+		$dbobject->read("FK_MunicipalityID");
+		$dbobject->read("Zipcode");
+		$dbobject->read("City");
+		$dbobject->where("PK_ZipcodeID",$id);
+		return $dbobject->fetchSingle();		
+	}
+	
+	/**
+	 * This method will search for a given city's information given its zipcode
+	 *
+	 * @param int $id 
+	 *
+	 * @return array on success or false on failure.
+	 *
+     * @access public	 
+	 * @since Method available since Release 2015-04-17
+	 */		
+	public static function readZipcodeInformation($zipcode){
+		$dbobject = new dbobject('geography_zipcode');
+		$dbobject->read("FK_AreaID");
+		$dbobject->read("FK_MunicipalityID");
+		$dbobject->read("Zipcode");
+		$dbobject->read("City");
+		$dbobject->where("Zipcode",$zipcode);
+		return $dbobject->fetchSingle();
 	}
 	
 	/**
@@ -73,12 +100,13 @@ class zipcode{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function updateZipcode($id,$area,$municipality,$zipcode,$city){
-		$database = new database("geography_zipcode");
-		$data = array("FK_AreaID" => $area,
-			"FK_MunicipalityID" => $municipality,
-			"Zipcode" => "'".$zipcode."'",
-			"City" => "'".$city."'");
-		return $database->update($data,"PK_ZipcodeID = ".$id);
+		$dbobject = new dbobject('geography_zipcode');
+		$dbobject->update('FK_AreaID',$area);
+		$dbobject->update('FK_MunicipalityID',$municipality);
+		$dbobject->update('Zipcode',$zipcode);
+		$dbobject->update('City',$city);
+		$dbobject->where("PK_ZipcodeID", $id);
+		return $dbobject->commit();			
 	}
 	
 	/**
@@ -94,16 +122,16 @@ class zipcode{
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */
-	public static function createNews($area,$municipality,$zipcode,$city){
-		$database = new database("geography_zipcode");
-		$data = array("FK_AreaID" => $area,
-			"FK_MunicipalityID" => $municipality,
-			"Zipcode" => "'".$zipcode."'",
-			"City" => "'".$city."'");
-		if(!$database->create($data)){
-			return false;
+	public static function createzipcode($area,$municipality,$zipcode,$city){
+		$dbobject = new dbobject('geography_zipcode');
+		$dbobject->create('FK_AreaID',$area);
+		$dbobject->create('FK_MunicipalityID',$municipality);
+		$dbobject->create('Zipcode',$zipcode);
+		$dbobject->create('City',$city);
+		if ($dbobject->commit()){
+			return $dbobject->readLastEntry();
 		}
-		return true;
+		return false;			
 	}
 	
 	/**
@@ -114,9 +142,36 @@ class zipcode{
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public static function listZipcodes(){
-		$database = new database("geography_zipcode");
-		return $database->read("PK_ZipcodeID,FK_MunicipalityID,FK_AreaID,Zipcode,City","","City");
+	public static function listZipcodes($searchval = ''){
+		$dbobject = new dbobject('geography_zipcode');
+		$dbobject->read("PK_ZipcodeID");
+		$dbobject->read("FK_MunicipalityID");
+		$dbobject->read("FK_AreaID");
+		$dbobject->read("Zipcode");
+		$dbobject->read("City");
+		if ($searchval){
+			$dbobject->wildcard("Zipcode",$searchval);
+			$dbobject->wildcard("City",$searchval);
+		}		
+		$dbobject->orderby("City");
+		return $dbobject->fetch();			
 	}
+	
+	/**
+     * This method deletes a zipcode entry in the database.
+	 *
+	 * @param int $zipcodeid The private key to the table.
+	 *
+	 * @return bool True on success or false on failure.	 
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0
+     */		
+	public static function destroyZipcode($zipcodeid){
+		$dbobject = new dbobject('geography_zipcode');
+		$dbobject->destroy();
+		$dbobject->where("PK_ZipcodeID",$zipcodeid);
+		return $dbobject->commit();			
+	}	
 }
 ?>

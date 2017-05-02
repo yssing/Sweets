@@ -44,7 +44,7 @@ CodeMirror.defineMode("sass", function(config) {
   };
 
   var buildStringTokenizer = function(quote, greedy){
-    if(greedy == null){ greedy = true; }
+    if (greedy == null){ greedy = true; }
 
     function stringTokenizer(stream, state){
       var nextChar = stream.next();

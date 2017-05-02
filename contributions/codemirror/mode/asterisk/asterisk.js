@@ -55,38 +55,38 @@ CodeMirror.defineMode("asterisk", function() {
     var ch  = '';
     ch = stream.next();
     // comment
-    if(ch == ";") {
+    if (ch == ";") {
       stream.skipToEnd();
       return "comment";
     }
     // context
-    if(ch == '[') {
+    if (ch == '[') {
       stream.skipTo(']');
       stream.eat(']');
       return "header";
     }
     // string
-    if(ch == '"') {
+    if (ch == '"') {
       stream.skipTo('"');
       return "string";
     }
-    if(ch == "'") {
+    if (ch == "'") {
       stream.skipTo("'");
       return "string-2";
     }
     // dialplan commands
-    if(ch == '#') {
+    if (ch == '#') {
       stream.eatWhile(/\w/);
       cur = stream.current();
-      if(dpcmd.indexOf(cur) !== -1) {
+      if (dpcmd.indexOf(cur) !== -1) {
         stream.skipToEnd();
         return "strong";
       }
     }
     // application args
-    if(ch == '$'){
+    if (ch == '$'){
       var ch1 = stream.peek();
-      if(ch1 == '{'){
+      if (ch1 == '{'){
         stream.skipTo('}');
         stream.eat('}');
         return "variable-3";
@@ -95,7 +95,7 @@ CodeMirror.defineMode("asterisk", function() {
     // extension
     stream.eatWhile(/\w/);
     cur = stream.current();
-    if(atoms.indexOf(cur) !== -1) {
+    if (atoms.indexOf(cur) !== -1) {
       state.extenStart = true;
       switch(cur) {
         case 'same': state.extenSame = true; break;
@@ -124,12 +124,12 @@ CodeMirror.defineMode("asterisk", function() {
 
       var cur = '';
       var ch  = '';
-      if(stream.eatSpace()) return null;
+      if (stream.eatSpace()) return null;
       // extension started
-      if(state.extenStart){
+      if (state.extenStart){
         stream.eatWhile(/[^\s]/);
         cur = stream.current();
-        if(/^=>?$/.test(cur)){
+        if (/^=>?$/.test(cur)){
           state.extenExten = true;
           state.extenStart = false;
           return "strong";
@@ -138,37 +138,37 @@ CodeMirror.defineMode("asterisk", function() {
           stream.skipToEnd();
           return "error";
         }
-      } else if(state.extenExten) {
+      } else if (state.extenExten) {
         // set exten and priority
         state.extenExten = false;
         state.extenPriority = true;
         stream.eatWhile(/[^,]/);
-        if(state.extenInclude) {
+        if (state.extenInclude) {
           stream.skipToEnd();
           state.extenPriority = false;
           state.extenInclude = false;
         }
-        if(state.extenSame) {
+        if (state.extenSame) {
           state.extenPriority = false;
           state.extenSame = false;
           state.extenApplication = true;
         }
         return "tag";
-      } else if(state.extenPriority) {
+      } else if (state.extenPriority) {
         state.extenPriority = false;
         state.extenApplication = true;
         ch = stream.next(); // get comma
-        if(state.extenSame) return null;
+        if (state.extenSame) return null;
         stream.eatWhile(/[^,]/);
         return "number";
-      } else if(state.extenApplication) {
+      } else if (state.extenApplication) {
         stream.eatWhile(/,/);
         cur = stream.current();
-        if(cur === ',') return null;
+        if (cur === ',') return null;
         stream.eatWhile(/\w/);
         cur = stream.current().toLowerCase();
         state.extenApplication = false;
-        if(apps.indexOf(cur) !== -1){
+        if (apps.indexOf(cur) !== -1){
           return "def strong";
         }
       } else{

@@ -34,7 +34,7 @@
     var completionList = getCompletions(token, context);
     completionList = completionList.sort();
     //prevent autocomplete for last word, instead show dropdown with one word
-    if(completionList.length == 1) {
+    if (completionList.length == 1) {
       completionList.push(" ");
     }
 
@@ -88,7 +88,7 @@
     }
 
     function gatherCompletions(obj) {
-      if(obj == ":") {
+      if (obj == ":") {
         forEach(pigTypesL, maybeAdd);
       }
       else {
@@ -109,7 +109,7 @@
 
       if (obj.type == "variable")
           base = obj.string;
-      else if(obj.type == "variable-3")
+      else if (obj.type == "variable-3")
           base = ":" + obj.string;
 
       while (base != null && context.length)

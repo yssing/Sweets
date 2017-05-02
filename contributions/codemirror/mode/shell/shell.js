@@ -53,7 +53,7 @@ CodeMirror.defineMode('shell', function() {
     }
     if (/\d/.test(ch)) {
       stream.eatWhile(/\d/);
-      if(!/\w/.test(stream.peek())) {
+      if (!/\w/.test(stream.peek())) {
         return 'number';
       }
     }

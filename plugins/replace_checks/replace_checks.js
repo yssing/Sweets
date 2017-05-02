@@ -1,5 +1,5 @@
-var imgFalse = '/plugins/replace_checks/box.png';
-var imgTrue = '/plugins/replace_checks/tick.png';
+var checkFalse = '/plugins/replace_checks/box.png';
+var checkTrue = '/plugins/replace_checks/tick.png';
 
 /** replaces checkboxes with images **/
 function replaceChecks() {
@@ -8,14 +8,14 @@ function replaceChecks() {
 	//cycle trough the input fields
 	for(var i=0; i < inputs.length; i++) {
 		//check if the input is a checkbox
-		if(inputs[i].getAttribute('type') == 'checkbox') {		  
+		if (inputs[i].getAttribute('type') == 'checkbox') {		  
 			//create a new image
 			var img = document.createElement('img');
 			//check if the checkbox is checked
-			if(inputs[i].checked) {
-				img.src = imgTrue;
+			if (inputs[i].checked) {
+				img.src = checkTrue;
 			} else {
-				img.src = imgFalse;
+				img.src = checkFalse;
 			}
 			//set image ID and onclick action
 			img.id = 'checkImage'+i;
@@ -32,12 +32,12 @@ function replaceChecks() {
 
 //change the checkbox status and the replacement image
 function checkChange(i) {
-	if(inputs[i].checked) {
+	if (inputs[i].checked) {
 		inputs[i].checked = '';
-		document.getElementById('checkImage'+i).src=imgFalse;
+		document.getElementById('checkImage'+i).src=checkFalse;
 	} else {
 		inputs[i].checked = 'checked';
-		document.getElementById('checkImage'+i).src=imgTrue;
+		document.getElementById('checkImage'+i).src=checkTrue;
 	}
 }
 

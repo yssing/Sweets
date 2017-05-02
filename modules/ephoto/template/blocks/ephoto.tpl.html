@@ -1,0 +1,65 @@
+<style>
+	#photolist{
+		list-style-type:none; 
+	}
+	
+	#photolist ul {
+		margin-left: 25px;
+		list-style-type:none;
+	}
+	
+	.ephoto_dates{
+		height: 440px;
+		overflow: auto;
+		margin: 10px 0 10px;
+	}
+	
+	.ephoto_thumbnails{
+		height: 440px;
+		overflow: auto;
+		margin: 10px 0 10px;
+		text-align: center;		
+	}
+	
+	.ephoto_discription{
+		width: 100%;
+		text-align: center;
+		margin-bottom: 20px;
+	}
+	
+	.ephoto_thumbnails .ephoto-spinner{
+		margin-top: 150px;
+	}
+	
+	.ephoto input[type="file"]{
+		margin-bottom: 10px;
+	}
+</style>
+
+<div class="col-md-12 box">
+	<div class="col-md-3">
+		<div class="col-md-12 box">
+			<div class="input-group">
+				<input class="form-control login-input-addon" type="text" name="ephoto_search" id="ephoto_search" placeholder="Søg på">
+				<span class="input-group-addon" id="check_pw"> <img src="/modules/ephoto/template/icons/view.png"> </span>
+			</div>
+		</div>
+		<div class="col-md-12 ephoto_dates">
+			<input type="hidden" id="ephoto_selectorId" value="[EPHOTO_SELECTORID]">
+			<input type="hidden" id="ephoto_selectorType" value="[EPHOTO_SELECTORTYPE]">
+			[EPHOTO_LIST_DATES]
+		</div>
+	</div>
+	<div class="col-md-9">
+		<div class="col-md-12 ephoto_thumbnails" id="ephoto_thumbnails">
+			[EPHOTO_SHOW_THUMBNAILS]
+		</div>
+		<div class="col-md-12 ephoto_discription" id="ephoto_discription">
+			[EPHOTO_DESCRIPTION]
+		</div>
+	</div>
+</div>
+<br>
+<div class="col-md-12 box ephoto">
+	[EPHOTO_UPLOAD_FORM]
+</div>

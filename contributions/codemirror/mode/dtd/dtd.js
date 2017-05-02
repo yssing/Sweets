@@ -22,14 +22,14 @@ CodeMirror.defineMode("dtd", function(config) {
       return ret("meta", ch);
     } else if (ch == "#" && stream.eatWhile(/[\w]/)) return ret("atom", "tag");
     else if (ch == "|") return ret("keyword", "seperator");
-    else if (ch.match(/[\(\)\[\]\-\.,\+\?>]/)) return ret(null, ch);//if(ch === ">") return ret(null, "endtag"); else
+    else if (ch.match(/[\(\)\[\]\-\.,\+\?>]/)) return ret(null, ch);//if (ch === ">") return ret(null, "endtag"); else
     else if (ch.match(/[\[\]]/)) return ret("rule", ch);
     else if (ch == "\"" || ch == "'") {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     } else if (stream.eatWhile(/[a-zA-Z\?\+\d]/)) {
       var sc = stream.current();
-      if( sc.substr(sc.length-1,sc.length).match(/\?|\+/) !== null )stream.backUp(1);
+      if ( sc.substr(sc.length-1,sc.length).match(/\?|\+/) !== null )stream.backUp(1);
       return ret("tag", "tag");
     } else if (ch == "%" || ch == "*" ) return ret("number", "number");
     else {
@@ -99,22 +99,22 @@ CodeMirror.defineMode("dtd", function(config) {
     indent: function(state, textAfter) {
       var n = state.stack.length;
 
-      if( textAfter.match(/\]\s+|\]/) )n=n-1;
-      else if(textAfter.substr(textAfter.length-1, textAfter.length) === ">"){
-        if(textAfter.substr(0,1) === "<")n;
-        else if( type == "doindent" && textAfter.length > 1 )n;
-        else if( type == "doindent")n--;
-        else if( type == ">" && textAfter.length > 1)n;
-        else if( type == "tag" && textAfter !== ">")n;
-        else if( type == "tag" && state.stack[state.stack.length-1] == "rule")n--;
-        else if( type == "tag")n++;
-        else if( textAfter === ">" && state.stack[state.stack.length-1] == "rule" && type === ">")n--;
-        else if( textAfter === ">" && state.stack[state.stack.length-1] == "rule")n;
-        else if( textAfter.substr(0,1) !== "<" && textAfter.substr(0,1) === ">" )n=n-1;
-        else if( textAfter === ">")n;
+      if ( textAfter.match(/\]\s+|\]/) )n=n-1;
+      else if (textAfter.substr(textAfter.length-1, textAfter.length) === ">"){
+        if (textAfter.substr(0,1) === "<")n;
+        else if ( type == "doindent" && textAfter.length > 1 )n;
+        else if ( type == "doindent")n--;
+        else if ( type == ">" && textAfter.length > 1)n;
+        else if ( type == "tag" && textAfter !== ">")n;
+        else if ( type == "tag" && state.stack[state.stack.length-1] == "rule")n--;
+        else if ( type == "tag")n++;
+        else if ( textAfter === ">" && state.stack[state.stack.length-1] == "rule" && type === ">")n--;
+        else if ( textAfter === ">" && state.stack[state.stack.length-1] == "rule")n;
+        else if ( textAfter.substr(0,1) !== "<" && textAfter.substr(0,1) === ">" )n=n-1;
+        else if ( textAfter === ">")n;
         else n=n-1;
         //over rule them all
-        if(type == null || type == "]")n--;
+        if (type == null || type == "]")n--;
       }
 
       return state.baseIndent + n * indentUnit;

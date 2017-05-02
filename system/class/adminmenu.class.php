@@ -38,6 +38,10 @@ class adminmenu {
 	 * the folders that has "control" as part of the name will be listed, with a link
 	 * to the folder with a list action.
 	 *
+	 * If a menu.json file is found in the root of a module folder, then this is used
+	 * to create the menu for that module instead of scanning through the folders to create
+	 * links to the controllers
+	 *
 	 * @param string $dir The directory to look in.
 	 *
 	 * @return string the admin menu.	 
@@ -47,10 +51,13 @@ class adminmenu {
 	 * @since Method available since Release 1.0.0	
 	 */
 	public static function createMenu($dir){
+		if (!baseclass::$adminid){
+			return '';
+		}
 		$header = '';
 		$folders = scandir($dir);
 		foreach($folders as $folder){
-			if(	$folder != '.' && 
+			if ($folder != '.' && 
 				$folder != '..' && 
 				$folder != 'contributions' &&
 				$folder != 'uploads' &&
@@ -61,18 +68,32 @@ class adminmenu {
 				$folder != 'cache' &&
 				$folder != 'audio' &&
 				$folder != 'common' ){
-				if(is_dir($dir.'/'.$folder)) {		
-					if(strpos($folder, 'control')){
-						$tmpdir = str_replace($_SERVER['DOCUMENT_ROOT'],'',$dir);
-						if($tmpdir != $header){
-							$headline = explode('/',$tmpdir);
-							self::$adminmenu .= '<li class="headline">'.$headline[(sizeof($headline)-1)].'</li>';
+
+				if (is_dir($dir.'/'.$folder)) {
+					if (is_file($dir.'/'.$folder.'/menu.json')){
+						$json = json_decode(file_get_contents($dir.'/'.$folder.'/menu.json',false), true);
+						if (is_array($json)){
+							foreach($json as $key => $value){
+								self::$adminmenu .= '<li class="headline">'.$key.'</li>';
+								
+								foreach($value as $key => $value){
+									self::$adminmenu .= '<li><a href="/modules/'.$folder.'/'.$value.'/list">'.$key.'</a></li>';									
+								}								
+							}
+						}						
+					} else {
+						if (strpos($folder, 'control')){
+							$tmpdir = str_replace($_SERVER['DOCUMENT_ROOT'],'',$dir);
+							if ($tmpdir != $header){
+								$headline = explode('/',$tmpdir);
+								self::$adminmenu .= '<li class="headline">'.$headline[(sizeof($headline)-1)].'</li>';
+							}
+							$header = $tmpdir;
+							$foldername = str_replace('control','',$folder);
+							self::$adminmenu .= '<li><a href="'.PATH_WEB.'/'.$tmpdir.'/'.$foldername.'/list">'.$foldername.'</a></li>';
 						}
-						$header = $tmpdir;
-						$foldername = str_replace('control','',$folder);
-						self::$adminmenu .= '<li><a href="'.PATH_WEB.'/'.$tmpdir.'/'.$foldername.'/list">'.$foldername.'</a></li>';
+						self::createMenu($dir.'/'.$folder);
 					}
-					self::createMenu($dir.'/'.$folder);
 				}
 			}
 		}
@@ -83,7 +104,7 @@ class adminmenu {
 		$menuList = '<ul class="adminmenu">';
 		$menuList .= self::$adminmenu;
 		$menuList .= '<li class="headline">'.language::readType('LANGUAGE').'</li>';
-		$menuList .= '<li>'.userlanguage::listFlags().'</li>';
+		$menuList .= '<li>'.language::listFlags().'</li>';
 		$menuList .= '</ul>';
 		return $menuList;
 	}

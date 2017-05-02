@@ -19,7 +19,7 @@ class yahoo_user_class
 
 	Function SetupHTTP()
 	{
-		if(!IsSet($this->http))
+		if (!IsSet($this->http))
 		{
 			$this->http = new http_class;
 			$this->http->follow_redirect = 1;
@@ -32,15 +32,15 @@ class yahoo_user_class
 
 	Function OpenRequest($arguments, &$headers)
 	{
-		if(strlen($this->error=$this->http->Open($arguments)))
+		if (strlen($this->error=$this->http->Open($arguments)))
 			return(0);
-		if(strlen($this->error=$this->http->SendRequest($arguments))
+		if (strlen($this->error=$this->http->SendRequest($arguments))
 		|| strlen($this->error=$this->http->ReadReplyHeaders($headers)))
 		{
 			$this->http->Close();
 			return(0);
 		}
-		if($this->http->response_status!=200)
+		if ($this->http->response_status!=200)
 		{
 			$this->error = 'the HTTP request returned the status '.$this->http->response_status;
 			$this->http->Close();
@@ -53,12 +53,12 @@ class yahoo_user_class
 	{
 		for($response = ''; ; )
 		{
-			if(strlen($this->error=$this->http->ReadReplyBody($body, $this->response_buffer_length)))
+			if (strlen($this->error=$this->http->ReadReplyBody($body, $this->response_buffer_length)))
 			{
 				$this->http->Close();
 				return(0);
 			}
-			if(strlen($body)==0)
+			if (strlen($body)==0)
 				break;
 			$response .= $body;
 		}
@@ -68,14 +68,14 @@ class yahoo_user_class
 
 	Function GetRequest($arguments, &$response)
 	{
-		if(!$this->OpenRequest($arguments, $headers))
+		if (!$this->OpenRequest($arguments, $headers))
 			return(0);
 		return($this->GetRequestResponse($response));
 	}
 
 	Function Login(&$parameters)
 	{
-		if(strlen($this->user)
+		if (strlen($this->user)
 		&& !strcmp($this->logged_user, $this->user))
 			return(1);
 		$this->logged_user = '';
@@ -83,10 +83,10 @@ class yahoo_user_class
 		$url='http://login.yahoo.com/';
 		$this->http->GetRequestArguments($url, $arguments);
 		$arguments['RequestMethod']='GET';
-		if(!$this->GetRequest($arguments, $response))
+		if (!$this->GetRequest($arguments, $response))
 			return(0);
 		$redirect = (IsSet($parameters['GetPage']) ? $parameters['GetPage'] : 'http://my.yahoo.com/');
-		if(!preg_match('/<input type="hidden" name="\\.u" value="([^"]*)">.*<input type="hidden" name="\\.challenge" value="([^"]*)">/s', $response, $matches))
+		if (!preg_match('/<input type="hidden" name="\\.u" value="([^"]*)">.*<input type="hidden" name="\\.challenge" value="([^"]*)">/s', $response, $matches))
 		{
 			$this->error = 'unexpected Yahoo login page contents';
 			return(0);
@@ -123,9 +123,9 @@ class yahoo_user_class
 			'.persistent'=>'y',
 		);
 		$arguments['Headers']['Referer']= 'http://login.yahoo.com/';
-		if(!$this->GetRequest($arguments, $response))
+		if (!$this->GetRequest($arguments, $response))
 			return(0);
-		if(GetType(strpos($response, '<meta http-equiv="Refresh" content="0; url='.$redirect.'">'))!='integer')
+		if (GetType(strpos($response, '<meta http-equiv="Refresh" content="0; url='.$redirect.'">'))!='integer')
 		{
 			$this->error = 'the login page does not redirect to the expected page';
 			return(0);
@@ -133,9 +133,9 @@ class yahoo_user_class
 		$this->http->GetRequestArguments($redirect, $arguments);
 		$arguments['RequestMethod']='GET';
 		$arguments['Headers']['Referer']= $url;
-		if(!$this->GetRequest($arguments, $response))
+		if (!$this->GetRequest($arguments, $response))
 			return(0);
-		if(IsSet($parameters['GetPage']))
+		if (IsSet($parameters['GetPage']))
 		{
 			$parameters['Response']=$response;
 			$parameters['GetPage']=$this->http->protocol.'://'.$this->http->host_name.$this->http->request_uri;
@@ -147,9 +147,9 @@ class yahoo_user_class
 	Function ExportAddressBook(&$parameters)
 	{
 		$login_parameters = array();
-		if(!$this->Login($login_parameters))
+		if (!$this->Login($login_parameters))
 			return(0);
-		if(strlen($this->logged_user)==0)
+		if (strlen($this->logged_user)==0)
 			return(1);
 		$url='http://address.yahoo.com/yab/us/Yahoo.csv?A=Y&Yahoo.csv';
 		$this->http->GetRequestArguments($url, $arguments);
@@ -158,15 +158,15 @@ class yahoo_user_class
 			'submit[action_export_yahoo]'=>'Export Now'
 		);
 		$arguments['Headers']['Referer']= 'http://address.yahoo.com/?A=B';
-		if(!$this->OpenRequest($arguments, $headers))
+		if (!$this->OpenRequest($arguments, $headers))
 			return(0);
-		if(!IsSet($headers['content-type'])
+		if (!IsSet($headers['content-type'])
 		|| strcmp(trim(strtok($headers['content-type'], ';')), 'text/csv'))
 		{
 			$this->error = 'Yahoo did not return the address book in CSV format as expected';
 			return(0);
 		}
-		if(!$this->GetRequestResponse($response))
+		if (!$this->GetRequestResponse($response))
 			return(0);
 		$parameters['Data']=$response;
 		return(1);
@@ -176,9 +176,9 @@ class yahoo_user_class
 	{
 		$url='http://groups.yahoo.com/group/'.$group.'/subs_invite';
 		$login_parameters = array('GetPage'=>$url);
-		if(!$this->Login($login_parameters))
+		if (!$this->Login($login_parameters))
 			return(0);
-		if(strlen($this->logged_user)==0)
+		if (strlen($this->logged_user)==0)
 			return(1);
 		$url=$login_parameters['GetPage'];
 		$this->http->GetRequestArguments($url, $arguments);
@@ -189,21 +189,21 @@ class yahoo_user_class
 			'submit_request'=>'Submit Invite'
 		);
 		$arguments['Headers']['Referer']= $url;
-		if(!$this->GetRequest($arguments, $response))
+		if (!$this->GetRequest($arguments, $response))
 			return(0);
-		if(!preg_match('/<input type="hidden" name="ycb" value="([^"]*)">/', $response, $matches))
+		if (!preg_match('/<input type="hidden" name="ycb" value="([^"]*)">/', $response, $matches))
 		{
-			if(GetType(strpos($response, 'No valid email addresses found in your request.'))=='integer')
+			if (GetType(strpos($response, 'No valid email addresses found in your request.'))=='integer')
 				$this->error = 'it were not specified any users with valid e-mail addresses';
-			elseif(GetType(strpos($response, 'Please enter message to introduce these people to your group.'))=='integer')
+			elseif (GetType(strpos($response, 'Please enter message to introduce these people to your group.'))=='integer')
 				$this->error = 'it was not specified a valid invitation welcome message';
-			elseif(GetType(strpos($response, '<h3>Group Not Found</h3>'))=='integer')
+			elseif (GetType(strpos($response, '<h3>Group Not Found</h3>'))=='integer')
 				$this->error = 'it was specified an inexisting group';
-			elseif(GetType(strpos($response, '<h4>You\'ve reached an Age-Restricted Area of Yahoo! Groups</h4>'))=='integer')
+			elseif (GetType(strpos($response, '<h4>You\'ve reached an Age-Restricted Area of Yahoo! Groups</h4>'))=='integer')
 				$this->error = 'it was specified an age restricted group';
-			elseif(GetType(strpos($response, 'You are not a moderator of the group <b>'.$group.'</b>.'))=='integer')
+			elseif (GetType(strpos($response, 'You are not a moderator of the group <b>'.$group.'</b>.'))=='integer')
 				$this->error = 'it was specified a group of which the user '.$this->logged_user.' is not moderator';
-			elseif(preg_match('|<p>([0-9]+) members need to be fixed for the following reasons:</p>|', $response, $matches))
+			elseif (preg_match('|<p>([0-9]+) members need to be fixed for the following reasons:</p>|', $response, $matches))
 				$this->error = 'it were specified invalid users ('.$matches[1].')';
 			else
 				$this->error = 'it was not possible to send the group invitations';
@@ -216,11 +216,11 @@ class yahoo_user_class
 			'ycb' => $ycb,
 			'submit_invite'=>'Invite People'
 		);
-		if(!$this->GetRequest($arguments, $response))
+		if (!$this->GetRequest($arguments, $response))
 			return(0);
-		if(!preg_match('|<li>Total invited: &nbsp;([0-9]+)</li>|', $response, $matches))
+		if (!preg_match('|<li>Total invited: &nbsp;([0-9]+)</li>|', $response, $matches))
 		{
-			if(GetType(strpos($response, '<h4>You\'ve reached an Age-Restricted Area of Yahoo! Groups</h4>'))=='integer')
+			if (GetType(strpos($response, '<h4>You\'ve reached an Age-Restricted Area of Yahoo! Groups</h4>'))=='integer')
 				$this->error = 'it was specified an age restricted group';
 			else
 				$this->error = 'it was not possible to send the group invitations';

@@ -24,7 +24,7 @@
 	$client->client_id = ''; $application_line = __LINE__;
 	$client->client_secret = '';
 
-	if(strlen($client->client_id) == 0
+	if (strlen($client->client_id) == 0
 	|| strlen($client->client_secret) == 0)
 		die('Please go to Box.net developer applications page '.
 			'https://www.box.com/developers/services , create a new application '.
@@ -35,16 +35,16 @@
 	/* API permissions
 	 */
 	$client->scope = '';
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
-		if(($success = $client->Process()))
+		if (($success = $client->Process()))
 		{
-			if(strlen($client->authorization_error))
+			if (strlen($client->authorization_error))
 			{
 				$client->error = $client->authorization_error;
 				$success = false;
 			}
-			elseif(strlen($client->access_token))
+			elseif (strlen($client->access_token))
 			{
 				$success = $client->CallAPI(
 					'https://api.box.com/2.0/users/me',
@@ -53,9 +53,9 @@
 		}
 		$success = $client->Finalize($success);
 	}
-	if($client->exit)
+	if ($client->exit)
 		exit;
-	if($success)
+	if ($success)
 	{
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

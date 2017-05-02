@@ -1,0 +1,35 @@
+.js-progress-bar{
+	width: 100%;
+	height: 35px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	
+	& td{
+		padding: 5px;
+	}
+	
+	.circle{
+		float: left;
+		width: 25px !important;
+		height: 25px;
+		background-color: @background-color;
+		.boxshadow-inset(inset,1px,1px,1px,1px,rgba(000,000,000,0.2));
+		.radius(20px);
+	}
+	
+	.circle-active{
+		float: left;
+		width: 25px !important;
+		height: 25px;
+		background-color: @header-background;
+		.boxshadow-inset(inset,1px,1px,1px,1px,rgba(000,000,000,0.2));
+		.radius(20px);
+	}
+	
+	.circle-line{
+		background: @background-color;
+		float: left;
+		height: 2px;
+		width: 100%;
+	}	
+}

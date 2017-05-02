@@ -17,7 +17,7 @@
 	$client->client_id = ''; $application_line = __LINE__;
 	$client->client_secret = '';
 
-	if(strlen($client->client_id) == 0
+	if (strlen($client->client_id) == 0
 	|| strlen($client->client_secret) == 0)
 		die('Please go to Microsoft Live Connect Developer Center page '.
 			'https://manage.dev.live.com/AddApplication.aspx and create a new'.
@@ -29,16 +29,16 @@
 	/* API permissions
 	 */
 	$client->scope = 'wl.basic wl.emails';
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
-		if(($success = $client->Process()))
+		if (($success = $client->Process()))
 		{
-			if(strlen($client->authorization_error))
+			if (strlen($client->authorization_error))
 			{
 				$client->error = $client->authorization_error;
 				$success = false;
 			}
-			elseif(strlen($client->access_token))
+			elseif (strlen($client->access_token))
 			{
 				$success = $client->CallAPI(
 					'https://apis.live.net/v5.0/me',
@@ -47,9 +47,9 @@
 		}
 		$success = $client->Finalize($success);
 	}
-	if($client->exit)
+	if ($client->exit)
 		exit;
-	if($success)
+	if ($success)
 	{
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

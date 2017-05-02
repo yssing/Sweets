@@ -23,7 +23,7 @@
        
        function __construct($url=false)
        {
-       if(!$url)
+       if (!$url)
        { return; }
        $this->ok=true;
        
@@ -44,13 +44,13 @@
        
        protected function get($url=false)
        {
-       if(!$url)
+       if (!$url)
        {
        $this->error='You have not defined a url to process';
        return false;
        }
        $data= @file_get_contents($url);
-       if(!$data)
+       if (!$data)
        {
        $this->error='We could not fetch' . $url .'.It might be unavailable';
        return false;
@@ -66,7 +66,7 @@
        
        function clean($html=false)
        {
-       if(!$html)
+       if (!$html)
        {
        $this->error='You need to specify the html before you can clean it';
        return false;
@@ -112,7 +112,7 @@
        function textDetails($text=false)
        {
        
-       if(!$text)
+       if (!$text)
        {
        $text=$this->page;
        }else{
@@ -128,16 +128,16 @@
    //Get word count
        $this->textDetails['words'] =str_word_count($text);
        
-       if($this->textDetails['words'] <180)
+       if ($this->textDetails['words'] <180)
        {
        $msg=' <code style="color:red;">which is way below the recommended number.</code><br/>';
        }
        
-       elseif($this->textDetails['words'] <300)
+       elseif ($this->textDetails['words'] <300)
        {
        $msg=' <code style=style="color:#FF2525;">which is almost the recommended lenght.Add more usefull content.</code><br/>';
        }
-       elseif($this->textDetails['words'] <400)
+       elseif ($this->textDetails['words'] <400)
        {
        $msg='.<code style="color:brown;">Your content has the required number of words.</code><br/>';
        }
@@ -184,27 +184,27 @@
        
        $this->textDetails['fleschGrade']=round((.39 * $this->textDetails['averageWordsPerSentence']) + (11.8 * $this->textDetails['averageSyllablesPerWord']) - 15.59);
        
-       if($this->textDetails['fleschScore'] <30)
+       if ($this->textDetails['fleschScore'] <30)
        {
        $msg=' very hard ';
        }
        
-       elseif($this->textDetails['fleschScore'] <45)
+       elseif ($this->textDetails['fleschScore'] <45)
        {
        $msg=' fairly hard ';
        }
        
-       elseif($this->textDetails['fleschScore'] <60)
+       elseif ($this->textDetails['fleschScore'] <60)
        {
        $msg=' fairly easy ';
        }
        
-       elseif($this->textDetails['fleschScore'] <80)
+       elseif ($this->textDetails['fleschScore'] <80)
        {
        $msg=' easy ';
        }
        
-       elseif($this->textDetails['fleschScore'] >79)
+       elseif ($this->textDetails['fleschScore'] >79)
        {
        $msg=' very easy ';
        }
@@ -265,7 +265,7 @@
        function getreport($return=false)
        {
        
-       if(!$this->ok)
+       if (!$this->ok)
        {
        echo $this->error;
        return false;
@@ -283,7 +283,7 @@
        
        $report .= $rankinfo . '<br>' . $pageanalysis . '</div>';
        
-       if(!$return)
+       if (!$return)
        {
        echo $report;
        return true;
@@ -295,7 +295,7 @@
        
        function getRankInfo($domain=false)
        {
-       if(!$domain)
+       if (!$domain)
        {
        $domain=$this->url;
        }
@@ -384,7 +384,7 @@
        ),
        '',$url);
        
-       if(preg_match('#^www.(.*)#i',$domain))
+       if (preg_match('#^www.(.*)#i',$domain))
        {
        $domain=preg_replace('#www.#i','',$domain);
        }

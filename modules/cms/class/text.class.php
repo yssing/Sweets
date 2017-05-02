@@ -26,7 +26,39 @@
  * @require		'database.class.php'
  */
  
-class text{
+class text extends template{	
+
+	/**
+     * This method creates a metadata icon list.
+	 *
+	 * @param integer $textid Text id.
+	 *
+	 * @return string result on success.	 
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0
+     */	
+	public static function getMetaData($textid){
+		$return = '';
+		if ($meta = textmeta::readMetaData($textid)){
+			$return .= '<div class="metaicons">';
+			list($speech,$mail,$pdf,$print) = $meta;
+			if ($speech){
+				$return .= '<a href="javascript:speechtext('.$textid.')" data-placement="bottom" data-toggle="tooltip" data-original-title="'.language::readType('TEXT_TO_SPEECH').'"><img src="/template/'.template::getTheme().'/icon/speak.png" border="0"></a>';
+			}
+			if ($pdf){
+				$return .= '<a href="/modules/cms/pdf/export/'.$textid.'" target="_blank" data-placement="bottom" data-toggle="tooltip" data-original-title="'.language::readType('TEXT_TO_PDF').'"><img src="/template/'.template::getTheme().'/icon/pdf.png" border="0"></a>';
+			}
+			if ($mail){
+				$return .= '<a href="javascript:mailtext('.$textid.')" data-placement="bottom" data-toggle="tooltip" data-original-title="'.language::readType('MAIL_TEXT').'"><img src="/template/'.template::getTheme().'/icon/mail.png" border="0"></a>';
+			}
+			if ($print){
+				$return .= '<a href="javascript:printDiv(\'text_'.$textid.'\')" data-placement="bottom" data-toggle="tooltip" data-original-title="'.language::readType('PRINT_TEXT').'"><img src="/template/'.template::getTheme().'/icon/print.png" border="0"></a>';
+			}
+			$return .= '</div>';
+		}
+		return $return;
+	}
 	
 	/**
      * This method creates a text entry in the database.
@@ -41,31 +73,18 @@ class text{
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */	
-	public static function createText($headline,$body,$key,$language = STD_LANGUAGE){
-		$database = new database('cms_text');
-		$data = array("Headline" => "'".$headline."'",
-			"BodyText" => "'".$body."'",
-			"TextKey" => "'".$key."'",
-			"Language" => "'".$language."'");			
-		if(!$database->create($data)){
-			return false;
-		}	
+	public static function createText($key,$headline,$body,$language = STD_LANGUAGE){
+		$dbobject = new dbobject('cms_text');
+		$dbobject->create('TextKey',$key);
+		$dbobject->create('Headline',$headline);
+		$dbobject->create('BodyText',$body);
+		$dbobject->create('Language',$language);
+		if ($dbobject->commit()){
+			return $dbobject->readLastEntry();
+		} 
+		return false;
 	}
 
-	/**
-     * This method finds the newest entry in the text table.
-	 *
-	 * @return int/bool id on success or false on failure.	 
-	 *
-	 * @access public
-	 * @since Method available since Release 1.0.0
-     */		
-	public static function findlast(){
-		$database = new database('cms_text');
-		list($id) = $database->readLastEntry();
-		return $id;
-	}
-	
 	/**
      * This method updates a text with all the current parameters.
 	 *
@@ -74,37 +93,65 @@ class text{
 	 * @param string $headline Text headline.
 	 * @param string $body The main text.
 	 *
-	 * @return bool true on success or false on failure.	 
+	 * @return bool true on success or false on failure.
 	 *
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */
 	public static function updateText($textid,$key,$headline,$body,$language = STD_LANGUAGE){
-		$database = new database('cms_text');
-		$data = array("Headline" => "'".$headline."'",
-			"Headline" => "'".$headline."'",
-			"BodyText" => "'".$body."'",
-			"TextKey" => "'".$key."'",
-			"Language" => "'".$language."'");
-		return $database->update($data,"PK_TextID = ".$textid);
+		$dbobject = new dbobject('cms_text');
+		$dbobject->update('TextKey',$key);
+		$dbobject->update('Headline',$headline);
+		$dbobject->update('BodyText',$body);
+		$dbobject->update('Language',$language);
+		$dbobject->where("PK_TextID",$textid);
+		return $dbobject->commit();
 	}	
 	
 	/**
      * This method reads and returns the text table.
 	 *
+	 * @param String $searchval If any wildcard search is done.
+	 *	 
 	 * @return array/bool The table on succes false on failure.	 
 	 *
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public static function listText(){
-		$database = new database('cms_text');
-		return $database->read("PK_TextID,TextKey,Headline,Language,CreateDate","Language = '".$_SESSION['CountryCode']."'","Headline");
+	public static function listText($searchval = ''){
+		$dbobject = new dbobject('cms_text');
+		$dbobject->read("PK_TextID");
+		$dbobject->read("TextKey");
+		$dbobject->read("Headline");
+		$dbobject->read("Language");
+		$dbobject->read("CreateDate");
+		if ($searchval){
+			$dbobject->wildcard("Headline",$searchval);
+			$dbobject->wildcard("TextKey",$searchval);
+		}
+		$dbobject->where("Language",language::get());
+		$dbobject->orderby("Headline");
+		return $dbobject->fetch();
 	}	
 	
 	/**
+	 * This function simply replaces whitespace with an underscore
+	 * It also prepend the result with a '/' backslash
+	 *
+	 * @param string $string The text to do the SEO optimisation
+	 *
+	 * @return string The resulting string.	 
+	 *
+	 * @access public
+	 * @since Method available since Release 07-03-2017
+     */
+	public static function SEOHeader($string){
+		$string = str_replace(' ', '_', $string);
+		return '/'.$string;
+	}
+	
+	/**
      * This method finds all the information relating to the id given.
-	 * It also replaces the '../' path with the proper http path.
 	 *
 	 * @param int $textid The id to the table to the table.
 	 *
@@ -114,18 +161,26 @@ class text{
 	 * @since Method available since Release 1.0.0
      */
 	public static function readText($textid){
-		$database = new database('cms_text');
-		list($id,$key,$headline,$bodytext,$language) = $database->readSingle("PK_TextID,TextKey,Headline,BodyText,Language","PK_TextID = ".$textid." AND Language = '".$_SESSION['CountryCode']."'");
-		$bodytext = str_replace('../','/',$bodytext);
-		if(!$language){
-			$language = $_SESSION['CountryCode'];
+		$dbobject = new dbobject('cms_text');
+		$dbobject->read("PK_TextID");
+		$dbobject->read("TextKey");
+		$dbobject->read("Headline");
+		$dbobject->read("BodyText");
+		$dbobject->read("Language");
+		if (is_numeric($textid)){
+			$dbobject->where("PK_TextID",$textid);
+		} else {
+			$dbobject->where("TextKey",$textid);
 		}
-		return array($id,$key,$headline,$bodytext,$language);
+		return $dbobject->fetchSingle();
 	}
 
 	/**
      * This method finds all the information relating to the given key.
-	 * It also replaces the '../' path with the proper http path.
+	 * It also checks for text meta and add the options, that are described 
+	 * in the meta data.
+	 *
+	 * This should probably be in a template block instead.
 	 *
 	 * @param string $TextKey The key to the table.
 	 *
@@ -135,16 +190,40 @@ class text{
 	 * @since Method available since Release 1.0.0
      */
 	public static function readTextByKey($key){
-		if(!$key){
+		if (!$key){
 			return false;
-		}	
-		$language = (isset($_SESSION['CountryCode'])) ? $_SESSION['CountryCode'] : STD_LANGUAGE;
-		$database = new database('cms_text');
-		if($bodytext = $database->readSingle("BodyText","TextKey = '".$key."' AND Language = '".$language."'")){
-			list($bodytext) = $bodytext;
-			return $bodytext;
 		}
-		return false;
+		$return = '';
+		$dbobject = new dbobject('cms_text');	
+		$dbobject->read("BodyText");	
+		$dbobject->read("PK_TextID");	
+		$dbobject->where("TextKey",$key);
+		$dbobject->where("Language",language::get());
+		$obj = $dbobject->fetchSingle('FETCH_ASSOC');
+		if ($obj["BodyText"]){
+
+			if (isset($_REQUEST['editmode'])){
+				if ($_REQUEST['editmode']){
+					self::turnOnEdit();
+				} else {
+					self::turnOffEdit();
+				}
+			}
+		
+			$return .= '<div id="text_'.$obj["PK_TextID"].'">';
+			$return .= self::getMetaData($obj["PK_TextID"]);
+
+			if (self::$editmode && self::$adminid){
+				$return .='<div class="editline"><span class="editicon">
+				<a href="javascript:editText(\''.$obj["PK_TextID"].'\')">'.language::readType('EDIT').'</a></span>'.$obj["BodyText"].'</div>';
+			} else {
+				$return .= $obj["BodyText"];
+			}			
+
+			$return .= '</div>';
+			return $return;		
+		}
+		return '{{'.$key.'}}';
 	}
 	
 	/**
@@ -155,14 +234,13 @@ class text{
 	 * @return bool True on success or false on failure.	 
 	 *
 	 * @access public
-	 * @since Method available since Release 1.0.0
+	 * @since Method available since Release 1.0.0	
      */		
 	public static function destroyText($textid){
-		$database = new database('cms_text');
-		if(!$database->destroy("PK_TextID = ".$textid)){
-			return false;
-		}
-		return true;
+		$dbobject = new dbobject('cms_text');
+		$dbobject->destroy();
+		$dbobject->where("PK_TextID",$textid);
+		return $dbobject->commit();		
 	}
 }
 ?>

@@ -473,12 +473,12 @@ CodeMirror.defineMode("perl",function(){
                 state.tokenize=function(stream,state){
                         var e=false,c,i=0;
                         while(c=stream.next()){
-                                if(c===chain[i]&&!e){
-                                        if(chain[++i]!==undefined){
+                                if (c===chain[i]&&!e){
+                                        if (chain[++i]!==undefined){
                                                 state.chain=chain[i];
                                                 state.style=style;
                                                 state.tail=tail;}
-                                        else if(tail)
+                                        else if (tail)
                                                 stream.eatWhile(tail);
                                         state.tokenize=tokenPerl;
                                         return style;}
@@ -488,277 +488,277 @@ CodeMirror.defineMode("perl",function(){
 
         function tokenSOMETHING(stream,state,string){
                 state.tokenize=function(stream,state){
-                        if(stream.string==string)
+                        if (stream.string==string)
                                 state.tokenize=tokenPerl;
                         stream.skipToEnd();
                         return "string";};
                 return state.tokenize(stream,state);}
 
         function tokenPerl(stream,state){
-                if(stream.eatSpace())
+                if (stream.eatSpace())
                         return null;
-                if(state.chain)
+                if (state.chain)
                         return tokenChain(stream,state,state.chain,state.style,state.tail);
-                if(stream.match(/^\-?[\d\.]/,false))
-                        if(stream.match(/^(\-?(\d*\.\d+(e[+-]?\d+)?|\d+\.\d*)|0x[\da-fA-F]+|0b[01]+|\d+(e[+-]?\d+)?)/))
+                if (stream.match(/^\-?[\d\.]/,false))
+                        if (stream.match(/^(\-?(\d*\.\d+(e[+-]?\d+)?|\d+\.\d*)|0x[\da-fA-F]+|0b[01]+|\d+(e[+-]?\d+)?)/))
                                 return 'number';
-                if(stream.match(/^<<(?=\w)/)){                  // NOTE: <<SOMETHING\n...\nSOMETHING\n
+                if (stream.match(/^<<(?=\w)/)){                  // NOTE: <<SOMETHING\n...\nSOMETHING\n
                         stream.eatWhile(/\w/);
                         return tokenSOMETHING(stream,state,stream.current().substr(2));}
-                if(stream.sol()&&stream.match(/^\=item(?!\w)/)){// NOTE: \n=item...\n=cut\n
+                if (stream.sol()&&stream.match(/^\=item(?!\w)/)){// NOTE: \n=item...\n=cut\n
                         return tokenSOMETHING(stream,state,'=cut');}
                 var ch=stream.next();
-                if(ch=='"'||ch=="'"){                           // NOTE: ' or " or <<'SOMETHING'\n...\nSOMETHING\n or <<"SOMETHING"\n...\nSOMETHING\n
-                        if(stream.prefix(3)=="<<"+ch){
+                if (ch=='"'||ch=="'"){                           // NOTE: ' or " or <<'SOMETHING'\n...\nSOMETHING\n or <<"SOMETHING"\n...\nSOMETHING\n
+                        if (stream.prefix(3)=="<<"+ch){
                                 var p=stream.pos;
                                 stream.eatWhile(/\w/);
                                 var n=stream.current().substr(1);
-                                if(n&&stream.eat(ch))
+                                if (n&&stream.eat(ch))
                                         return tokenSOMETHING(stream,state,n);
                                 stream.pos=p;}
                         return tokenChain(stream,state,[ch],"string");}
-                if(ch=="q"){
+                if (ch=="q"){
                         var c=stream.look(-2);
-                        if(!(c&&/\w/.test(c))){
+                        if (!(c&&/\w/.test(c))){
                                 c=stream.look(0);
-                                if(c=="x"){
+                                if (c=="x"){
                                         c=stream.look(1);
-                                        if(c=="("){
+                                        if (c=="("){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,[")"],RXstyle,RXmodifiers);}
-                                        if(c=="["){
+                                        if (c=="["){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,["]"],RXstyle,RXmodifiers);}
-                                        if(c=="{"){
+                                        if (c=="{"){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,["}"],RXstyle,RXmodifiers);}
-                                        if(c=="<"){
+                                        if (c=="<"){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,[">"],RXstyle,RXmodifiers);}
-                                        if(/[\^'"!~\/]/.test(c)){
+                                        if (/[\^'"!~\/]/.test(c)){
                                                 stream.eatSuffix(1);
                                                 return tokenChain(stream,state,[stream.eat(c)],RXstyle,RXmodifiers);}}
-                                else if(c=="q"){
+                                else if (c=="q"){
                                         c=stream.look(1);
-                                        if(c=="("){
+                                        if (c=="("){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,[")"],"string");}
-                                        if(c=="["){
+                                        if (c=="["){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,["]"],"string");}
-                                        if(c=="{"){
+                                        if (c=="{"){
 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,["}"],"string");}
-                                        if(c=="<"){
+                                        if (c=="<"){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,[">"],"string");}
-                                        if(/[\^'"!~\/]/.test(c)){
+                                        if (/[\^'"!~\/]/.test(c)){
                                                 stream.eatSuffix(1);
                                                 return tokenChain(stream,state,[stream.eat(c)],"string");}}
-                                else if(c=="w"){
+                                else if (c=="w"){
                                         c=stream.look(1);
-                                        if(c=="("){
+                                        if (c=="("){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,[")"],"bracket");}
-                                        if(c=="["){
+                                        if (c=="["){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,["]"],"bracket");}
-                                        if(c=="{"){
+                                        if (c=="{"){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,["}"],"bracket");}
-                                        if(c=="<"){
+                                        if (c=="<"){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,[">"],"bracket");}
-                                        if(/[\^'"!~\/]/.test(c)){
+                                        if (/[\^'"!~\/]/.test(c)){
                                                 stream.eatSuffix(1);
                                                 return tokenChain(stream,state,[stream.eat(c)],"bracket");}}
-                                else if(c=="r"){
+                                else if (c=="r"){
                                         c=stream.look(1);
-                                        if(c=="("){
+                                        if (c=="("){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,[")"],RXstyle,RXmodifiers);}
-                                        if(c=="["){
+                                        if (c=="["){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,["]"],RXstyle,RXmodifiers);}
-                                        if(c=="{"){
+                                        if (c=="{"){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,["}"],RXstyle,RXmodifiers);}
-                                        if(c=="<"){
+                                        if (c=="<"){
                                                 stream.eatSuffix(2);
                                                 return tokenChain(stream,state,[">"],RXstyle,RXmodifiers);}
-                                        if(/[\^'"!~\/]/.test(c)){
+                                        if (/[\^'"!~\/]/.test(c)){
                                                 stream.eatSuffix(1);
                                                 return tokenChain(stream,state,[stream.eat(c)],RXstyle,RXmodifiers);}}
-                                else if(/[\^'"!~\/(\[{<]/.test(c)){
-                                        if(c=="("){
+                                else if (/[\^'"!~\/(\[{<]/.test(c)){
+                                        if (c=="("){
                                                 stream.eatSuffix(1);
                                                 return tokenChain(stream,state,[")"],"string");}
-                                        if(c=="["){
+                                        if (c=="["){
                                                 stream.eatSuffix(1);
                                                 return tokenChain(stream,state,["]"],"string");}
-                                        if(c=="{"){
+                                        if (c=="{"){
                                                 stream.eatSuffix(1);
                                                 return tokenChain(stream,state,["}"],"string");}
-                                        if(c=="<"){
+                                        if (c=="<"){
                                                 stream.eatSuffix(1);
                                                 return tokenChain(stream,state,[">"],"string");}
-                                        if(/[\^'"!~\/]/.test(c)){
+                                        if (/[\^'"!~\/]/.test(c)){
                                                 return tokenChain(stream,state,[stream.eat(c)],"string");}}}}
-                if(ch=="m"){
+                if (ch=="m"){
                         var c=stream.look(-2);
-                        if(!(c&&/\w/.test(c))){
+                        if (!(c&&/\w/.test(c))){
                                 c=stream.eat(/[(\[{<\^'"!~\/]/);
-                                if(c){
-                                        if(/[\^'"!~\/]/.test(c)){
+                                if (c){
+                                        if (/[\^'"!~\/]/.test(c)){
                                                 return tokenChain(stream,state,[c],RXstyle,RXmodifiers);}
-                                        if(c=="("){
+                                        if (c=="("){
                                                 return tokenChain(stream,state,[")"],RXstyle,RXmodifiers);}
-                                        if(c=="["){
+                                        if (c=="["){
                                                 return tokenChain(stream,state,["]"],RXstyle,RXmodifiers);}
-                                        if(c=="{"){
+                                        if (c=="{"){
                                                 return tokenChain(stream,state,["}"],RXstyle,RXmodifiers);}
-                                        if(c=="<"){
+                                        if (c=="<"){
                                                 return tokenChain(stream,state,[">"],RXstyle,RXmodifiers);}}}}
-                if(ch=="s"){
+                if (ch=="s"){
                         var c=/[\/>\]})\w]/.test(stream.look(-2));
-                        if(!c){
+                        if (!c){
                                 c=stream.eat(/[(\[{<\^'"!~\/]/);
-                                if(c){
-                                        if(c=="[")
+                                if (c){
+                                        if (c=="[")
                                                 return tokenChain(stream,state,["]","]"],RXstyle,RXmodifiers);
-                                        if(c=="{")
+                                        if (c=="{")
                                                 return tokenChain(stream,state,["}","}"],RXstyle,RXmodifiers);
-                                        if(c=="<")
+                                        if (c=="<")
                                                 return tokenChain(stream,state,[">",">"],RXstyle,RXmodifiers);
-                                        if(c=="(")
+                                        if (c=="(")
                                                 return tokenChain(stream,state,[")",")"],RXstyle,RXmodifiers);
                                         return tokenChain(stream,state,[c,c],RXstyle,RXmodifiers);}}}
-                if(ch=="y"){
+                if (ch=="y"){
                         var c=/[\/>\]})\w]/.test(stream.look(-2));
-                        if(!c){
+                        if (!c){
                                 c=stream.eat(/[(\[{<\^'"!~\/]/);
-                                if(c){
-                                        if(c=="[")
+                                if (c){
+                                        if (c=="[")
                                                 return tokenChain(stream,state,["]","]"],RXstyle,RXmodifiers);
-                                        if(c=="{")
+                                        if (c=="{")
                                                 return tokenChain(stream,state,["}","}"],RXstyle,RXmodifiers);
-                                        if(c=="<")
+                                        if (c=="<")
                                                 return tokenChain(stream,state,[">",">"],RXstyle,RXmodifiers);
-                                        if(c=="(")
+                                        if (c=="(")
                                                 return tokenChain(stream,state,[")",")"],RXstyle,RXmodifiers);
                                         return tokenChain(stream,state,[c,c],RXstyle,RXmodifiers);}}}
-                if(ch=="t"){
+                if (ch=="t"){
                         var c=/[\/>\]})\w]/.test(stream.look(-2));
-                        if(!c){
-                                c=stream.eat("r");if(c){
+                        if (!c){
+                                c=stream.eat("r");if (c){
                                 c=stream.eat(/[(\[{<\^'"!~\/]/);
-                                if(c){
-                                        if(c=="[")
+                                if (c){
+                                        if (c=="[")
                                                 return tokenChain(stream,state,["]","]"],RXstyle,RXmodifiers);
-                                        if(c=="{")
+                                        if (c=="{")
                                                 return tokenChain(stream,state,["}","}"],RXstyle,RXmodifiers);
-                                        if(c=="<")
+                                        if (c=="<")
                                                 return tokenChain(stream,state,[">",">"],RXstyle,RXmodifiers);
-                                        if(c=="(")
+                                        if (c=="(")
                                                 return tokenChain(stream,state,[")",")"],RXstyle,RXmodifiers);
                                         return tokenChain(stream,state,[c,c],RXstyle,RXmodifiers);}}}}
-                if(ch=="`"){
+                if (ch=="`"){
                         return tokenChain(stream,state,[ch],"variable-2");}
-                if(ch=="/"){
-                        if(!/~\s*$/.test(stream.prefix()))
+                if (ch=="/"){
+                        if (!/~\s*$/.test(stream.prefix()))
                                 return "operator";
                         else
                                 return tokenChain(stream,state,[ch],RXstyle,RXmodifiers);}
-                if(ch=="$"){
+                if (ch=="$"){
                         var p=stream.pos;
-                        if(stream.eatWhile(/\d/)||stream.eat("{")&&stream.eatWhile(/\d/)&&stream.eat("}"))
+                        if (stream.eatWhile(/\d/)||stream.eat("{")&&stream.eatWhile(/\d/)&&stream.eat("}"))
                                 return "variable-2";
                         else
                                 stream.pos=p;}
-                if(/[$@%]/.test(ch)){
+                if (/[$@%]/.test(ch)){
                         var p=stream.pos;
-                        if(stream.eat("^")&&stream.eat(/[A-Z]/)||!/[@$%&]/.test(stream.look(-2))&&stream.eat(/[=|\\\-#?@;:&`~\^!\[\]*'"$+.,\/<>()]/)){
+                        if (stream.eat("^")&&stream.eat(/[A-Z]/)||!/[@$%&]/.test(stream.look(-2))&&stream.eat(/[=|\\\-#?@;:&`~\^!\[\]*'"$+.,\/<>()]/)){
                                 var c=stream.current();
-                                if(PERL[c])
+                                if (PERL[c])
                                         return "variable-2";}
                         stream.pos=p;}
-                if(/[$@%&]/.test(ch)){
-                        if(stream.eatWhile(/[\w$\[\]]/)||stream.eat("{")&&stream.eatWhile(/[\w$\[\]]/)&&stream.eat("}")){
+                if (/[$@%&]/.test(ch)){
+                        if (stream.eatWhile(/[\w$\[\]]/)||stream.eat("{")&&stream.eatWhile(/[\w$\[\]]/)&&stream.eat("}")){
                                 var c=stream.current();
-                                if(PERL[c])
+                                if (PERL[c])
                                         return "variable-2";
                                 else
                                         return "variable";}}
-                if(ch=="#"){
-                        if(stream.look(-2)!="$"){
+                if (ch=="#"){
+                        if (stream.look(-2)!="$"){
                                 stream.skipToEnd();
                                 return "comment";}}
-                if(/[:+\-\^*$&%@=<>!?|\/~\.]/.test(ch)){
+                if (/[:+\-\^*$&%@=<>!?|\/~\.]/.test(ch)){
                         var p=stream.pos;
                         stream.eatWhile(/[:+\-\^*$&%@=<>!?|\/~\.]/);
-                        if(PERL[stream.current()])
+                        if (PERL[stream.current()])
                                 return "operator";
                         else
                                 stream.pos=p;}
-                if(ch=="_"){
-                        if(stream.pos==1){
-                                if(stream.suffix(6)=="_END__"){
+                if (ch=="_"){
+                        if (stream.pos==1){
+                                if (stream.suffix(6)=="_END__"){
                                         return tokenChain(stream,state,['\0'],"comment");}
-                                else if(stream.suffix(7)=="_DATA__"){
+                                else if (stream.suffix(7)=="_DATA__"){
                                         return tokenChain(stream,state,['\0'],"variable-2");}
-                                else if(stream.suffix(7)=="_C__"){
+                                else if (stream.suffix(7)=="_C__"){
                                         return tokenChain(stream,state,['\0'],"string");}}}
-                if(/\w/.test(ch)){
+                if (/\w/.test(ch)){
                         var p=stream.pos;
-                        if(stream.look(-2)=="{"&&(stream.look(0)=="}"||stream.eatWhile(/\w/)&&stream.look(0)=="}"))
+                        if (stream.look(-2)=="{"&&(stream.look(0)=="}"||stream.eatWhile(/\w/)&&stream.look(0)=="}"))
                                 return "string";
                         else
                                 stream.pos=p;}
-                if(/[A-Z]/.test(ch)){
+                if (/[A-Z]/.test(ch)){
                         var l=stream.look(-2);
                         var p=stream.pos;
                         stream.eatWhile(/[A-Z_]/);
-                        if(/[\da-z]/.test(stream.look(0))){
+                        if (/[\da-z]/.test(stream.look(0))){
                                 stream.pos=p;}
                         else{
                                 var c=PERL[stream.current()];
-                                if(!c)
+                                if (!c)
                                         return "meta";
-                                if(c[1])
+                                if (c[1])
                                         c=c[0];
-                                if(l!=":"){
-                                        if(c==1)
+                                if (l!=":"){
+                                        if (c==1)
                                                 return "keyword";
-                                        else if(c==2)
+                                        else if (c==2)
                                                 return "def";
-                                        else if(c==3)
+                                        else if (c==3)
                                                 return "atom";
-                                        else if(c==4)
+                                        else if (c==4)
                                                 return "operator";
-                                        else if(c==5)
+                                        else if (c==5)
                                                 return "variable-2";
                                         else
                                                 return "meta";}
                                 else
                                         return "meta";}}
-                if(/[a-zA-Z_]/.test(ch)){
+                if (/[a-zA-Z_]/.test(ch)){
                         var l=stream.look(-2);
                         stream.eatWhile(/\w/);
                         var c=PERL[stream.current()];
-                        if(!c)
+                        if (!c)
                                 return "meta";
-                        if(c[1])
+                        if (c[1])
                                 c=c[0];
-                        if(l!=":"){
-                                if(c==1)
+                        if (l!=":"){
+                                if (c==1)
                                         return "keyword";
-                                else if(c==2)
+                                else if (c==2)
                                         return "def";
-                                else if(c==3)
+                                else if (c==3)
                                         return "atom";
-                                else if(c==4)
+                                else if (c==4)
                                         return "operator";
-                                else if(c==5)
+                                else if (c==5)
                                         return "variable-2";
                                 else
                                         return "meta";}
@@ -785,7 +785,7 @@ CodeMirror.StringStream.prototype.look=function(c){
 
 // return a part of prefix of current stream from current position
 CodeMirror.StringStream.prototype.prefix=function(c){
-        if(c){
+        if (c){
                 var x=this.pos-c;
                 return this.string.substr((x>=0?x:0),c);}
         else{
@@ -808,9 +808,9 @@ CodeMirror.StringStream.prototype.nsuffix=function(c){
 CodeMirror.StringStream.prototype.eatSuffix=function(c){
         var x=this.pos+c;
         var y;
-        if(x<=0)
+        if (x<=0)
                 this.pos=0;
-        else if(x>=(y=this.string.length-1))
+        else if (x>=(y=this.string.length-1))
                 this.pos=y;
         else
                 this.pos=x;};

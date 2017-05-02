@@ -1,13 +1,12 @@
 <?php
 class settingscontrol {
 	public static function indexAction(){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
 
 		$body = views::displayEditListview(key::listKeys());
-		$body .= form::newButton();
-		
+
 		template::initiate('admin');
 			template::header(language::readType('EDIT'));
 			template::body($body);	
@@ -15,9 +14,10 @@ class settingscontrol {
 	}
 	
 	public static function editAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error('403');
 		}
+		
 		list($id,$key,$value) = key::readKey($args[0]);
 		
 		$body = form::beginForm('settings',PATH_WEB.'/system/settings/update');	
@@ -33,15 +33,15 @@ class settingscontrol {
 	}	
 		
 	public static function updateAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}		
-		if(key::doesExist($args['key'])){
+		if (key::doesExist($args['key'])){
 			key::updateKey($args['id'],$args['key'],$args['value']);
 			route::redirect('system/settings/edit/'.$args['id']);
 			return true;
 		} else {
-			if(key::createKey($args['key'],$args['value'])){
+			if (key::createKey($args['key'],$args['value'])){
 				route::redirect('system/settings/edit/'.key::findlast());
 				return true;
 			}
@@ -50,18 +50,31 @@ class settingscontrol {
 	} 
 	
 	public static function installAction(){
-		if(!user::validateAdmin()){
-			if(user::countUser('ADMIN')){
+		/*if (!user::validateAdmin()){
+			if (user::countUser('ADMIN')){
 				route::error(403);
 			}
-		}
+		}*/
 		$databaseadmin = new databaseadmin();
-		$what = array("KeySetting" => "varchar(45)", "ValueSetting" => "text");
+		$what = array("KeySetting" => "varchar(45)", 
+					  "ValueSetting" => "text");
 		$result = $databaseadmin->createTable('generic_key',$what,"PK_KeyID");
+		if ($result){
+			key::createKey('ANALYTICS','');
+			key::createKey('META','');
+			key::createKey('AUTHOR','');
+			key::createKey('SITENAME','');
+			key::createKey('SITEMAIL','');
+			key::createKey('TEMPLATE','');
+			key::createKey('PDF','');
+			key::createKey('SPEECH','');
+			key::createKey('PAGING','');
+			key::createKey('USE_HTTPS','');
+		}
 	}	
 	
 	public static function deleteAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
 		key::destroyKey($args[0]);

@@ -25,7 +25,7 @@
  * @since      	File available since Release 1.0.0
  */
 
-class plugin /*extends database*/{
+class plugin{
 	
 	/**
 	 * This method lists all the plug-in entries in the database.
@@ -36,8 +36,12 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function listPlugin(){
-		$database = new database("cms_plugins");
-		return $database->read("PK_PluginID,Name,Activated","","Name");
+		$dbobject = new dbobject('generic_plugin');
+		$dbobject->read("PK_PluginID");
+		$dbobject->read("Name");
+		$dbobject->read("Activated");
+		$dbobject->orderby("Name");
+		return $dbobject->fetch();
 	}	
 	
 	/**
@@ -54,16 +58,15 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function addPlugin($plugin){
-		$database = new database("cms_plugins");
-		$data = array("Name" => "'".$plugin."'","Activated" => "1");			
-		$database->TransactionBegin();
-		if($database->create($data)){
-			$database->TransactionEnd();
-		} else {
-			$database->TransactionRollback();
-			return false;
-		}		
-		return true;
+		caching::deleteKey("plugindata");
+		$dbobject = new dbobject('generic_plugin');
+		$dbobject->create('Name',$plugin);
+		$dbobject->create('Activated',1);
+		if ($dbobject->commit()){
+			return $dbobject->readLastEntry();
+		}
+		return false;		
+		
 	}
 
 	/**
@@ -77,8 +80,11 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function disablePlugin($pluginid){
-		$database = new database("cms_plugins");
-		return $database->update("Activated=0","PK_PluginID = ".$pluginid);			
+		caching::deleteKey("plugindata");
+		$dbobject = new dbobject('generic_plugin');
+		$dbobject->update('Activated',0);
+		$dbobject->where("PK_PluginID", $pluginid);
+		return $dbobject->commit();		
 	}
 
 	/**
@@ -92,8 +98,11 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function enablePlugin($pluginid){
-		$database = new database("cms_plugins");
-		return $database->update("Activated=1","PK_PluginID = ".$pluginid);		
+		caching::deleteKey("plugindata");
+		$dbobject = new dbobject('generic_plugin');
+		$dbobject->update('Activated',1);
+		$dbobject->where("PK_PluginID", $pluginid);
+		return $dbobject->commit();	
 	}	
 	
 	/**
@@ -107,31 +116,13 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */	
 	public static function readPlugin($pluginid){
-		$database = new database("cms_plugins");
-		return $database->readSingle('PK_PluginID, Activated, Name','PK_PluginID = '.$pluginid);
+		$dbobject = new dbobject('generic_plugin');
+		$dbobject->read("PK_PluginID");
+		$dbobject->read("Activated");
+		$dbobject->read("Name");
+		$dbobject->where("PK_PluginID", $pluginid);
+		return $dbobject->fetchSingle();		
 	}
-	
-	/**
-     * This method deletes a plug-in entry in the database.
-	 *
-	 * @param int $pluginid The private key to the table.
-	 *
-	 * @return bool True on success or false on failure.	 
-	 *
-	 * @access public
-	 * @since Method available since Release 1.0.0
-     */		
-	public static function removePlugin($pluginid){
-		$database = new database("cms_plugins");
-		$database->TransactionBegin();
-		if($database->destroy("PK_PluginID = ".$pluginid)){
-			$database->TransactionEnd();
-		} else {
-			$database->TransactionRollback();
-			return false;
-		}		
-		return true;
-	}	
 
 	/**
      * This method lists all the plug-ins in the plug-in folder.
@@ -149,12 +140,12 @@ class plugin /*extends database*/{
 		$j = 0;
 		if ($handle = opendir('plugins/')) {
 			while (false !== ($entry = readdir($handle))) {
-				if($entry != '.' && $entry != '..' && is_dir('plugins/'.$entry)){
+				if ($entry != '.' && $entry != '..' && is_dir('plugins/'.$entry)){
 					$content = '<img src="'.PATH_WEB.'/template/'.template::getTheme().'/icon_big/plug_add.png" width="128px;" />';
-					$foldercontent[$j][$i] = $content.'<br /><a href="'.PATH_SYS.'/plugincontrol/toggle/'.$entry.'">'.$entry.'</a> 
-					| <a href="'.PATH_SYS.'/plugincontrol/remove/'.$entry.'">Slet</a>';
-					if($i >= $cols){
-						$i = 1; 
+					$foldercontent[$j][$i] = $content.'<br /><a href="/system/plugin/toggle/'.$entry.'">'.$entry.'</a> 
+					| <a href="/system/plugin/remove/'.$entry.'">Slet</a>';
+					if ($i >= $cols){
+						$i = 0; 
 						$j++;
 					}
 					$i++;
@@ -177,8 +168,10 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function doesExist($plugin){
-		$database = new database("cms_plugins");
-		list($id) = $database->readSingle("PK_PluginID","Name = '".$plugin."'");
+		$dbobject = new dbobject('generic_plugin');
+		$dbobject->read("PK_PluginID");
+		$dbobject->where("Name", $plugin);
+		list($id) = $dbobject->fetchSingle();		
 		return $id;	
 	}	
 	
@@ -191,13 +184,32 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function retrievePlugin(){
-		$database = new database("cms_plugins");
 		$plugins = '';
-		$pluginlist = $database->read("Name","Activated = 1");
-		foreach($pluginlist as $plugin){
-			$plugins .= '<link href="'.PATH_WEB.'/plugins/'.$plugin[0].'/'.$plugin[0].'.css" type="text/css" rel="stylesheet" />'.chr(13);
-			$plugins .= '<script src="'.PATH_WEB.'/plugins/'.$plugin[0].'/'.$plugin[0].'.js" type="text/javascript"></script>'.chr(13);;
-		}
+		
+		if ($pluginData = caching::getKey('plugindata')){
+			$plugins = $pluginData;
+		} else {
+			$dbobject = new dbobject('generic_plugin');
+			$dbobject->read("Name");
+			$dbobject->where("Activated", 1);
+			$pluginlist = $dbobject->fetch();
+			
+			if (is_array($pluginlist)){
+				foreach($pluginlist as $plugin){
+					if (is_file('plugins/'.$plugin[0].'/'.$plugin[0].'.css')){
+						$plugins .= '<link href="'.PATH_WEB.'/plugins/'.$plugin[0].'/'.$plugin[0].'.css" type="text/css" rel="stylesheet" />'.chr(13);
+					} else if (is_file('plugins/'.$plugin[0].'/'.$plugin[0].'.less')){
+						$plugins .= '<link href="'.PATH_WEB.'/plugins/'.$plugin[0].'/'.$plugin[0].'.less" type="text/css" rel="stylesheet/less" />'.chr(13);
+					}
+					if (is_file('plugins/'.$plugin[0].'/'.$plugin[0].'.js')){
+						$plugins .= '<script src="'.PATH_WEB.'/plugins/'.$plugin[0].'/'.$plugin[0].'.js" type="text/javascript"></script>'.chr(13);
+					} else if (is_file('plugins/'.$plugin[0].'/'.$plugin[0].'.min.js')){
+						$plugins .= '<script src="'.PATH_WEB.'/plugins/'.$plugin[0].'/'.$plugin[0].'.min.js" type="text/javascript"></script>'.chr(13);
+					} 
+				}
+				caching::setKey('plugindata', $plugins);
+			}
+		}		
 		return $plugins;
 	}
 	
@@ -212,11 +224,11 @@ class plugin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyPlugin($pluginid){
-		$database = new database("cms_plugins");
-		if(!$database->destroy("PK_PluginID = ".$pluginid)){
-			return false;
-		}
-		return true;
+		caching::deleteKey("plugindata");
+		$dbobject = new dbobject('generic_plugin');
+		$dbobject->destroy();
+		$dbobject->where("PK_PluginID",$pluginid);
+		return $dbobject->commit();		
 	}
 }
 ?>

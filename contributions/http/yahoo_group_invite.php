@@ -34,14 +34,14 @@
 <h1 style="text-align: center">Invite users to a Yahoo group</h1>
 <hr />
 <?php
-	if($success)
+	if ($success)
 	{
-		if(strlen($yahoo->logged_user))
+		if (strlen($yahoo->logged_user))
 		{
 ?>
 <h2 style="text-align: center">The user '<?php echo $yahoo->logged_user; ?>' has logged in Yahoo successfully.</h2>
 <?php
-			if(IsSet($parameters['Invited']))
+			if (IsSet($parameters['Invited']))
 			{
 ?>
 <h2 style="text-align: center"><?php echo $parameters['Invited']; ?> users were successfully invited to Yahoo group <?php echo $group; ?> .</h2>

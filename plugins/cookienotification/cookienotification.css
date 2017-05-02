@@ -1,0 +1,36 @@
+.cookie_notification{	
+	height: 80px;
+	padding: 10px;
+	background-color: #aaa;
+	border-top: 2px solid #ccc;
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	color: @text-color;
+	width: 100%;
+	z-index: 999;
+	opacity: 0.9;	
+}
+
+.cookie_notification p{
+	float: left;
+}
+
+.cookie_n_button{
+	float:right;
+	width:160px;
+	font-weight: bold;
+	height: 40px;
+	margin: 10px;
+	background-color: #E85B44;
+	color: white;
+	border: 0px;
+	
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;		
+}
+
+.cookie_n_container{
+	margin: 10px;
+}

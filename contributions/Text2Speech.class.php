@@ -37,7 +37,7 @@ $t2s = new PHP_Text2Speech;
 
 // Simple example
 <audio controls="controls" autoplay="autoplay">
-  <source src="<?php echo $t2s->speak('If you hear this sount it means that you are using PHP text to speech class.'); ?>" type="audio/mp3" />
+  <source src="<?php echo $t2s->speak('If you hear this sound it means that you are using PHP text to speech class.'); ?>" type="audio/mp3" />
 </audio>
 
 // Example use of other language
@@ -67,7 +67,7 @@ class Text2Speech {
 	 * @var	String 
 	 * @link https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 	 */
-	var $lang = 'en';
+	var $lang = 'da';
 	
 	/** Text to speak
 	 * @var	String 
@@ -90,7 +90,7 @@ class Text2Speech {
 	var $contents = NULL;
 	
 	public function __construct(){
-		//
+
 	}
 	
 	/** Function make request to Google translate, download file and returns audio file path
@@ -177,7 +177,7 @@ class Text2Speech {
 	 */ 
     function getStart($contents) {
         for($i=0; $i < strlen($contents); $i++){
-            if(ord(substr($contents, $i, 1)) == 255){
+            if (ord(substr($contents, $i, 1)) == 255){
                 return $i;
             }
         }
@@ -189,7 +189,7 @@ class Text2Speech {
 	 */ 
     function getEnd($contents) {
         $c = substr($contents, (strlen($contents) - 128));
-        if(strtoupper(substr($c, 0, 3)) == 'TAG'){
+        if (strtoupper(substr($c, 0, 3)) == 'TAG'){
             return $c;
         }else{
             return FALSE;

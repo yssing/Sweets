@@ -7,30 +7,30 @@ CodeMirror.defineMode("q",function(config){
   function tokenBase(stream,state){
     var sol=stream.sol(),c=stream.next();
     curPunc=null;
-    if(sol)
-      if(c=="/")
+    if (sol)
+      if (c=="/")
         return(state.tokenize=tokenLineComment)(stream,state);
-      else if(c=="\\"){
-        if(stream.eol()||/\s/.test(stream.peek()))
+      else if (c=="\\"){
+        if (stream.eol()||/\s/.test(stream.peek()))
           return stream.skipToEnd(),/^\\\s*$/.test(stream.current())?(state.tokenize=tokenCommentToEOF)(stream, state):state.tokenize=tokenBase,"comment";
         else
           return state.tokenize=tokenBase,"builtin";
       }
-    if(/\s/.test(c))
+    if (/\s/.test(c))
       return stream.peek()=="/"?(stream.skipToEnd(),"comment"):"whitespace";
-    if(c=='"')
+    if (c=='"')
       return(state.tokenize=tokenString)(stream,state);
-    if(c=='`')
+    if (c=='`')
       return stream.eatWhile(/[A-Z|a-z|\d|_|:|\/|\.]/),"symbol";
-    if(("."==c&&/\d/.test(stream.peek()))||/\d/.test(c)){
+    if (("."==c&&/\d/.test(stream.peek()))||/\d/.test(c)){
       var t=null;
       stream.backUp(1);
-      if(stream.match(/^\d{4}\.\d{2}(m|\.\d{2}([D|T](\d{2}(:\d{2}(:\d{2}(\.\d{1,9})?)?)?)?)?)/)
+      if (stream.match(/^\d{4}\.\d{2}(m|\.\d{2}([D|T](\d{2}(:\d{2}(:\d{2}(\.\d{1,9})?)?)?)?)?)/)
       || stream.match(/^\d+D(\d{2}(:\d{2}(:\d{2}(\.\d{1,9})?)?)?)/)
       || stream.match(/^\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?/)
       || stream.match(/^\d+[ptuv]{1}/))
         t="temporal";
-      else if(stream.match(/^0[NwW]{1}/)
+      else if (stream.match(/^0[NwW]{1}/)
       || stream.match(/^0x[\d|a-f|A-F]*/)
       || stream.match(/^[0|1]+[b]{1}/)
       || stream.match(/^\d+[chijn]{1}/)
@@ -38,11 +38,11 @@ CodeMirror.defineMode("q",function(config){
         t="number";
       return(t&&(!(c=stream.peek())||E.test(c)))?t:(stream.next(),"error");
     }
-    if(/[A-Z|a-z]|\./.test(c))
+    if (/[A-Z|a-z]|\./.test(c))
       return stream.eatWhile(/[A-Z|a-z|\.|_|\d]/),keywords.test(stream.current())?"keyword":"variable";
-    if(/[|/&^!+:\\\-*%$=~#;@><\.,?_\']/.test(c))
+    if (/[|/&^!+:\\\-*%$=~#;@><\.,?_\']/.test(c))
       return null;
-    if(/[{}\(\[\]\)]/.test(c))
+    if (/[{}\(\[\]\)]/.test(c))
       return null;
     return"error";
   }
@@ -52,7 +52,7 @@ CodeMirror.defineMode("q",function(config){
   function tokenBlockComment(stream,state){
     var f=stream.sol()&&stream.peek()=="\\";
     stream.skipToEnd();
-    if(f&&/^\\\s*$/.test(stream.current()))
+    if (f&&/^\\\s*$/.test(stream.current()))
       state.tokenize=tokenBase;
     return"comment";
   }
@@ -60,10 +60,10 @@ CodeMirror.defineMode("q",function(config){
   function tokenString(stream,state){
     var escaped=false,next,end=false;
     while((next=stream.next())){
-      if(next=="\""&&!escaped){end=true;break;}
+      if (next=="\""&&!escaped){end=true;break;}
       escaped=!escaped&&next=="\\";
     }
-    if(end)state.tokenize=tokenBase;
+    if (end)state.tokenize=tokenBase;
     return"string";
   }
   function pushContext(state,type,col){state.context={prev:state.context,indent:state.indent,col:col,type:type};}
@@ -76,28 +76,28 @@ CodeMirror.defineMode("q",function(config){
              col:0};
     },
     token:function(stream,state){
-      if(stream.sol()){
-        if(state.context&&state.context.align==null)
+      if (stream.sol()){
+        if (state.context&&state.context.align==null)
           state.context.align=false;
         state.indent=stream.indentation();
       }
       //if (stream.eatSpace()) return null;
       var style=state.tokenize(stream,state);
-      if(style!="comment"&&state.context&&state.context.align==null&&state.context.type!="pattern"){
+      if (style!="comment"&&state.context&&state.context.align==null&&state.context.type!="pattern"){
         state.context.align=true;
       }
-      if(curPunc=="(")pushContext(state,")",stream.column());
-      else if(curPunc=="[")pushContext(state,"]",stream.column());
-      else if(curPunc=="{")pushContext(state,"}",stream.column());
-      else if(/[\]\}\)]/.test(curPunc)){
+      if (curPunc=="(")pushContext(state,")",stream.column());
+      else if (curPunc=="[")pushContext(state,"]",stream.column());
+      else if (curPunc=="{")pushContext(state,"}",stream.column());
+      else if (/[\]\}\)]/.test(curPunc)){
         while(state.context&&state.context.type=="pattern")popContext(state);
-        if(state.context&&curPunc==state.context.type)popContext(state);
+        if (state.context&&curPunc==state.context.type)popContext(state);
       }
-      else if(curPunc=="."&&state.context&&state.context.type=="pattern")popContext(state);
-      else if(/atom|string|variable/.test(style)&&state.context){
-        if(/[\}\]]/.test(state.context.type))
+      else if (curPunc=="."&&state.context&&state.context.type=="pattern")popContext(state);
+      else if (/atom|string|variable/.test(style)&&state.context){
+        if (/[\}\]]/.test(state.context.type))
           pushContext(state,"pattern",stream.column());
-        else if(state.context.type=="pattern"&&!state.context.align){
+        else if (state.context.type=="pattern"&&!state.context.align){
           state.context.align=true;
           state.context.col=stream.column();
         }
@@ -107,14 +107,14 @@ CodeMirror.defineMode("q",function(config){
     indent:function(state,textAfter){
       var firstChar=textAfter&&textAfter.charAt(0);
       var context=state.context;
-      if(/[\]\}]/.test(firstChar))
+      if (/[\]\}]/.test(firstChar))
         while (context&&context.type=="pattern")context=context.prev;
       var closing=context&&firstChar==context.type;
-      if(!context)
+      if (!context)
         return 0;
-      else if(context.type=="pattern")
+      else if (context.type=="pattern")
         return context.col;
-      else if(context.align)
+      else if (context.align)
         return context.col+(closing?0:1);
       else
         return context.indent+(closing?0:indentUnit);

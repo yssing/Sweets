@@ -32,12 +32,12 @@ if (!canvas.getContext) {
 	}
 }
 
-if(!!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect){
+if (!!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect){
 	system_config.use_svg = true;
 	system_config.use_canvas = false;
 }
 
-if(!system_config.use_fallback){
+if (!system_config.use_fallback){
     dpr = window.devicePixelRatio || 1,
     bsr = ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1;
 }
@@ -151,12 +151,12 @@ function text_size(width, height, template) {
 
 var svg_el = (function(){
 	//Prevent IE <9 from initializing SVG renderer
-	if(!window.XMLSerializer) return;
+	if (!window.XMLSerializer) return;
 	var serializer = new XMLSerializer();
 	var svg_ns = "http://www.w3.org/2000/svg"
 	var svg = document.createElementNS(svg_ns, "svg");
 	//IE throws an exception if this is set and Chrome requires it to be set
-	if(svg.webkitMatchesSelector){
+	if (svg.webkitMatchesSelector){
 		svg.setAttribute("xmlns", "http://www.w3.org/2000/svg")
 	}
 	var bg_el = document.createElementNS(svg_ns, "rect")
@@ -190,7 +190,7 @@ var svg_el = (function(){
 function css_properties(props){
 	var ret = [];
 	for(p in props){
-		if(props.hasOwnProperty(p)){
+		if (props.hasOwnProperty(p)){
 			ret.push(p+":"+props[p])
 		}
 	}
@@ -224,7 +224,7 @@ function draw_canvas(args) {
 		var dimensions = holder.dimensions;
 		text = dimensions.width + "x" + dimensions.height;
 	}
-	else if(exact && holder.exact_dimensions){
+	else if (exact && holder.exact_dimensions){
 		var dimensions = holder.exact_dimensions;
 		text = (Math.floor(dimensions.width) + "x" + Math.floor(dimensions.height));
 	}
@@ -257,7 +257,7 @@ function draw_svg(args){
 		var dimensions = holder.dimensions;
 		text = dimensions.width + "x" + dimensions.height;
 	}
-	else if(exact && holder.exact_dimensions){
+	else if (exact && holder.exact_dimensions){
 		var dimensions = holder.exact_dimensions;
 		text = (Math.floor(dimensions.width) + "x" + Math.floor(dimensions.height));
 	}
@@ -273,7 +273,7 @@ function draw_svg(args){
 }
 
 function draw(args) {
-	if(instance_config.use_canvas && !instance_config.use_svg){
+	if (instance_config.use_canvas && !instance_config.use_svg){
 		return draw_canvas(args);
 	}
 	else{
@@ -307,7 +307,7 @@ function render(mode, el, holder, src) {
 		} else {
 			el.setAttribute("src", draw({ctx: ctx, dimensions: dimensions, template: theme, ratio:ratio, holder: holder}));
 			
-			if(holder.textmode && holder.textmode == "exact"){
+			if (holder.textmode && holder.textmode == "exact"){
 				resizable_images.push(el);
 				resizable_update(el);
 			}
@@ -322,12 +322,12 @@ function render(mode, el, holder, src) {
 		el.setAttribute("alt", text ? text : theme.text ? theme.text + " [" + dimensions_caption + "]" : dimensions_caption);
 		if (dimensions.height.slice(-1) == "%") {
 			el.style.height = dimensions.height
-		} else if(holder.auto == null || !holder.auto){
+		} else if (holder.auto == null || !holder.auto){
 			el.style.height = dimensions.height + "px"
 		}
 		if (dimensions.width.slice(-1) == "%") {
 			el.style.width = dimensions.width
-		} else if(holder.auto == null || !holder.auto){
+		} else if (holder.auto == null || !holder.auto){
 			el.style.width = dimensions.width + "px"
 		}
 		if (el.style.display == "inline" || el.style.display === "" || el.style.display == "none") {
@@ -361,9 +361,9 @@ function dimension_check(el, callback) {
 }
 
 function set_initial_dimensions(el){
-	if(el.holder_data){
+	if (el.holder_data){
 		var dimensions = dimension_check(el, app.invisible_error_fn( set_initial_dimensions))
-		if(dimensions){
+		if (dimensions){
 			var holder = el.holder_data;
 			holder.initial_dimensions = dimensions;
 			holder.fluid_data = {
@@ -371,11 +371,11 @@ function set_initial_dimensions(el){
 				fluid_width: holder.dimensions.width.slice(-1) == "%",
 				mode: null
 			}
-			if(holder.fluid_data.fluid_width && !holder.fluid_data.fluid_height){
+			if (holder.fluid_data.fluid_width && !holder.fluid_data.fluid_height){
 				holder.fluid_data.mode = "width"
 				holder.fluid_data.ratio = holder.initial_dimensions.width / parseFloat(holder.dimensions.height)
 			}
-			else if(!holder.fluid_data.fluid_width && holder.fluid_data.fluid_height){
+			else if (!holder.fluid_data.fluid_width && holder.fluid_data.fluid_height){
 				holder.fluid_data.mode = "height";
 				holder.fluid_data.ratio = parseFloat(holder.dimensions.width) / holder.initial_dimensions.height
 			}
@@ -398,9 +398,9 @@ function resizable_update(element) {
 		if (el.holder_data) {
 			var holder = el.holder_data;
 			var dimensions = dimension_check(el, app.invisible_error_fn( resizable_update))
-			if(dimensions){
-				if(holder.fluid){
-					if(holder.auto){
+			if (dimensions){
+				if (holder.fluid){
+					if (holder.auto){
 						switch(holder.fluid_data.mode){
 							case "width":
 								dimensions.height = dimensions.width / holder.fluid_data.ratio;
@@ -418,7 +418,7 @@ function resizable_update(element) {
 						holder: holder
 					}))
 				}
-				if(holder.textmode && holder.textmode == "exact"){
+				if (holder.textmode && holder.textmode == "exact"){
 					holder.exact_dimensions = dimensions;
 					el.setAttribute("src", draw({
 						ctx: ctx,
@@ -453,7 +453,7 @@ function parse_flags(flags, options) {
 			ret.theme = app.flags.colors.output(flag);
 		} else if (options.themes[flag]) {
 			//If a theme is specified, it will override custom colors
-			if(options.themes.hasOwnProperty(flag)){
+			if (options.themes.hasOwnProperty(flag)){
 				ret.theme = extend(options.themes[flag], {});
 			}
 		} else if (app.flags.font.match(flag)) {
@@ -476,7 +476,7 @@ for (var flag in app.flags) {
 
 app.invisible_error_fn = function(fn){
 	return function(el){
-		if(el.hasAttribute("data-holder-invisible")){
+		if (el.hasAttribute("data-holder-invisible")){
 			throw new Error("Holder: invisible placeholder")
 		}
 	}
@@ -508,7 +508,7 @@ app.run = function (o) {
 		imageNodes = [],
 		bgnodes = [];
 		
-	if(options.use_canvas != null && options.use_canvas){
+	if (options.use_canvas != null && options.use_canvas){
 		instance_config.use_canvas = true;
 		instance_config.use_svg = false;
 	}
@@ -519,7 +519,7 @@ app.run = function (o) {
 		imageNodes = options.images;
 	} else if (window.Node && options.images instanceof window.Node) {
 		imageNodes = [options.images];
-	} else if(window.HTMLCollection && options.images instanceof window.HTMLCollection){
+	} else if (window.HTMLCollection && options.images instanceof window.HTMLCollection){
 		imageNodes = options.images
 	}
 
@@ -606,16 +606,16 @@ if (typeof define === "function" && define.amd) {
 }
 
 //github.com/davidchambers/Base64.js
-(function(){function t(t){this.message=t}var e="undefined"!=typeof exports?exports:this,r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";t.prototype=Error(),t.prototype.name="InvalidCharacterError",e.btoa||(e.btoa=function(e){for(var o,n,a=0,i=r,c="";e.charAt(0|a)||(i="=",a%1);c+=i.charAt(63&o>>8-8*(a%1))){if(n=e.charCodeAt(a+=.75),n>255)throw new t("'btoa' failed");o=o<<8|n}return c}),e.atob||(e.atob=function(e){if(e=e.replace(/=+$/,""),1==e.length%4)throw new t("'atob' failed");for(var o,n,a=0,i=0,c="";n=e.charAt(i++);~n&&(o=a%4?64*o+n:n,a++%4)?c+=String.fromCharCode(255&o>>(6&-2*a)):0)n=r.indexOf(n);return c})})();
+(function(){function t(t){this.message=t}var e="undefined"!=typeof exports?exports:this,r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";t.prototype=Error(),t.prototype.name="InvalidCharacterError",e.btoa||(e.btoa=function(e){for(var o,n,a=0,i=r,c="";e.charAt(0|a)||(i="=",a%1);c+=i.charAt(63&o>>8-8*(a%1))){if (n=e.charCodeAt(a+=.75),n>255)throw new t("'btoa' failed");o=o<<8|n}return c}),e.atob||(e.atob=function(e){if (e=e.replace(/=+$/,""),1==e.length%4)throw new t("'atob' failed");for(var o,n,a=0,i=0,c="";n=e.charAt(i++);~n&&(o=a%4?64*o+n:n,a++%4)?c+=String.fromCharCode(255&o>>(6&-2*a)):0)n=r.indexOf(n);return c})})();
 
 //getElementsByClassName polyfill
-document.getElementsByClassName||(document.getElementsByClassName=function(e){var t=document,n,r,i,s=[];if(t.querySelectorAll)return t.querySelectorAll("."+e);if(t.evaluate){r=".//*[contains(concat(' ', @class, ' '), ' "+e+" ')]",n=t.evaluate(r,t,null,0,null);while(i=n.iterateNext())s.push(i)}else{n=t.getElementsByTagName("*"),r=new RegExp("(^|\\s)"+e+"(\\s|$)");for(i=0;i<n.length;i++)r.test(n[i].className)&&s.push(n[i])}return s})
+document.getElementsByClassName||(document.getElementsByClassName=function(e){var t=document,n,r,i,s=[];if (t.querySelectorAll)return t.querySelectorAll("."+e);if (t.evaluate){r=".//*[contains(concat(' ', @class, ' '), ' "+e+" ')]",n=t.evaluate(r,t,null,0,null);while(i=n.iterateNext())s.push(i)}else{n=t.getElementsByTagName("*"),r=new RegExp("(^|\\s)"+e+"(\\s|$)");for(i=0;i<n.length;i++)r.test(n[i].className)&&s.push(n[i])}return s})
 
 //getComputedStyle polyfill
 window.getComputedStyle||(window.getComputedStyle=function(e){return this.el=e,this.getPropertyValue=function(t){var n=/(\-([a-z]){1})/g;return t=="float"&&(t="styleFloat"),n.test(t)&&(t=t.replace(n,function(){return arguments[2].toUpperCase()})),e.currentStyle[t]?e.currentStyle[t]:null},this})
 
 //http://javascript.nwbox.com/ContentLoaded by Diego Perini with modifications
-function contentLoaded(n,t){var l="complete",s="readystatechange",u=!1,h=u,c=!0,i=n.document,a=i.documentElement,e=i.addEventListener?"addEventListener":"attachEvent",v=i.addEventListener?"removeEventListener":"detachEvent",f=i.addEventListener?"":"on",r=function(e){(e.type!=s||i.readyState==l)&&((e.type=="load"?n:i)[v](f+e.type,r,u),!h&&(h=!0)&&t.call(n,null))},o=function(){try{a.doScroll("left")}catch(n){setTimeout(o,50);return}r("poll")};if(i.readyState==l)t.call(n,"lazy");else{if(i.createEventObject&&a.doScroll){try{c=!n.frameElement}catch(y){}c&&o()}i[e](f+"DOMContentLoaded",r,u),i[e](f+s,r,u),n[e](f+"load",r,u)}}
+function contentLoaded(n,t){var l="complete",s="readystatechange",u=!1,h=u,c=!0,i=n.document,a=i.documentElement,e=i.addEventListener?"addEventListener":"attachEvent",v=i.addEventListener?"removeEventListener":"detachEvent",f=i.addEventListener?"":"on",r=function(e){(e.type!=s||i.readyState==l)&&((e.type=="load"?n:i)[v](f+e.type,r,u),!h&&(h=!0)&&t.call(n,null))},o=function(){try{a.doScroll("left")}catch(n){setTimeout(o,50);return}r("poll")};if (i.readyState==l)t.call(n,"lazy");else{if (i.createEventObject&&a.doScroll){try{c=!n.frameElement}catch(y){}c&&o()}i[e](f+"DOMContentLoaded",r,u),i[e](f+s,r,u),n[e](f+"load",r,u)}}
 
 //https://gist.github.com/991057 by Jed Schmidt with modifications
 function selector(a,b){var a=a.match(/^(\W)?(.*)/),b=b||document,c=b["getElement"+(a[1]?"#"==a[1]?"ById":"sByClassName":"sByTagName")],d=c.call(b,a[2]),e=[];return null!==d&&(e=d.length||0===d.length?d:[d]),e}
@@ -624,12 +624,12 @@ function selector(a,b){var a=a.match(/^(\W)?(.*)/),b=b||document,c=b["getElement
 function extend(a,b){
 	var c={};
 	for(var i in a){
-		if(a.hasOwnProperty(i)){
+		if (a.hasOwnProperty(i)){
 			c[i]=a[i];
 		}
 	}
 	for(var i in b){
-		if(b.hasOwnProperty(i)){
+		if (b.hasOwnProperty(i)){
 			c[i]=b[i];
 		}
 	}

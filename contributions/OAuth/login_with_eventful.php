@@ -21,18 +21,18 @@
 	$application_key = '';
 	$account = 'mlemos';
 
-	if(strlen($client->client_id) == 0
+	if (strlen($client->client_id) == 0
 	|| strlen($client->client_secret) == 0)
 		die('Please go to Eventful API request key page http://api.eventful.com/keys/new , '.
 			'create an application, and in the line '.$application_line.
 			' set the client_id to oAuth Consumer Key and client_secret with oAuth Consumer Secret. '.
 			'The Callback URL must be '.$client->redirect_uri);
 
-	if(($success = $client->Initialize()))
+	if (($success = $client->Initialize()))
 	{
-		if(($success = $client->Process()))
+		if (($success = $client->Process()))
 		{
-			if(strlen($client->access_token))
+			if (strlen($client->access_token))
 			{
 				$success = $client->CallAPI(
 					'http://api.evdb.com/rest/users/get', 
@@ -44,9 +44,9 @@
 		}
 		$success = $client->Finalize($success);
 	}
-	if($client->exit)
+	if ($client->exit)
 		exit;
-	if($success)
+	if ($success)
 	{
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

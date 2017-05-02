@@ -53,7 +53,7 @@ function testTypes() {
   var text =  "Integer Float";
   return test(golden,text);
 }
-function testIf(){
+function testif (){
   var golden = [['If','keyword'],[' ','null'],['True','keyword'],[' ','null'],['End','keyword'],[' ','null'],['If','keyword']];
   var text = 'If True End If';
   return test(golden, text);
@@ -67,7 +67,7 @@ function testAll(){
   var result = "";
 
   result += testTypes() + "\n";
-  result += testIf() + "\n";
+  result += testif () + "\n";
   result += testDecl() + "\n";
   return result;
 

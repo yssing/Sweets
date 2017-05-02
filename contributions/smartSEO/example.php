@@ -1,5 +1,5 @@
 <?php
-if(!isset($_POST['url']))
+if (!isset($_POST['url']))
 {
 echo '<form method="post" action="">
 URL: <input type="text" name="url"/>

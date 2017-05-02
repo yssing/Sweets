@@ -102,7 +102,7 @@ CodeMirror.defineMode("scheme", function () {
                     break;
                 case "s-expr-comment": // s-expr commenting mode
                     state.mode = false;
-                    if(stream.peek() == "(" || stream.peek() == "["){
+                    if (stream.peek() == "(" || stream.peek() == "["){
                         // actually start scheme s-expr commenting mode
                         state.sExprComment = 0;
                     }else{
@@ -194,7 +194,7 @@ CodeMirror.defineMode("scheme", function () {
                         }
                         stream.backUp(stream.current().length - 1); // undo all the eating
 
-                        if(typeof state.sExprComment == "number") state.sExprComment++;
+                        if (typeof state.sExprComment == "number") state.sExprComment++;
 
                         returnType = BRACKET;
                     } else if (ch == ")" || ch == "]") {
@@ -202,8 +202,8 @@ CodeMirror.defineMode("scheme", function () {
                         if (state.indentStack != null && state.indentStack.type == (ch == ")" ? "(" : "[")) {
                             popStack(state);
 
-                            if(typeof state.sExprComment == "number"){
-                                if(--state.sExprComment == 0){
+                            if (typeof state.sExprComment == "number"){
+                                if (--state.sExprComment == 0){
                                     returnType = COMMENT; // final closing bracket
                                     state.sExprComment = false; // turn off s-expr commenting mode
                                 }

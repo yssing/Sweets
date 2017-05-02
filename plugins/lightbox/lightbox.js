@@ -22,7 +22,7 @@ function lightboxScroll()  {
 function DelayClose(countdown){
 	$('#closeWindow').html("Vinduet lukker automatisk om " + globCountDown + " sekunder.");
 	setTimeout("DelayClose()", 1000);
-	if(!globCountDown){
+	if (!globCountDown){
 		hideLightBox();
 	}
 	globCountDown--;
@@ -37,28 +37,30 @@ function centerLightbox(){
 function showLightBox(content,width,height){
 	globalmove = 0;
 	pos_left = (($(document).width() - width)/2);
-	if(width == 0){
+	if (width == 0){
 		$('#lightbox').css("position","relative");
-	} else {	
+	} else {
 		$('#lightbox').css("left",pos_left+"px"); 
-		//$('#lightbox_content').css("min-width",width+"px"); 
 		$('#lightbox').css("width",width+4+"px"); 
 		$('#lightbox_content').css("width",width+"px"); 
 	}	
-	if(height){
-		//$('#lightbox_content').css("min-height",height+"px");
-		$('#lightbox_content').css("height",height+2+"px");
-	}
+	if (height){
+		$('#lightbox_content').css("overflow","auto");
 
-	$('#lightbox').css("top", $(window).scrollTop()+popupOffset+"px");	
+		if ((height + parseInt($('#lightbox').css('margin-top')) + 20) > window.innerHeight){
+			height = (window.innerHeight - parseInt($('#lightbox').css('margin-top')) - 50);
+		}		
+		$('#lightbox_content').css("height",height+2+"px");			
+	}
+	
+	$('#lightbox').css("top", $(window).scrollTop()+"px");	
 	$('#lightbox').css("visibility","visible");
 	$('#lightbox').show(1);
 	
 	$('#lightboxbackground').css("visibility","visible");
 	$('#lightboxbackground').show(1);
 	
-	if(content){
-		//$('#lightbox_content').css("text-align","left");
+	if (content){
 		$('#lightbox_content').html(content);
 		lightboxHeadline();
 	}
@@ -92,7 +94,7 @@ function hideLightBox(){
 }
 
 function moveWindow(){
-	if(globalmove == 1){
+	if (globalmove == 1){
 		globalmove = 0;
 		MyMouseXoffset = 0
 		MyMouseYoffset = 0;
@@ -104,15 +106,14 @@ function moveWindow(){
 }
 
 function storeMyOffset(tempX,tempY){
-	if(!MyMouseXoffset){
+	if (!MyMouseXoffset){
 		MyMouseXoffset = tempX - $('#lightbox').offset().left;
 	}
-	if(!MyMouseYoffset){
+	if (!MyMouseYoffset){
 		MyMouseYoffset = tempY - $('#lightbox').offset().top;
 	}	
 }
 
-//function getMouseXY(e) {
 function getMouseXY(mouseX,mouseY) {
 	var scrollval = -70;
 	tempX = mouseX;
@@ -121,7 +122,7 @@ function getMouseXY(mouseX,mouseY) {
 	if (tempX < 0){tempX = 0}
 	if (tempY < 0){tempY = 0}  
 
-	if(globalmove){
+	if (globalmove){
 		storeMyOffset(tempX,tempY)
 		$('#lightbox').css("position","absolute");
 		$('#lightbox').css("left",tempX-MyMouseXoffset+"px");
@@ -153,7 +154,7 @@ $(document).ready(function(){
 	}
 	
 	$(document).on ('keydown', function (e) {	
-		if(e.which == 27){
+		if (e.which == 27){
 			hideLightBox(); 
 		}
 	});

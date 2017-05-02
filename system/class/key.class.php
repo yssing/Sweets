@@ -26,28 +26,30 @@
  * @since      	File available since Release 1.0.0
  * @require		'database.class.php' 
  */
-require_once('database.class.php');
-class key /*extends database*/{
+include_once('baseclass.class.php');
+class key extends baseclass{
 
 	/**
 	 * This method creates an entry in the settings table.
 	 * Key is used to store the name and Value to store the value.
 	 *
-	 * @param string $Key 
-	 * @param string $Value 
+	 * @param string $key 
+	 * @param string $value 
 	 *
 	 * @return bool true on success or false on failure.
 	 *
      * @access public	 
 	 * @since Method available since Release 1.0.0
 	 */	
-	public static function createKey($Key,$Value){
-		$database = new database('generic_key');
-		$data = array("KeySetting" => "'".$Key."'" ,"ValueSetting" => "'".$Value."'");
-		if(!$database->create($data)){
-			return false;
-		}
-		return true;
+	public static function createKey($key,$value){
+		$dbobject = new dbobject('generic_key');
+		$dbobject->create('KeySetting',$key);
+		$dbobject->create('ValueSetting',$value);
+
+		if ($dbobject->commit()){
+			return $dbobject->readLastEntry();
+		} 
+		return false;	
 	}
 	
 	/**
@@ -62,45 +64,33 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function doesExist($key){
-		$database = new database('generic_key');
-		list($id) = $database->readSingle("PK_KeyID","KeySetting = '".$key."'");
-		return $id;	
+		$dbobject = new dbobject('generic_key');
+		$dbobject->read("PK_KeyID");
+		$dbobject->where("KeySetting", $key);
+		if ($id = $dbobject->fetchSingle()){
+			list($id) = $dbobject->fetchSingle();
+			return $id;
+		}
+		return false;
 	}
-	
-	/**
-     * This method finds the newest entry in the key table.
-	 *
-	 * @return int/bool id on success or false on failure.	 
-	 *
-	 * @access public
-	 * @since Method available since Release 1.0.0
-     */		
-	public static function findlast(){
-		$database = new database('generic_key');
-		list($id) = $database->readLastEntry();
-		return $id;
-	}	
 	
 	/**
 	 * This method updates the value of a key
 	 *
-	 * @param string $Key
-	 * @param string $Value
+	 * @param string $key
+	 * @param string $value
 	 *
 	 * @return true on success or false on failure.
 	 *
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */		
-	public static function updateKey($id,$Key,$Value){
-		$database = new database('generic_key');
-		$data = array("ValueSetting" => "'".$Value."'", "KeySetting" => "'".$Key."'");
-		$where = " PK_KeyID = ".$id;
-		
-		if(!$database->update($data,$where)){
-			return false;
-		}
-		return true;
+	public static function updateKey($id,$key,$value){
+		$dbobject = new dbobject('generic_key');
+		$dbobject->update('KeySetting',$key);
+		$dbobject->update('ValueSetting',$value);
+		$dbobject->where("PK_KeyID", $id);
+		return $dbobject->commit();	
 	}
 	
 	/**
@@ -112,8 +102,11 @@ class key /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */	
 	public static function listKeys(){
-		$database = new database('generic_key');
-		return $database->read("PK_KeyID, KeySetting, ValueSetting");	
+		$dbobject = new dbobject('generic_key');
+		$dbobject->read("PK_KeyID");
+		$dbobject->read("KeySetting");
+		$dbobject->read("ValueSetting");
+		return $dbobject->fetch();
 	}	
 	
 	/**
@@ -121,29 +114,27 @@ class key /*extends database*/{
 	 * It can take as key either the Key or the PK_ID for the row, if it finds 
 	 * a value, then that value will be returned, if not it returns false.
 	 *
-	 * @param string $Key
+	 * @param string $key
 	 *
 	 * @return string/bool Value on success or false on failure.
 	 *
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */	
-	public static function readKey($Key){
-		$database = new database('generic_key');
-		if(!$Key){
+	public static function readKey($key){
+		if (!$key){
 			return false;
 		}
-		if(is_numeric($Key)){
-			$where = "PK_KeyID = ".$Key;
+		$dbobject = new dbobject('generic_key');
+		$dbobject->read("PK_KeyID");
+		$dbobject->read("KeySetting");
+		$dbobject->read("ValueSetting");
+		if (is_numeric($key)){
+			$dbobject->where("PK_KeyID", $key);
 		} else {
-			$where = "KeySetting = '".$Key."'";
-		}
-		$Value = $database->readSingle('',$where); 
-		if(is_array($Value)){
-			return $Value;
-		} else {
-			return false;
-		}		
+			$dbobject->where("KeySetting", $key);
+		}	
+		return $dbobject->fetchSingle();
 	}	
 
 	/**
@@ -151,27 +142,29 @@ class key /*extends database*/{
 	 * It can take as key either the Key or the PK_ID for the row, if it finds 
 	 * a value, then that value will be returned, if not it returns false.
 	 *
-	 * @param string $Key
+	 * @param string $key
 	 *
 	 * @return string/bool Value on success or false on failure.
 	 *
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */
-	public static function readValue($key){
-		$database = new database('generic_key');
-		if(!$key){
+	public static function readValue($key){		
+		if (!$key){
 			return false;
-		}
-		if(is_numeric($key)){
-			$where = "PK_KeyID = ".$key;
+		}	
+		$dbobject = new dbobject('generic_key');
+		$dbobject->read("ValueSetting");
+		if (is_numeric($key)){
+			$dbobject->where("PK_KeyID", $key);
 		} else {
-			$where = "KeySetting = '".$key."'";
+			$dbobject->where("KeySetting", $key);
 		}
-		$Value = $database->readSingle('ValueSetting',$where); 
-		if(is_array($Value)){
-			list($Value) = $Value;
-			return $Value;
+		$value = $dbobject->fetchSingle();
+
+		if (is_array($value)){
+			list($value) = $value;
+			return $value;
 		} else {
 			return false;
 		}
@@ -180,23 +173,18 @@ class key /*extends database*/{
 	/**
 	 * This method deletes a key from the database.
 	 *
-	 * @param string $Key 	 
+	 * @param string $key 	 
 	 *
 	 * @return bool true on success or false on failure.
 	 *
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */		
-	public static function destroyKey($Key){
-		$database = new database('generic_key');
-		if(!$Key){
-			return false;
-		}
-		$where = "PK_KeyID = ".$Key;
-		if(!$database->destroy($where)){
-			return false;
-		}
-		return true;
-	}	
+	public static function destroyKey($key){
+		$dbobject = new dbobject('generic_key');
+		$dbobject->destroy();
+		$dbobject->where("PK_KeyID",$key);
+		return $dbobject->commit();		
+	}		
 }
 ?>

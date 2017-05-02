@@ -16,7 +16,3 @@ function toggleFullScreen(element) {
 		$('#'+FullScreenElement).removeClass("fullscreen");
 	}
 }
-
-$(document).ready(function(){
-
-});	

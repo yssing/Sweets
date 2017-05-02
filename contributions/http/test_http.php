@@ -98,10 +98,10 @@
 	 */
 	$error=$http->GetRequestArguments($url,$arguments);
 
-	if(strlen($realm))
+	if (strlen($realm))
 		$arguments["AuthRealm"]=$realm;
 
-	if(strlen($workstation))
+	if (strlen($workstation))
 		$arguments["AuthWorkstation"]=$workstation;
 
 	$http->authentication_mechanism=""; // force a given authentication mechanism;
@@ -159,25 +159,25 @@
 	$error=$http->Open($arguments);
 	echo "</LI>\n";
 
-	if($error=="")
+	if ($error=="")
 	{
 		echo "<LI><H2>Sending request for page:</H2>\n<P><TT>";
 		echo HtmlSpecialChars($arguments["RequestURI"]),"\n";
-		if(strlen($user))
+		if (strlen($user))
 			echo "\nLogin:    ",$user,"\nPassword: ",str_repeat("*",strlen($password));
 		echo "</TT></P>\n";
 		flush();
 		$error=$http->SendRequest($arguments);
 		echo "</LI>\n";
 
-		if($error=="")
+		if ($error=="")
 		{
 			echo "<LI><H2>Request:</H2>\n<PRE>\n".HtmlSpecialChars($http->request)."</PRE></LI>\n";
 			echo "<LI><H2>Request headers:</H2>\n<PRE>\n";
 			for(Reset($http->request_headers),$header=0;$header<count($http->request_headers);Next($http->request_headers),$header++)
 			{
 				$header_name=Key($http->request_headers);
-				if(GetType($http->request_headers[$header_name])=="array")
+				if (GetType($http->request_headers[$header_name])=="array")
 				{
 					for($header_value=0;$header_value<count($http->request_headers[$header_name]);$header_value++)
 						echo $header_name.": ".$http->request_headers[$header_name][$header_value],"\r\n";
@@ -191,7 +191,7 @@
 			$headers=array();
 			$error=$http->ReadReplyHeaders($headers);
 			echo "</LI>\n";
-			if($error=="")
+			if ($error=="")
 			{
 				echo "<LI><H2>Response status code:</H2>\n<P>".$http->response_status;
 				switch($http->response_status)
@@ -208,7 +208,7 @@
 				for(Reset($headers),$header=0;$header<count($headers);Next($headers),$header++)
 				{
 					$header_name=Key($headers);
-					if(GetType($headers[$header_name])=="array")
+					if (GetType($headers[$header_name])=="array")
 					{
 						for($header_value=0;$header_value<count($headers[$header_name]);$header_value++)
 							echo $header_name.": ".$headers[$header_name][$header_value],"\r\n";
@@ -228,14 +228,14 @@
 
 				/*
 				$error = $http->ReadWholeReplyBody($body);
-				if(strlen($error) == 0)
+				if (strlen($error) == 0)
 					echo HtmlSpecialChars($body);
 				*/
 
 				for(;;)
 				{
 					$error=$http->ReadReplyBody($body,1000);
-					if($error!=""
+					if ($error!=""
 					|| strlen($body)==0)
 						break;
 					echo HtmlSpecialChars($body);
@@ -247,7 +247,7 @@
 		}
 		$http->Close();
 	}
-	if(strlen($error))
+	if (strlen($error))
 		echo "<H2 align=\"center\">Error: ",$error,"</H2>\n";
 ?>
 </UL>

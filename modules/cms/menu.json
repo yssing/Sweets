@@ -1,0 +1,9 @@
+{
+	"Cms": {
+		"Menu": "menu",
+		"Submenu": "submenu",
+		"Text": "text",
+		"News": "news",
+		"Theme": "theme"
+	}
+}

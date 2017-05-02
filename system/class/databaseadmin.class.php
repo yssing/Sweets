@@ -25,9 +25,16 @@
  * @since		File available since Release 1.0.0
  * @require		'database.class.php'
  */
-require_once('database.class.php');
-class databaseadmin extends database{
+include_once('dbobject.class.php');
+class databaseadmin extends dbobject{
 
+	public function __construct(){
+		parent::__construct();
+		//if (!user::validateAdmin()){
+		//	route::error('403');
+		//}		
+	}
+	
 	/**
      * This function shows the databases that the database object has access to
 	 * ONLY USE THIS AS ADMINISTRATOR!!
@@ -39,7 +46,7 @@ class databaseadmin extends database{
      */		
 	public function showDatabases(){
 		$data = array();
-		if(genericIO::$adminid){
+		if (baseclass::$adminid){
 			$outerLoop = $this->databaseHandler->prepare("SHOW DATABASES");
 			if ($outerLoop->execute()) {
 				while ($row = $outerLoop->fetch()) {
@@ -63,16 +70,16 @@ class databaseadmin extends database{
      */		
 	public function showTables($database = ''){
 		$data = array();
-		if(genericIO::$adminid){
+		if (baseclass::$adminid){
 			$sql = 'SHOW TABLES ';
-			if($database){
+			if ($database){
 				$sql .= 'FROM '.$database;
 			}
 
 			$outerLoop = $this->databaseHandler->prepare($sql);
 			if ($outerLoop->execute()) {
 				while ($row = $outerLoop->fetch()) {
-					if($database){
+					if ($database){
 						$data[] = array($row['Tables_in_'.$database]);
 					} else {
 						$data[] = array($row['Tables_in_information_schema']);
@@ -94,11 +101,12 @@ class databaseadmin extends database{
      * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public function showColumns($table){	
+	public function showColumns($table){
+		$this->dbobject_table = $table;
 		$data = array();
-		if(genericIO::$adminid){
+		if (baseclass::$adminid){
 			$sql = 'SHOW COLUMNS ';
-			if($table){
+			if ($table){
 				$sql .= 'FROM '.$table;
 			}
 
@@ -130,9 +138,10 @@ class databaseadmin extends database{
 	 * @since Method available since Release 1.0.0
 	 */			
 	public function addColumn($table,$name,$type){		
-		if(!$table || !$name || !$type){
+		if (!$table || !$name || !$type){
 			return false;
 		}
+		$this->dbobject_table = $table;
 		try{
 			self::TransactionBegin();
 			$sql = 'ALTER TABLE '.$table.' ADD '.$name.' '.$type.' NOT NULL';
@@ -167,23 +176,24 @@ class databaseadmin extends database{
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */	
-	public function createTable($table,$what = '',$privatekey = '',$charset= 'utf8'){
-		if(!$table || !$what){
+	public function createTable($table,$what = '',$privatekey = '',$charset = 'utf8'){
+		if (!$table || !$what){
 			return false;
 		}
+		$this->dbobject_query = $table;
 		try{
 			self::TransactionBegin();
-			if(!$privatekey){
+			if (!$privatekey){
 				$privatekey = 'PK_'.$table.'ID';
 			}
 
 			$sql = 'CREATE TABLE IF NOT EXISTS `'.TPREP.$table.'` (
 			`'.$privatekey.'` int(10) unsigned NOT NULL AUTO_INCREMENT,';
 			
-			if($what != ''){
-				if(is_array($what)){
+			if ($what != ''){
+				if (is_array($what)){
 					while ($rowData = current($what)) {
-						if(stripos($rowData,'NOT NULL')){
+						if (stripos($rowData,'NOT NULL')){
 							$sql .= '`'.key($what).'` '.$rowData.", ";
 						} else {
 							$sql .= '`'.key($what).'` '.$rowData." NOT NULL, ";
@@ -203,10 +213,11 @@ class databaseadmin extends database{
 			) ENGINE=InnoDB DEFAULT CHARSET='.$charset.' AUTO_INCREMENT=1;';
 
 			$this->sqlString = $sql;
-			
+
 			$innerLoop = $this->databaseHandler->prepare($sql);
 			if (!$innerLoop->execute()) {
 				throw new Exception('Could not create new table: '.$table);
+				return false;
 			}
 		}	
 		catch (Exception $e){
@@ -216,6 +227,88 @@ class databaseadmin extends database{
 		}	
 		self::TransactionEnd();
 		return true;
+	}
+	
+	/**
+	 * This method can add an index to a cloumn in a  given table
+	 *
+	 * If the user does not have the correct permission, then it will throw an error!
+	 *
+	 * @param string $table the table to be created.
+	 * @param string $column what column is the index added to.
+	 *
+	 * @return boolean true on success or false on failure
+	 *
+     * @access public
+	 * @since Method available since Release 26-01-2017
+	 */			
+	public function addIndex($table, $column){
+		if (!$table || !$column){
+			return false;
+		}
+
+		$this->dbobject_query = $table;
+		try{
+			self::TransactionBegin();
+
+			$sql = 'ALTER TABLE `'.TPREP.$table.'` ADD INDEX(`'.$column.'`);';
+
+			$this->sqlString = $sql;
+
+			$innerLoop = $this->databaseHandler->prepare($sql);
+			if (!$innerLoop->execute()) {
+				throw new Exception('Could not create index: '.$column.' in: '.$table);
+				return false;
+			}
+		}	
+		catch (Exception $e){
+			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,$sql);
+			self::TransactionRollback();
+			return false;
+		}	
+		self::TransactionEnd();
+		return true;		
+	}
+	
+	/**
+	 * This method imports a SQL file, if any, into a table, set by the createTable function
+	 * It will truncate the table on import!
+	 *
+	 * @param string $sqlPath the path where the sql is found.
+	 * @param string $truncate should the table be truncated first, defaults to true.
+	 *
+	 * @return boolean true on success or false on failure
+	 *
+     * @access public
+	 * @since Method available since Release 1.0.0
+	 */		
+	public function importSQLfile($sqlPath, $truncate = true){
+		if (!is_file($sqlPath.$this->dbobject_query.'.sql')){
+			return false;
+		}
+		if($truncate){
+			self::truncateTable(TPREP.$this->dbobject_query);
+		}
+		
+		// loads the sql file
+		$sql = file_get_contents($sqlPath.$this->dbobject_query.'.sql');
+		// insert TPREP to the table name
+		$sql = str_replace('`'.$this->dbobject_query.'`','`'.TPREP.$this->dbobject_query.'`',$sql);
+		
+		//self::TransactionBegin();
+		try{
+			$prepared = $this->databaseHandler->prepare($sql);
+
+			if (!$prepared->execute()) {
+				throw new Exception('Could not import Query');
+			}
+		}	
+		catch (Exception $e){
+			self::DBug('Caught exception: '. $e->getMessage(),__METHOD__,'Import SQL File:'.$sqlPath.$this->dbobject_query.'.sql');
+			//self::TransactionRollback();
+			return false;
+		}
+		//self::TransactionEnd();		
 	}
 	
 	/**
@@ -231,7 +324,7 @@ class databaseadmin extends database{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public function dropTable($table){
-		if(!$table){
+		if (!$table){
 			return false;
 		}	
 		try{
@@ -270,7 +363,7 @@ class databaseadmin extends database{
 	public function changeToUTF8($table,$what){
 		$this->db_table = $table;
 		$key = self::getPrivateKey();
-		$sql = "SELECT ".$key.", ".$what." FROM ".$table;
+		$sql = "SELECT ".$key.", ".$what." FROM ".TPREP.$table;
 
 		try{
 			$outerLoop = $this->databaseHandler->prepare($sql);
@@ -315,7 +408,7 @@ class databaseadmin extends database{
 	 * @since Method available since Release 1.0.0
      */		
 	public function truncateTable($table){
-		if(!$table){
+		if (!$table){
 			return false;
 		}
 
@@ -325,7 +418,7 @@ class databaseadmin extends database{
 			$this->sqlString = $sql;
 			$prepared = $this->databaseHandler->prepare($sql);
 			if (!$prepared->execute()) {
-				throw new Exception('Could not update data in table: '.$this->db_table);
+				throw new Exception('Could not truncate table: '.$table);
 			}			
 		}	
 		catch (Exception $e){

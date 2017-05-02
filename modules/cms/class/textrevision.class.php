@@ -29,7 +29,7 @@
 class textrevision{
 
 	/**
-     * This method creates a text entry in the database.
+     * This method creates a revision entry in the database.
 	 *
 	 * @param string $headline Text headline.
 	 * @param string $body The main text.
@@ -42,21 +42,37 @@ class textrevision{
 	 * @since Method available since Release 1.0.0
      */	
 	public static function createRevision($headline,$body,$key,$language,$textid){
-		$database = new database('cms_text_revision');
-		$data = array("Headline" => "'".$headline."'",
-			"BodyText" => "'".$body."'",
-			"TextKey" => "'".$key."'",
-			"Language" => "'".$language."'",
-			"FK_TextID" => $textid);
-		if(!$database->create($data)){			
-			return false;
-		}
-		return true;
+		$dbobject = new dbobject('cms_text_revision');
+		$dbobject->create('Headline',$headline);
+		$dbobject->create('BodyText',$body);	
+		$dbobject->create('TextKey',$key);	
+		$dbobject->create('Language',$language);	
+		$dbobject->create('FK_TextID',$textid);
+		if ($dbobject->commit()){
+			return true;
+		} 
+		return false;		
+		
 	}
 	
+	/**
+     * This method reads a single revision.
+	 *
+	 * @param int $revisionid The key to the revision
+	 *
+	 * @return array/bool The table on succes false on failure.	 
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0
+     */	
 	public static function readRevision($revisionid){
-		$database = new database('cms_text_revision');
-		return $database->readSingle("Headline,BodyText,CreateDate","PK_TextRevisionID = ".$revisionid);
+		$dbobject = new dbobject('cms_text_revision');
+		$dbobject->read("Headline");
+		$dbobject->read("BodyText");
+		$dbobject->read("CreateDate");
+		$dbobject->read("FK_TextID");
+		$dbobject->where("PK_TextRevisionID",$revisionid);
+		return $dbobject->fetchSingle();		
 	}
 	
 	/**
@@ -70,8 +86,51 @@ class textrevision{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function listRevisions($textid){
-		$database = new database('cms_text_revision');
-		return $database->read("PK_TextRevisionID,Headline,Language,CreateDate","FK_TextID = ".$textid,"PK_TextRevisionID DESC");
+		$dbobject = new dbobject('cms_text_revision');
+		$dbobject->short('ctr');
+		$dbobject->join("user","PK_UserID","FK_UserID");
+		$dbobject->read("PK_TextRevisionID");
+		$dbobject->read("UserLogin");
+		$dbobject->read(TPREP."ctr.Headline");
+		$dbobject->read(TPREP."ctr.Language");
+		$dbobject->read(TPREP."ctr.CreateDate");
+		$dbobject->where("FK_TextID",$textid);
+		$dbobject->orderby('PK_TextRevisionID','DESC');
+		return $dbobject->fetch();		
+	}	
+	
+	/**
+     * This method deletes a single revision
+	 *
+	 * @param int $revid The key to the revision.
+	 *
+	 * @return bool True on success or false on failure.	 
+	 *
+	 * @access public
+	 * @since Method available since Release 23-01-2017	
+     */		
+	public static function destroyRevision($revid){
+		$dbobject = new dbobject('cms_text_revision');
+		$dbobject->destroy();
+		$dbobject->where("PK_TextRevisionID",$revid);
+		return $dbobject->commit();		
+	}	
+	
+	/**
+     * This method deletes all revisions related to a text
+	 *
+	 * @param int $textid The foreign key to the table.
+	 *
+	 * @return bool True on success or false on failure.	 
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0	
+     */		
+	public static function destroyRevisions($textid){
+		$dbobject = new dbobject('cms_text_revision');
+		$dbobject->destroy();
+		$dbobject->where("FK_TextID",$textid);
+		return $dbobject->commit();		
 	}	
 }
 ?>

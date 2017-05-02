@@ -47,17 +47,17 @@
 	flush();
 	$error=$http->Open($arguments);
 
-	if($error=="")
+	if ($error=="")
 	{
 		$error=$http->SendRequest($arguments);
-		if($error=="")
+		if ($error=="")
 		{
 			echo "<H2><LI>Request:</LI</H2>\n<PRE>\n".HtmlEntities($http->request)."</PRE>\n";
 			echo "<H2><LI>Request headers:</LI</H2>\n<PRE>\n";
 			for(Reset($http->request_headers),$header=0;$header<count($http->request_headers);Next($http->request_headers),$header++)
 			{
 				$header_name=Key($http->request_headers);
-				if(GetType($http->request_headers[$header_name])=="array")
+				if (GetType($http->request_headers[$header_name])=="array")
 				{
 					for($header_value=0;$header_value<count($http->request_headers[$header_name]);$header_value++)
 						echo $header_name.": ".$http->request_headers[$header_name][$header_value],"\r\n";
@@ -71,13 +71,13 @@
 
 			$headers=array();
 			$error=$http->ReadReplyHeaders($headers);
-			if($error=="")
+			if ($error=="")
 			{
 				echo "<H2><LI>Response headers:</LI</H2>\n<PRE>\n";
 				for(Reset($headers),$header=0;$header<count($headers);Next($headers),$header++)
 				{
 					$header_name=Key($headers);
-					if(GetType($headers[$header_name])=="array")
+					if (GetType($headers[$header_name])=="array")
 					{
 						for($header_value=0;$header_value<count($headers[$header_name]);$header_value++)
 							echo $header_name.": ".$headers[$header_name][$header_value],"\r\n";
@@ -92,7 +92,7 @@
 				for(;;)
 				{
 					$error=$http->ReadReplyBody($body,1000);
-					if($error!=""
+					if ($error!=""
 					|| strlen($body)==0)
 						break;
 					echo HtmlSpecialChars($body);
@@ -103,7 +103,7 @@
 		}
 		$http->Close();
 	}
-	if(strlen($error))
+	if (strlen($error))
 		echo "<CENTER><H2>Error: ",$error,"</H2><CENTER>\n";
 ?>
 </UL>

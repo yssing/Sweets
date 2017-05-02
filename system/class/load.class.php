@@ -49,21 +49,25 @@ class autoload{
 	 * This method starts loading all class files
 	 * The classes must be located in either system/class or in any module in the module folder.
 	 */
-	public static function load(){
-		if(is_file('settings/defines.php')){
+	//public static function load($syspath = 'system/class/', $modpath = 'modules'){
+	public static function load($syspath = 'system/class/', $modpath = 'modules/'){
+		if (is_file('settings/defines.php')){
 			require_once('settings/defines.php');
-		}	
-		self::load_system();
-		self::load_modules();	
+		} else if (is_file('../settings/defines.php')){
+			require_once('../settings/defines.php');
+		} else if (is_file('../../settings/defines.php')){
+			require_once('../../settings/defines.php');
+		}
+		self::loadSystem($syspath);		
+		if($modpath){
+			self::loadModules($modpath);
+		}
 	} 
 	 
 	/**
 	 * This method loads all system classes.
 	 */		 
-	private static function load_system($path = 'system/class/'){
-		if(is_file('settings/defines.php')){
-			require_once('settings/defines.php');
-		}
+	private static function loadSystem($path){
 		if (is_dir($path)) {
 			$objects = scandir($path);
 			foreach ($objects as $object) {
@@ -80,12 +84,12 @@ class autoload{
 	/**
 	 * This method loads all module classes.
 	 */			
-	private static function load_modules($path = 'modules'){
+	private static function loadModules($path){
 		$root = scandir($path);
 		foreach($root as $value){
 			if ($value != "." && $value != ".."){
 				if (is_dir($path.'/'.$value)) {
-					if(is_dir($path.'/'.$value.'/class')){
+					if (is_dir($path.'/'.$value.'/class')){
 						$objects = scandir($path.'/'.$value.'/class');
 						foreach ($objects as $object) {
 							if ($object != "." && $object != ".."){
@@ -93,7 +97,7 @@ class autoload{
 							}
 						}
 					} else {
-						self::load_modules($path.'/'.$value);
+						self::loadModules($path.'/'.$value);
 					}
 				} 
 			}

@@ -13,19 +13,19 @@
 	$url="http://www.phpclasses.org/graphics/logo.gif";
 	$error=$http->GetRequestArguments($url,$arguments);
 	$error=$http->Open($arguments);
-	if($error=="")
+	if ($error=="")
 	{
 		$error=$http->SendRequest($arguments);
-		if($error=="")
+		if ($error=="")
 		{
 			$headers=array();
 			$error=$http->ReadReplyHeaders($headers);
-			if($error=="")
+			if ($error=="")
 			{
 				for(Reset($headers),$header=0;$header<count($headers);Next($headers),$header++)
 				{
 					$header_name=Key($headers);
-					if(GetType($headers[$header_name])!="array")
+					if (GetType($headers[$header_name])!="array")
 					{
 						switch(strtolower($header_name))
 						{
@@ -39,7 +39,7 @@
 				for(;;)
 				{
 					$error=$http->ReadReplyBody($body,1000);
-					if($error!=""
+					if ($error!=""
 					|| strlen($body)==0)
 						break;
 					echo $body;
@@ -48,7 +48,7 @@
 		}
 		$http->Close();
 	}
-	if($error!="")
+	if ($error!="")
 	{
 ?>
 <HTML>

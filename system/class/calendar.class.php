@@ -56,12 +56,12 @@ class calendar {
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public static function parsedate($timestring,$usetime = 1){
+	public static function parsedate($timestring,$usetime = 1,$format='d-m-Y',$stamp='Kl.:'){
 		$timestring = strtotime($timestring);
-		if($usetime){
-			return date("d-m-Y", $timestring) ." Kl.: ".date("H:i", $timestring);
+		if ($usetime){
+			return date($format, $timestring) ." ".$stamp." ".date("H:i", $timestring);
 		} else {
-			return date("d-m-Y", $timestring);
+			return date($format, $timestring);
 		}
 	}	
 
@@ -79,9 +79,134 @@ class calendar {
      */		
 	public static function add_date($orgDate,$dayadd){
 		$cd = strtotime($orgDate);
-		$retDAY = date('Y-m-d H:i', mktime(date('H',$cd),date('i',$cd),0,date('m',$cd),date('d',$cd)+$dayadd,date('Y',$cd)));
+		$retDAY = date('Y-m-d H:i:s', mktime(date('H',$cd),date('i',$cd),0,date('m',$cd),date('d',$cd)+$dayadd,date('Y',$cd)));
 		return $retDAY;
 	}	
+	
+	/**
+     * This method add x amount of minutes to current datetime
+	 *
+	 * @return string the calculated timestamp.
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0
+     */		
+	public static function add_minutes($minutes){
+		if ($minutes){
+			$stamp = time() + $minutes*60; // * 60 seconds/minute;
+			return date('Y-m-d H:i:s',$stamp);
+		}
+		return false;
+	}
+	
+	/**
+     * This method simply returns a date formatted to fit SQL
+	 *
+	 * @return string the current timestamp.
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0
+     */		
+	public static function now(){
+		return date('Y-m-d H:i:s');
+	}
+	
+	/**
+     * This method returns current year
+	 *
+	 * @return string the current year.
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0
+     */		
+	public static function year(){
+		return date('Y');
+	}
+	
+	/**
+     * This method returns current month
+	 *
+	 * @return string the current month.
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0
+     */			
+	public static function month(){
+		return date('m');
+	}
+
+	/**
+     * This method returns current day
+	 *
+	 * @return string the current day.
+	 *
+	 * @access public
+	 * @since Method available since Release 1.0.0
+     */			
+	public static function day(){
+		return date('d');
+	}	
+	
+	/**
+	 * This method returns a 2D array with a range of years, based on current year
+	 *
+	 * @param int $range The range of years, defaults to 100.
+	 *
+	 * @return array $list Array of years
+	 *
+	 * @access public
+	 * @since Method available since Release 30-12-2015
+     */		 
+	public static function listYears($range = 100){
+		$year = self::year();
+		$list = array();
+		for($i = 0; $i < $range; $i++){
+			$list[] =  array($year-$i,$year-$i);
+		}
+		return $list;
+	}
+	
+	/**
+	 * This method returns a 2D array with a range of days in a given month
+	 *
+	 * @param int $month The month number, to find days in.
+	 *
+	 * @return array $list Array of days in the month
+	 *
+	 * @access public
+	 * @since Method available since Release 30-12-2015
+     */	
+	public static function listDays($month = 1){
+		$days = cal_days_in_month (CAL_GREGORIAN, $month, self::year());
+		$list = array();
+		
+		for($i = 1; $i < $days+1; $i++){
+			if($i < 10) {
+				$x = baseclass::number_pad($i,2);
+				$list[] = array($x,$x);				
+			} else {
+				$list[] = array($i,$i);
+			}
+		}
+		return $list;
+	}
+	
+	/**
+	 * This method returns a 2D array with a range of months and the corresponding names
+	 *
+	 * @return array $list Array of months
+	 *
+	 * @access public
+	 * @since Method available since Release 30-12-2015
+     */			
+	public static function listMonths(){
+		$list = array();
+		
+		for ($i = 1; $i < 13; ++$i) {
+			$list[] =  array(baseclass::number_pad($i,2),language::readType('MONTH'.$i));
+		}
+		return $list;
+	}
 	
 	/**
      * This method finds the day name of a given date.

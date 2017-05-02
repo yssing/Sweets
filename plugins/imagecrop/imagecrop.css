@@ -1,0 +1,15 @@
+.img-overlay{
+	z-index: 10;
+	top: 15px;
+	left: 15px;
+	width: 380px;
+	height: 540px;
+	position: absolute;
+	background-color: white;
+	opacity: 0.9;
+}
+
+.img-overlay-crop{
+	position: absolute;
+	border: 2px solid grey;
+}

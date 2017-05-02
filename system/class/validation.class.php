@@ -23,7 +23,6 @@
  * @version    	SVN: 1.0.0
  * @link       	http://www.yssing.org
  * @since      	File available since Release 1.0.0
- * @require		'generic.io.class.php'
  */
 
 class validation{
@@ -43,7 +42,7 @@ class validation{
 	public static function isEMail($email){
 		$email = trim($email);
 		if (strlen($email) >= 1 ){
-			if(preg_match("/^[a-zA-Z]\w+(\.\w+)*\@\w+(\.[0-9a-zA-Z]+)*\.[a-zA-Z]{2,4}$/", $email) == false){
+			if (preg_match("/^[a-zA-Z]\w+(\.\w+)*\@\w+(\.[0-9a-zA-Z]+)*\.[a-zA-Z]{2,4}$/", $email) == false){
 				return false;
 			} else {
 				return true;
@@ -51,6 +50,30 @@ class validation{
 		}
 		return true;
 	}	
+
+	/**
+	 * This method checks if a password follow basic rules.
+	 * It uses the php preg_match to validate the pattern.
+	 *
+	 * @param string $password the string to be checked.  
+	 *
+	 * @return bool Returns TRUE if password validates or FALSE if not.
+	 *	 
+	 * @access public
+	 * @static
+	 * @since Method available since Release 1.0.0
+	 */		
+	public static function validatePassword($password){		
+		$password = trim($password);
+		if (strlen($password) >= 6 ){
+			if (preg_match("/^(?=.*[a-zA-Z])(?=.*[0-9])/", $password) == false){
+				return false;
+			} else {
+				return true;
+			}	
+		}
+		return false;	
+	}
 	
 	/**
 	 * This method trims a string then checks for any content.
@@ -64,7 +87,7 @@ class validation{
 	 * @since Method available since Release 1.0.0
 	 */			
 	public static function isEmpty($string){
-		if(sizeof(trim($string))){
+		if (sizeof(trim($string))){
 			return false;
 		} else {
 			return true;
@@ -84,7 +107,7 @@ class validation{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function isNumber($string){
-		if(is_numeric(trim($string))){
+		if (is_numeric(trim($string))){
 			return true;
 		} else {
 			return false;

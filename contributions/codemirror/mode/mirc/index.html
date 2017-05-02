@@ -60,7 +60,7 @@ alias -l NickNamesAdd {
     }
   }
   else {
-    hadd -m NickNames $2 $+(~,$1,~,$iif($3,$+($3,~)))
+    hadd -m NickNames $2 $+(~,$1,~,$iif ($3,$+($3,~)))
   }
 }
 alias -l Fix.All.MindUser {
@@ -85,13 +85,13 @@ menu nicklist,query {
   }
   ..Cleanup $$1:hadd NickNames $+($network,$address($1,2)) $fix.minduser($hget(NickNames,$+($network,$address($1,2))))
   ..Clear $$1:hadd NickNames $+($network,$address($1,2)) $+(~,$1,~)
-  ..AKA Search Dialog:dialog $iif($dialog(AKA_Search),-v,-m) AKA_Search AKA_Search
+  ..AKA Search Dialog:dialog $iif ($dialog(AKA_Search),-v,-m) AKA_Search AKA_Search
   -
 }
 menu status,channel {
   -
   .AKA
-  ..AKA Search Dialog:dialog $iif($dialog(AKA_Search),-v,-m) AKA_Search AKA_Search
+  ..AKA Search Dialog:dialog $iif ($dialog(AKA_Search),-v,-m) AKA_Search AKA_Search
   ..Clean All Records:Fix.All.Minduser
   -
 }
@@ -113,7 +113,7 @@ On *:Dialog:Aka_Search:init:*: { did -c $dname 5 }
 On *:Dialog:Aka_Search:Sclick:2,7,9: {
   if ($did == 2) && ($did($dname,1)) {
     did -r $dname 6
-    var %search $+(*,$v1,*), %type $iif($did($dname,5).state,data,item), %matches = $hfind(NickNames,%search,0,w). [ $+ [ %type ] ]
+    var %search $+(*,$v1,*), %type $iif ($did($dname,5).state,data,item), %matches = $hfind(NickNames,%search,0,w). [ $+ [ %type ] ]
     while (%matches) {
       did -a $dname 6 $hfind(NickNames,%search,%matches,w). [ $+ [ %type ] ]
       dec %matches

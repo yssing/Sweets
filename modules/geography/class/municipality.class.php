@@ -37,8 +37,11 @@ class municipality{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function readSingleMunicipality($municipalityid){
-		$database = new database("geography_municipality");
-		return $database->readSingle("Municipality,MunicipalityCode","PK_MunicipalityID = ".$municipalityid);	
+		$dbobject = new dbobject('geography_municipality');
+		$dbobject->read("Municipality");
+		$dbobject->read("MunicipalityCode");
+		$dbobject->where("PK_MunicipalityID",$municipalityid);
+		return $dbobject->fetchSingle();		
 	}
 
 	/**
@@ -49,20 +52,19 @@ class municipality{
 	 * @access public
 	 * @since Method available since Release 1.0.0
      */		
-	public static function listMunicipalities(){
-		$database = new database("geography_municipality");
-		return $database->read("PK_MunicipalityID,Municipality,MunicipalityCode","","Municipality");
+	public static function listMunicipalities($searchval = ''){
+		$dbobject = new dbobject('geography_municipality');
+		$dbobject->read("PK_MunicipalityID");
+		$dbobject->read("Municipality");
+		$dbobject->read("MunicipalityCode");
+		if ($searchval){
+			$dbobject->wildcard("Municipality",$searchval);
+			$dbobject->wildcard("MunicipalityCode",$searchval);
+		}			
+		$dbobject->orderby("Municipality");
+		return $dbobject->fetch();			
 	}	
-	
-	/**
-	 * finds the newest item.
-	 */
-	public static function findlast(){
-		$database = new database("geography_municipality");
-		list($id) = $database->readLastEntry();
-		return $id;
-	}
-	
+
 	/**
      * This method updates a municipality item with all the current parameters.
 	 *
@@ -76,9 +78,11 @@ class municipality{
 	 * @since Method available since Release 1.0.0
      */
 	public static function updateMunicipality($municipalityid,$municipality,$municipalitycode){
-		$database = new database("geography_municipality");
-		$data = array("Municipality" => "'".$municipality."'","MunicipalityCode" => $municipalitycode);
-		return $database->update($data,"PK_MunicipalityID = ".$municipalityid);
+		$dbobject = new dbobject('geography_municipality');
+		$dbobject->update('Municipality',$municipality);
+		$dbobject->update('MunicipalityCode',$municipalitycode);
+		$dbobject->where("PK_MunicipalityID", $municipalityid);
+		return $dbobject->commit();		
 	}	
 	
 	/**
@@ -93,12 +97,13 @@ class municipality{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function createMunicipality($municipality,$municipalitycode){
-		$database = new database("geography_municipality");
-		$data = array("Municipality" => "'".$municipality."'","MunicipalityCode" => $municipalitycode);
-		if(!$database->create($data)){
-			return false;
+		$dbobject = new dbobject('geography_municipality');
+		$dbobject->create('Municipality',$municipality);
+		$dbobject->create('MunicipalityCode',$municipalitycode);
+		if ($dbobject->commit()){
+			return $dbobject->readLastEntry();
 		}
-		return true;
+		return false;			
 	}
 	
 	/**
@@ -112,11 +117,10 @@ class municipality{
 	 * @since Method available since Release 1.0.0
      */		
 	public static function destroyMunicipality($municipalityid){
-		$database = new database("geography_municipality");
-		if(!$database->destroy("PK_MunicipalityID = ".$municipalityid)){
-			return false;
-		}
-		return true;
+		$dbobject = new dbobject('geography_municipality');
+		$dbobject->destroy();
+		$dbobject->where("PK_MunicipalityID",$municipalityid);
+		return $dbobject->commit();			
 	}
 }
 ?>

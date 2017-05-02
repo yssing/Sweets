@@ -3,12 +3,12 @@ class modulecontrol{
 	public static $modules = array();
 	
 	public static function indexAction(){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}	
-		//self::listModules($_SERVER['DOCUMENT_ROOT'].'/');
+
 		self::listModules('modules/');
-		$body = views::displayEditListview(self::$modules);
+		$body = views::displayEditListview(self::$modules,'listview',0);
 		$body .= '<br />';
 		$body .= form::beginForm('upload','/system/module/upload');		
 			$body .= form::file('','file');
@@ -23,19 +23,19 @@ class modulecontrol{
 	}
 	
 	public static function editAction($args){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
 		$body = '<h3>Install '.$args[0].'</h3>';
 		$body .= 'Will only install tables if they have not been installed before!';
 		
-		if(is_dir(PATH_MOD.$args[0])) {
+		if (is_dir(PATH_MOD.$args[0])) {
 			$folders = scandir(PATH_MOD.$args[0]);
-			foreach($folders as $folder){								
-				if($folder != '.' && $folder != '..'){
-					if(strpos($folder, 'control')){
+			foreach($folders as $folder){
+				if ($folder != '.' && $folder != '..' && is_dir(PATH_MOD.$args[0].'/'.$folder)){
+					if (strpos($folder, 'control')){
 						include_once(PATH_MOD.$args[0].'/'.$folder.'/'.$folder.'.php');
-						if(is_callable(array($folder,'installAction'))){
+						if (is_callable(array($folder,'installAction'))){
 							$folder::installAction();
 						}
 					}
@@ -59,12 +59,12 @@ class modulecontrol{
 	}
 	
 	public static function uploadAction(){
-		if(!user::validateAdmin()){
+		if (!user::validateAdmin()){
 			route::error(403);
 		}
-		if(form::validate('upload')){
+		if (form::validate('upload')){
 			$filename = $_FILES["file"]["name"];
-			if(form::getFileExtension($_FILES["file"]["name"])){
+			if (form::getFileExtension($_FILES["file"]["name"])){
 				if ($_FILES["file"]["error"] == 0){
 					move_uploaded_file($_FILES["file"]["tmp_name"],$filename);
 					$zip = new ZipArchive;
@@ -72,13 +72,13 @@ class modulecontrol{
 						$zip->extractTo(PATH_MOD);
 						$zip->close();
 						list($modulename) = explode('.',$filename); 
-						if(is_dir(PATH_MOD.$modulename)) {
+						if (is_dir(PATH_MOD.$modulename)) {
 							$folders = scandir(PATH_MOD.$modulename);
 							foreach($folders as $folder){								
-								if($folder != '.' && $folder != '..'){
-									if(strpos($folder, 'control')){
+								if ($folder != '.' && $folder != '..'){
+									if (strpos($folder, 'control')){
 										include_once(PATH_MOD.$modulename.'/'.$folder.'/'.$folder.'.php');
-										if(is_callable(array($folder,'installAction'))){
+										if (is_callable(array($folder,'installAction'))){
 											$folder::installAction();
 										}
 									}
@@ -97,7 +97,7 @@ class modulecontrol{
 		$header = '';
 		$folders = scandir($dir);
 		foreach($folders as $folder){
-			if(	$folder != '.' && 
+			if (	$folder != '.' && 
 				$folder != '..' && 
 				$folder != 'contributions' &&
 				$folder != 'uploads' &&
@@ -108,10 +108,10 @@ class modulecontrol{
 				$folder != 'cache' &&
 				$folder != 'audio' &&
 				$folder != 'common' ){
-				if(is_dir($dir.'/'.$folder)) {		
-					if(strpos($folder, 'control')){
+				if (is_dir($dir.'/'.$folder)) {		
+					if (strpos($folder, 'control')){
 						$tmpdir = str_replace($_SERVER['DOCUMENT_ROOT'],'',$dir);
-						if($tmpdir != $header){
+						if ($tmpdir != $header){
 							$headline = explode('/',$tmpdir);
 							self::$modules[] = array($headline[(sizeof($headline)-1)]);
 						}

@@ -25,11 +25,11 @@
  * @since		File available since Release 1.0.0
  * @require		'database.class.php' 
  */
-//require_once('database.class.php');
-class userLogin /*extends database*/{
+
+class userLogin{
 
 	/**
-     * This function creates a new entry in the login table.
+     * This method creates a new entry in the login table.
 	 * 
 	 * It uses the userid from the base class, if the user session is active
 	 *
@@ -39,15 +39,15 @@ class userLogin /*extends database*/{
 	 * @since Method available since Release 1.0.0
      */	
 	public static function createLogin(){
-		$database = new database('user_login');
-		if(genericIO::$userid || genericIO::$adminid){
-			if(!$database->create(array("UserLogin" => "NOW()"))){
-				return false;
-			}
+		if (baseclass::$userid || baseclass::$adminid){
+			$dbobject = new dbobject('user_login');
+			$dbobject->create('UserLogin',calendar::now());
+			$dbobject->create('IP',($_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : '0'));
+			$dbobject->create('ForwardIP',($_SERVER['HTTP_X_FORWARDED_FOR'] ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '0'));
+			return $dbobject->commit();	
 		} else {
 			return false;
-		}
-		return true;		
+		}	
 	}
 
 	/**
@@ -61,19 +61,25 @@ class userLogin /*extends database*/{
      * @access public
 	 * @since Method available since Release 1.0.0
 	 */			
-	public function createLogout(){
-		$database = new database('user_login');
-		if(genericIO::$userid){
-			list($loginid) = $database->readLastEntry(array("FK_UserID" => genericIO::$userid,"UserLogout" => "'0000-00-00 00:00:00'"));		
-		} else if (genericIO::$adminid){
-			list($loginid) = $database->readLastEntry(array("FK_UserID" => genericIO::$adminid,"UserLogout" => "'0000-00-00 00:00:00'"));	
+	public static function createLogout(){	
+		if (baseclass::$userid){
+			$userid	= baseclass::$userid;
+		} else if (baseclass::$adminid){
+			$userid = baseclass::$adminid;	
 		} else {
 			return false;
-		}
-		if(!$database->update(array("UserLogout" => "NOW()"),"PK_UserLoginID = ".$loginid)){
-			return false;
 		}		
-		return true;		
+		$dbobject = new dbobject('user_login');
+		$dbobject->where("FK_UserID", $userid);
+		$dbobject->where("UserLogout", "0000-00-00 00:00:00");
+		$dbobject->orderby("PK_UserLoginID","DESC");
+		$dbobject->limit(1);
+		list($loginid) = $dbobject->fetchSingle();
+
+		$dbobject1 = new dbobject('user_login');
+		$dbobject1->update('UserLogout',calendar::now());
+		$dbobject1->where("PK_UserLoginID", $loginid);
+		return $dbobject1->commit();			
 	}	
 
 	/**
@@ -86,31 +92,15 @@ class userLogin /*extends database*/{
 	 * @since Method available since Release 1.0.0
 	 */		
 	public static function listUserLogin($userid = 0){
-		$database = new database('user_login');
-		if($userid){
-			return $database->read("UserLogin, UserLogout","FK_UserID = ".$userid);		
-		}
-		return false;
-	}
-	
-	/**
-	 * This method finds the latest login entry stored in the table.
-	 *
-	 * @return string/bool $lastlogin on success or FALSE no id is found.
-	 *
-     * @access public
-	 * @since Method available since Release 1.0.0
-	 */
-	public static function readLastLogin(){
-		$database = new database('user_login');
-		if(genericIO::$userid){
-			list($id,$userid,$lastlogin) = $database->readLastEntry("FK_UserID = ".genericIO::$userid);	
-		} else if (genericIO::$adminid){
-			list($id,$userid,$lastlogin) = $database->readLastEntry("FK_UserID = ".genericIO::$adminid);
-		} else {
-			return false;
-		}
-		return $lastlogin;
+		$dbobject = new dbobject('user_login');
+		$dbobject->read("PK_UserLoginID");
+		$dbobject->read("UserLogin");
+		$dbobject->read("UserLogout");
+		$dbobject->read("IP");
+		$dbobject->read("ForwardIP");
+		$dbobject->where("FK_UserID", $userid);
+		$dbobject->orderby("PK_UserLoginID","DESC");
+		return $dbobject->fetch();
 	}
 }
 ?>
